@@ -1,4 +1,4 @@
-default: starter.nes
+default: filthy-kitchen.nes
 
 clean:
 	rm -rf .b/
@@ -12,19 +12,30 @@ SRC = main.asm \
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
 .b/%.o: %.asm
+	mkdir -p .b/
 	ca65 -o $@ $(patsubst .b/%.o, %.asm, $@) -g
 
-.b/prologue.o: prologue.asm .b/image.chr.dat .b/image.graphics.dat \
-               .b/image.palette.dat
+.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.graphics.dat \
+               .b/resource.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
-.b/image.chr.dat .b/image.graphics.dat .b/image.palette.dat: image.png
+.b/human.chr.dat: human.png
 	mkdir -p .b/
-	makechr image.png -o .b/image.o -b 0f
-	valimg extract ntattr -i .b/image.o -o .b/image.graphics.dat
-	valimg extract palette -i .b/image.o -o .b/image.palette.dat
-	valimg extract chr -i .b/image.o -o .b/image.chr.dat
+	makechr human.png -o .b/human.%s.dat -s -b 30=0f
 
-starter.nes: .b/image.chr.dat $(OBJ)
-	ld65 -o starter.nes $(OBJ) -C link.cfg -Ln starter.ln
-	python convertln.py starter.ln > starter.nes.0.nl
+.b/kitchen.chr.dat: kitchen.png
+	mkdir -p .b/
+	makechr kitchen.png -o .b/kitchen.%s.dat -b 0f
+
+.b/resource.chr.dat .b/resource.graphics.dat .b/resource.palette.dat: \
+            .b/human.chr.dat .b/kitchen.chr.dat
+	head -c 4096 .b/kitchen.chr.dat > .b/resource.chr.dat
+	tail -c 4096 .b/human.chr.dat >> .b/resource.chr.dat
+	cat .b/kitchen.nametable.dat .b/kitchen.attribute.dat > \
+            .b/resource.graphics.dat
+	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
+	tail -c 16 .b/human.palette.dat >> .b/resource.palette.dat
+
+filthy-kitchen.nes: $(OBJ)
+	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
+	python convertln.py filthy-kitchen.ln > filthy-kitchen.nes.0.nl
