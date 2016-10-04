@@ -19,3 +19,7 @@ Otherwise:
   jmp Label
 Otherwise:
 .endmacro
+
+.macro fallt label
+  .assert * = label, error, "Fall-through failed"
+.endmacro

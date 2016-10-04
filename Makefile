@@ -7,7 +7,8 @@ SRC = main.asm \
       gfx.asm \
       read_controller.asm \
       prologue.asm \
-      vars.asm
+      vars.asm \
+      player.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 

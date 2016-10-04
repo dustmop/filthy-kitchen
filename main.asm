@@ -2,6 +2,7 @@
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "read_controller.h.asm"
+.include "player.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics
@@ -57,6 +58,8 @@ Wait1:
   ldy #>graphics
   jsr LoadGraphics
 
+  jsr PlayerInit
+
   ; Turn on the nmi, then wait for the next frame before enabling the display.
   ; This prevents a partially rendered frame from appearing at start-up.
   jsr EnableNmi
@@ -68,6 +71,9 @@ ForeverLoop:
   jsr WaitNewFrame
   ; Read controller, but don't do anything with it.
   jsr ReadInputPort0
+
+  jsr PlayerUpdate
+  jsr PlayerDraw
 
   jmp ForeverLoop
 
