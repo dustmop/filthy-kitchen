@@ -12,7 +12,9 @@
 .importzp buttons
 .importzp values
 
-PLAYER_TILE = $00
+SWATTER_TILE = $02
+PLAYER_TILE = $40
+PLAYER_TILE_BOTTOM = $80
 SPEED_LOW  = $60
 SPEED_HIGH = $01
 
@@ -114,8 +116,26 @@ Next:
 .proc PlayerDraw
   ldx #$00
 
-  mov draw_tile, #(PLAYER_TILE + 1)
+  mov draw_tile, #(SWATTER_TILE + 1)
   mov draw_attr, #0
+
+  ; Swatter
+  lda player_v
+  clc
+  adc #8
+  sta draw_v
+  lda player_h
+  clc
+  adc #6
+  sta draw_h
+  jsr DrawSingleTile
+  jsr DrawRightSideTile
+
+  mov draw_tile, #(PLAYER_TILE + 1)
+  inc draw_attr
+  .repeat 4
+  inx
+  .endrepeat
 
   ; Row 0,1
   mov draw_v, player_v
@@ -124,19 +144,18 @@ Next:
   jsr DrawSingleTile
   jsr DrawRightSideTile
 
+  mov draw_tile, #(PLAYER_TILE_BOTTOM + 1)
   inc draw_attr
+  .repeat 4
+  inx
+  .endrepeat
 
   ; Row 2,3
-  inc draw_tile
-  inc draw_tile
   lda draw_v
   clc
   adc #$10
   sta draw_v
   mov draw_h, player_h
-  .repeat 4
-  inx
-  .endrepeat
   jsr DrawSingleTile
   fallt DrawRightSideTile
 .endproc
