@@ -7,10 +7,14 @@
 .include "include.controller.asm"
 .include "include.sprites.asm"
 
-.importzp player_v, player_h, player_on_ground, player_jump, buttons
+.importzp player_v, player_h, player_h_low, player_on_ground
+.importzp player_jump, player_jump_low
+.importzp buttons
 .importzp values
 
 PLAYER_TILE = $00
+SPEED_LOW  = $60
+SPEED_HIGH = $01
 
 offset_v     = values + $00
 offset_h     = values + $01
@@ -54,7 +58,8 @@ MaybeJump:
   bit is_on_ground
   bmi Next
 Jump:
-  mov player_jump, #$f8
+  mov player_jump, #$fc
+  mov player_jump_low, #0
 Next:
 .endscope
 
@@ -64,6 +69,11 @@ Next:
   clc
   adc player_v
   sta player_v
+  inc player_jump_low
+  lda player_jump_low
+  cmp #5
+  blt Next
+  mov player_jump_low, #0
   inc player_jump
 Next:
 .endscope
@@ -77,10 +87,22 @@ Next:
   bne MoveRight
   beq Next
 MoveLeft:
-  dec player_h
+  lda player_h_low
+  sec
+  sbc #SPEED_LOW
+  sta player_h_low
+  lda player_h
+  sbc #SPEED_HIGH
+  sta player_h
   jmp Next
 MoveRight:
-  inc player_h
+  lda player_h_low
+  clc
+  adc #SPEED_LOW
+  sta player_h_low
+  lda player_h
+  adc #SPEED_HIGH
+  sta player_h
 Next:
 .endscope
 
