@@ -7,14 +7,15 @@
 .include "include.controller.asm"
 .include "include.sprites.asm"
 
-.importzp player_v, player_h, buttons
+.importzp player_v, player_h, player_on_ground, player_jump, buttons
 .importzp values
 
 PLAYER_TILE = $00
 
-offset_v    = values + $00
-offset_h    = values + $01
-offset_tile = values + $02
+offset_v     = values + $00
+offset_h     = values + $01
+offset_tile  = values + $02
+is_on_ground = values + $03
 
 
 .segment "CODE"
@@ -23,24 +24,66 @@ offset_tile = values + $02
 .proc PlayerInit
   mov player_v, #$a0
   mov player_h, #$40
+  mov player_jump, #$00
   rts
 .endproc
 
 
 .proc PlayerUpdate
+
+.scope CheckGround
+  ; Check if player is standing on the ground.
+  lda player_v
+  cmp #$a0
+  bge IsOnGround
+NotOnGround:
+  mov is_on_ground, #$ff
+  jmp Next
+IsOnGround:
+  mov player_v, #$a0
+  mov is_on_ground, #$00
+  mov player_jump, #$00
+Next:
+.endscope
+
+.scope HandleJump
+  lda buttons
+  and #BUTTON_A
+  beq Next
+MaybeJump:
+  bit is_on_ground
+  bmi Next
+Jump:
+  mov player_jump, #$f8
+Next:
+.endscope
+
+.scope Gravity
+  ; Gravity.
+  lda player_jump
+  clc
+  adc player_v
+  sta player_v
+  inc player_jump
+Next:
+.endscope
+
+.scope MaybeLeftOrRight
   lda buttons
   and #BUTTON_LEFT
   bne MoveLeft
   lda buttons
   and #BUTTON_RIGHT
   bne MoveRight
-  beq Done
+  beq Next
 MoveLeft:
   dec player_h
-  jmp Done
+  jmp Next
 MoveRight:
   inc player_h
-Done:
+Next:
+.endscope
+
   rts
 .endproc
 
