@@ -56,7 +56,10 @@ Wait1:
   ; Load nametable and attributes, which are defined in the prologue.
   ldx #<graphics
   ldy #>graphics
-  jsr LoadGraphics
+  jsr LoadGraphicsNt0
+  ldx #<graphics
+  ldy #>graphics
+  jsr LoadGraphicsNt1
 
   jsr PlayerInit
 

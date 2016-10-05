@@ -1,23 +1,34 @@
 .segment "CODE"
 
-.export LoadGraphics, LoadPalette, LoadSpritelist
+.export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
 .export DisableDisplay
 
 .importzp ppu_mask_current, ppu_ctrl_current, main_yield
 
+.include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 
 .importzp pointer
 
-.proc LoadGraphics
+.proc LoadGraphicsNt0
+  lda #$20
+  jmp LoadGraphicsSingleNametable
+.endproc
+
+.proc LoadGraphicsNt1
+  lda #$24
+  fallt LoadGraphicsSingleNametable
+.endproc
+
+.proc LoadGraphicsSingleNametable
   bit PPU_STATUS
   stx pointer+0
   sty pointer+1
   ldx #4
   ldy #0
-  mov PPU_ADDR, #$20
+  sta PPU_ADDR
   mov PPU_ADDR, #0
 Loop:
   lda (pointer),y
