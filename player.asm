@@ -48,45 +48,22 @@ Done:
 .proc PlayerDraw
   ldx #$00
 
-  ; Row 0
+  lda #(PLAYER_TILE + 1)
+  sta offset_tile
+
+  ; Row 0,1
   mov offset_v, player_v
   dec offset_v
   mov offset_h, player_h
-  mov offset_tile, #PLAYER_TILE
   jsr DrawSingleTile
   jsr DrawRightSideTile
 
-  ; Row 1
+  ; Row 2,3
+  inc offset_tile
   inc offset_tile
   lda offset_v
   clc
-  adc #8
-  sta offset_v
-  mov offset_h, player_h
-  .repeat 4
-  inx
-  .endrepeat
-  jsr DrawSingleTile
-  jsr DrawRightSideTile
-
-  ; Row 2
-  inc offset_tile
-  lda offset_v
-  clc
-  adc #8
-  sta offset_v
-  mov offset_h, player_h
-  .repeat 4
-  inx
-  .endrepeat
-  jsr DrawSingleTile
-  jsr DrawRightSideTile
-
-  ; Row 3
-  inc offset_tile
-  lda offset_v
-  clc
-  adc #8
+  adc #$10
   sta offset_v
   mov offset_h, player_h
   .repeat 4
@@ -98,6 +75,7 @@ Done:
 
 
 .proc DrawRightSideTile
+  inc offset_tile
   inc offset_tile
   lda offset_h
   clc

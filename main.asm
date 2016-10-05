@@ -66,6 +66,11 @@ Wait1:
   jsr WaitNewFrame
   jsr EnableDisplayAndNmi
 
+  lda ppu_ctrl_current
+  ora #PPU_CTRL_SPRITE_8x16
+  sta ppu_ctrl_current
+  sta PPU_CTRL
+
 ForeverLoop:
   ; Wait for the next frame to start.
   jsr WaitNewFrame
