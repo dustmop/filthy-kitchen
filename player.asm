@@ -16,10 +16,11 @@ PLAYER_TILE = $00
 SPEED_LOW  = $60
 SPEED_HIGH = $01
 
-offset_v     = values + $00
-offset_h     = values + $01
-offset_tile  = values + $02
-is_on_ground = values + $03
+draw_v       = values + $00
+draw_h       = values + $01
+draw_tile    = values + $02
+draw_attr    = values + $03
+is_on_ground = values + $04
 
 
 .segment "CODE"
@@ -113,24 +114,26 @@ Next:
 .proc PlayerDraw
   ldx #$00
 
-  lda #(PLAYER_TILE + 1)
-  sta offset_tile
+  mov draw_tile, #(PLAYER_TILE + 1)
+  mov draw_attr, #0
 
   ; Row 0,1
-  mov offset_v, player_v
-  dec offset_v
-  mov offset_h, player_h
+  mov draw_v, player_v
+  dec draw_v
+  mov draw_h, player_h
   jsr DrawSingleTile
   jsr DrawRightSideTile
 
+  inc draw_attr
+
   ; Row 2,3
-  inc offset_tile
-  inc offset_tile
-  lda offset_v
+  inc draw_tile
+  inc draw_tile
+  lda draw_v
   clc
   adc #$10
-  sta offset_v
-  mov offset_h, player_h
+  sta draw_v
+  mov draw_h, player_h
   .repeat 4
   inx
   .endrepeat
@@ -140,12 +143,12 @@ Next:
 
 
 .proc DrawRightSideTile
-  inc offset_tile
-  inc offset_tile
-  lda offset_h
+  inc draw_tile
+  inc draw_tile
+  lda draw_h
   clc
   adc #8
-  sta offset_h
+  sta draw_h
   .repeat 4
   inx
   .endrepeat
@@ -154,9 +157,9 @@ Next:
 
 
 .proc DrawSingleTile
-  mov {sprite_v,x}, offset_v
-  mov {sprite_tile,x}, offset_tile
-  mov {sprite_attr,x}, #$00
-  mov {sprite_h,x}, offset_h
+  mov {sprite_v,x}, draw_v
+  mov {sprite_tile,x}, draw_tile
+  mov {sprite_attr,x}, draw_attr
+  mov {sprite_h,x}, draw_h
   rts
 .endproc
