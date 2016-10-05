@@ -18,6 +18,8 @@ PLAYER_TILE_BOTTOM = $80
 SPEED_LOW  = $60
 SPEED_HIGH = $01
 
+BOTTOM_FLOOR = $a8
+
 draw_v       = values + $00
 draw_h       = values + $01
 draw_tile    = values + $02
@@ -29,8 +31,8 @@ is_on_ground = values + $04
 
 
 .proc PlayerInit
-  mov player_v, #$a0
-  mov player_h, #$40
+  mov player_v, #BOTTOM_FLOOR
+  mov player_h, #$10
   mov player_jump, #$00
   rts
 .endproc
@@ -41,13 +43,13 @@ is_on_ground = values + $04
 .scope CheckGround
   ; Check if player is standing on the ground.
   lda player_v
-  cmp #$a0
+  cmp #BOTTOM_FLOOR
   bge IsOnGround
 NotOnGround:
   mov is_on_ground, #$ff
   jmp Next
 IsOnGround:
-  mov player_v, #$a0
+  mov player_v, #BOTTOM_FLOOR
   mov is_on_ground, #$00
   mov player_jump, #$00
 Next:
