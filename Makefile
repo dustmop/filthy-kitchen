@@ -22,7 +22,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
-	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16 -l
+	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16
 
 .b/kitchen.chr.dat: kitchen.png
 	mkdir -p .b/
