@@ -6,9 +6,10 @@
 
 .importzp values
 
-pos_v = values + $00
-pos_h = values + $01
-row   = values + $02
+pos_v  = values + $00
+pos_h  = values + $01
+row    = values + $02
+corner = values + $03
 
 temp0 = $300
 temp1 = $301
@@ -43,8 +44,40 @@ temp2 = $302
   sta row
   sta temp0
 
-  ; X / 0x40 = which byte to lookup in the row (0..3)
+  ; Check lower-left corner.
   lda pos_h
+  clc
+  adc #$3
+  sta corner
+  jsr CheckCollisionCorner
+  bcs Success
+
+  ; Check lower-right corner.
+  lda pos_h
+  clc
+  adc #$9
+  sta corner
+  jsr CheckCollisionCorner
+  bcs Success
+
+Failure:
+  clc
+  rts
+Success:
+  lda row
+  .repeat 2
+  asl a
+  .endrepeat
+  sec
+  sbc #$18
+  sec
+  rts
+.endproc
+
+
+.proc CheckCollisionCorner
+  ; X / 0x40 = which byte to lookup in the row (0..3)
+  lda corner
   .repeat 6
   lsr a
   .endrepeat
@@ -54,7 +87,7 @@ temp2 = $302
   tax
 
   ; (X / 8) % 8 = offset into that byte
-  lda pos_h
+  lda corner
   .repeat 3
   lsr a
   .endrepeat
@@ -65,12 +98,6 @@ temp2 = $302
   and bit_mask,y
   beq Failure
 Success:
-  lda row
-  .repeat 2
-  asl a
-  .endrepeat
-  sec
-  sbc #$18
   sec
   rts
 Failure:
