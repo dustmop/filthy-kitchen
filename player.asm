@@ -6,6 +6,7 @@
 .include "include.mov-macros.asm"
 .include "include.controller.asm"
 .include "include.sprites.asm"
+.include "detect_collision.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground
 .importzp player_jump, player_jump_low
@@ -18,7 +19,8 @@ PLAYER_TILE_BOTTOM = $1a
 SPEED_LOW  = $60
 SPEED_HIGH = $01
 
-BOTTOM_FLOOR = $a8
+START_V = $a8
+START_H = $10
 
 draw_v       = values + $00
 draw_h       = values + $01
@@ -31,8 +33,8 @@ is_on_ground = values + $04
 
 
 .proc PlayerInit
-  mov player_v, #BOTTOM_FLOOR
-  mov player_h, #$10
+  mov player_v, #START_V
+  mov player_h, #START_H
   mov player_jump, #$00
   rts
 .endproc
@@ -41,15 +43,15 @@ is_on_ground = values + $04
 .proc PlayerUpdate
 
 .scope CheckGround
-  ; Check if player is standing on the ground.
-  lda player_v
-  cmp #BOTTOM_FLOOR
-  bge IsOnGround
+  ldx player_h
+  ldy player_v
+  jsr DetectCollisionWithBackground
+  bcs IsOnGround
 NotOnGround:
   mov is_on_ground, #$ff
   jmp Next
 IsOnGround:
-  mov player_v, #BOTTOM_FLOOR
+  sta player_v
   mov is_on_ground, #$00
   mov player_jump, #$00
 Next:

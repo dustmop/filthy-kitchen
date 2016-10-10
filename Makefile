@@ -8,7 +8,8 @@ SRC = main.asm \
       read_controller.asm \
       prologue.asm \
       vars.asm \
-      player.asm
+      player.asm \
+      detect_collision.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
@@ -19,6 +20,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.graphics.dat \
                .b/resource.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
+
+.b/detect_collision.o: detect_collision.asm .b/collision.dat
+	ca65 -o .b/detect_collision.o detect_collision.asm -g
 
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
@@ -36,6 +40,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
             .b/resource.graphics.dat
 	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
 	tail -c 16 .b/sprites.palette.dat >> .b/resource.palette.dat
+
+.b/collision.dat: collision.png
+	python build_collision.py collision.png -o .b/collision.dat
 
 filthy-kitchen.nes: $(OBJ)
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
