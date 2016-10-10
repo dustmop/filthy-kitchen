@@ -43,6 +43,7 @@ temp2 = $302
   sta row
   sta temp0
 
+  ; X / 0x40 = which byte to lookup in the row (0..3)
   lda pos_h
   .repeat 6
   lsr a
@@ -52,7 +53,16 @@ temp2 = $302
   sta temp2
   tax
 
+  ; (X / 8) % 8 = offset into that byte
+  lda pos_h
+  .repeat 3
+  lsr a
+  .endrepeat
+  and #$07
+  tay
+
   lda collision_data,x
+  and bit_mask,y
   beq Failure
 Success:
   lda row
@@ -67,6 +77,10 @@ Failure:
   clc
   rts
 .endproc
+
+
+bit_mask:
+.byte $01, $02, $04, $08, $10, $20, $40, $80
 
 
 collision_data:
