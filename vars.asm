@@ -6,6 +6,8 @@ ppu_mask_current: .byte 0
 bg_x_scroll: .byte 0
 bg_y_scroll: .byte 0
 buttons: .byte 0
+buttons_last: .byte 0
+buttons_press: .byte 0
 pointer: .word 0
 player_v: .byte 0
 player_h: .byte 0
@@ -15,7 +17,7 @@ player_jump_low: .byte 0
 values: .word 0,0,0,0,0,0,0,0
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
-.exportzp bg_x_scroll, bg_y_scroll, buttons
+.exportzp bg_x_scroll, bg_y_scroll, buttons, buttons_last, buttons_press
 .exportzp player_v, player_h, player_h_low, player_jump, player_jump_low
 .exportzp values
 .exportzp pointer

@@ -1,10 +1,22 @@
-.export ReadInputPort0, ReadInputPort1
+.export ReadController, ReadInputPort0, ReadInputPort1
 
 .include "include.sys.asm"
 
-.importzp buttons
+.importzp buttons, buttons_last, buttons_press
 
 .segment "CODE"
+
+
+.proc ReadController
+  jsr ReadInputPort0
+  lda buttons_last
+  eor #$ff
+  and buttons
+  sta buttons_press
+  lda buttons
+  sta buttons_last
+  rts
+.endproc
 
 
 .proc ReadInputPort0

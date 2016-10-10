@@ -78,7 +78,7 @@ ForeverLoop:
   ; Wait for the next frame to start.
   jsr WaitNewFrame
   ; Read controller, but don't do anything with it.
-  jsr ReadInputPort0
+  jsr ReadController
 
   jsr PlayerUpdate
   jsr PlayerDraw

@@ -10,7 +10,7 @@
 
 .importzp player_v, player_h, player_h_low, player_on_ground
 .importzp player_jump, player_jump_low
-.importzp buttons
+.importzp buttons, buttons_press
 .importzp values
 
 SWATTER_TILE = $02
@@ -43,6 +43,8 @@ is_on_ground = values + $04
 .proc PlayerUpdate
 
 .scope CheckGround
+  bit player_jump
+  bmi NotOnGround
   ldx player_h
   ldy player_v
   jsr DetectCollisionWithBackground
@@ -58,7 +60,7 @@ Next:
 .endscope
 
 .scope HandleJump
-  lda buttons
+  lda buttons_press
   and #BUTTON_A
   beq Next
 MaybeJump:
