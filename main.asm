@@ -3,6 +3,7 @@
 .include "gfx.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
+.include "camera.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics0, graphics1
@@ -62,6 +63,7 @@ Wait1:
   jsr LoadGraphicsNt1
 
   jsr PlayerInit
+  jsr CameraInit
 
   ; Turn on the nmi, then wait for the next frame before enabling the display.
   ; This prevents a partially rendered frame from appearing at start-up.
@@ -81,6 +83,7 @@ ForeverLoop:
   jsr ReadController
 
   jsr PlayerUpdate
+  jsr CameraUpdate
   jsr PlayerDraw
 
   jmp ForeverLoop

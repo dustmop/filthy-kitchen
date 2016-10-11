@@ -9,7 +9,8 @@ SRC = main.asm \
       prologue.asm \
       vars.asm \
       player.asm \
-      detect_collision.asm
+      detect_collision.asm \
+      camera.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 

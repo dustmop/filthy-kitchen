@@ -8,8 +8,8 @@
 .include "include.sprites.asm"
 .include "detect_collision.h.asm"
 
-.importzp player_v, player_h, player_h_low, player_on_ground
-.importzp player_jump, player_jump_low
+.importzp player_v, player_h, player_h_low, player_on_ground, player_screen
+.importzp player_jump, player_jump_low, player_render_h, player_render_v
 .importzp buttons, buttons_press
 .importzp values
 
@@ -103,6 +103,9 @@ MoveLeft:
   lda player_h
   sbc #SPEED_HIGH
   sta player_h
+  lda player_screen
+  sbc #0
+  sta player_screen
   jmp Next
 MoveRight:
   lda player_h_low
@@ -112,6 +115,9 @@ MoveRight:
   lda player_h
   adc #SPEED_HIGH
   sta player_h
+  lda player_screen
+  adc #0
+  sta player_screen
 Next:
 .endscope
 
@@ -126,11 +132,11 @@ Next:
   mov draw_attr, #0
 
   ; Swatter
-  lda player_v
+  lda player_render_v
   clc
   adc #8
   sta draw_v
-  lda player_h
+  lda player_render_h
   clc
   adc #6
   sta draw_h
@@ -144,9 +150,9 @@ Next:
   .endrepeat
 
   ; Row 0,1
-  mov draw_v, player_v
+  mov draw_v, player_render_v
   dec draw_v
-  mov draw_h, player_h
+  mov draw_h, player_render_h
   jsr DrawSingleTile
   jsr DrawRightSideTile
 
@@ -161,7 +167,7 @@ Next:
   clc
   adc #$10
   sta draw_v
-  mov draw_h, player_h
+  mov draw_h, player_render_h
   jsr DrawSingleTile
   fallt DrawRightSideTile
 .endproc
