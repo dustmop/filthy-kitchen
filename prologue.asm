@@ -20,13 +20,15 @@ MAPPER_NUMBER = 0
 
 .segment "CODE"
 
-.export palette, graphics
+.export palette, graphics0, graphics1
 
 palette:
 .incbin ".b/resource.palette.dat"
 
-graphics:
-.incbin ".b/resource.graphics.dat"
+graphics0:
+.incbin ".b/resource.graphics00.dat"
+graphics1:
+.incbin ".b/resource.graphics01.dat"
 
 
 .segment "VECTORS"

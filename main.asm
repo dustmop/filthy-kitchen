@@ -5,7 +5,7 @@
 .include "player.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
-.import palette, graphics
+.import palette, graphics0, graphics1
 
 .export RESET, NMI
 
@@ -54,11 +54,11 @@ Wait1:
   jsr LoadPalette
 
   ; Load nametable and attributes, which are defined in the prologue.
-  ldx #<graphics
-  ldy #>graphics
+  ldx #<graphics0
+  ldy #>graphics0
   jsr LoadGraphicsNt0
-  ldx #<graphics
-  ldy #>graphics
+  ldx #<graphics1
+  ldy #>graphics1
   jsr LoadGraphicsNt1
 
   jsr PlayerInit
