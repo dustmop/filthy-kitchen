@@ -12,6 +12,8 @@ strip_id   = values + $00
 target     = values + $01
 offset     = values + $02
 upper_addr = values + $03
+count      = values + $04
+high_byte  = values + $05
 
 .segment "CODE"
 
@@ -53,38 +55,56 @@ Loop:
 
 
 .proc RenderNametableStrip
-  ; Select which nametable to render to, $2000 or $2400.
-  lda target
-  cmp #8
-  bge HighTable
-LowTable:
-  mov upper_addr, #$20
-  jmp GotTable
-HighTable:
-  mov upper_addr, #$24
-GotTable:
+  ; Count which sub-strip to render, of which there are 4.
+  mov count, #0
+Loop:
+  jsr RenderNametableSingleSubstrip
+  inc count
+  lda count
+  cmp #4
+  bne Loop
+  rts
+.endproc
 
+
+; Input:
+;   A[reg]   - Offset within the strip, 0..3
+;   target   - Which strip in the nametable to render, 0..15
+;   strip_id - Strip id to get level data from.
+.proc RenderNametableSingleSubstrip
+  sta offset
+
+  mov high_byte, #0
   ; Set up pointer to nametable data.
-  ; Units are 30[tiles] * 4[sub-strips] + 8[pad] = 128
+  ; ((strip_id * 4) + offset) * (30[length] + 2[pad])
   lda strip_id
-  lsr a
-  tax
-  lda #<level_nt_column
-  bcc HaveLowByte
+  .repeat 2
+  asl a
+  rol high_byte
+  .endrepeat
   clc
-  adc #$80
-HaveLowByte:
+  adc offset
+  .repeat 5
+  asl a
+  rol high_byte
+  .endrepeat
+  clc
+  adc #<level_nt_column
   sta pointer+0
-  txa
+  lda high_byte
   adc #>level_nt_column
   sta pointer+1
 
-  ; Count which sub-strip to render, of which there are 4.
-  mov offset, #0
+  ; Select which nametable to render to, $2000 or $2400.
+  lda target
+  and #$08
+  lsr a
+  clc
+  adc #$20
+  sta PPU_ADDR
+
   ; Y is the position in the strip, starting at the top.
   ldy #0
-EachStrip:
-  mov PPU_ADDR, upper_addr
   lda target
   and #$07
   asl a
@@ -100,11 +120,6 @@ RenderLoop:
   iny
   dex
   bne RenderLoop
-  ; Next sub-strip.
-  inc offset
-  lda offset
-  cmp #4
-  bne EachStrip
 
 Return:
   rts
@@ -114,27 +129,24 @@ Return:
 .proc RenderAttribute
   ; Select which nametable to render attributes to, $23c0 or $27c0.
   lda target
-  cmp #8
-  bge HighTable
-LowTable:
-  mov upper_addr, #$23
-  jmp GotTable
-HighTable:
-  mov upper_addr, #$27
-GotTable:
+  and #$08
+  lsr a
+  clc
+  adc #$23
+  sta upper_addr
 
-  ; Set up pointer to attribute data. Treat offset:strip_id as 16-bit value.
+  ; Set up pointer to attribute data. Treat high_byte:strip_id as 16-bit value.
   ; Units are 8 bytes.
-  mov offset, #0
+  mov high_byte, #0
   lda strip_id
   .repeat 3
   asl a
-  rol offset
+  rol high_byte
   .endrepeat
   clc
   adc #<level_attribute
   sta pointer+0
-  lda offset
+  lda high_byte
   adc #>level_attribute
   sta pointer+1
 
@@ -170,18 +182,18 @@ Loop:
 
 
 .proc FillCollision
-  ; Set up pointer to collision data. Treat offset:strip_id as 16-bit value.
+  ; Set up pointer to collision data. Treat high_byte:strip_id as 16-bit value.
   ; Units are 15[bytes] + 1[pad] = 16.
-  mov offset, #0
+  mov high_byte, #0
   lda strip_id
   .repeat 4
   asl a
-  rol offset
+  rol high_byte
   .endrepeat
   clc
   adc #<level_collision
   sta pointer+0
-  lda offset
+  lda high_byte
   adc #>level_collision
   sta pointer+1
 

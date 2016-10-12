@@ -45,7 +45,7 @@ class LevelDataBuilder(object):
         x = chunk_x*4 + tile_x
         for y in xrange(30):
           nt_column.append(ord(nametable[y*0x20 + x]))
-      nt_column += [0] * 8
+        nt_column += [0] * 2
       self.nt_column.append(nt_column)
 
   def add_attribute(self, attribute):
