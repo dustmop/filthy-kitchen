@@ -10,7 +10,8 @@ SRC = main.asm \
       vars.asm \
       player.asm \
       detect_collision.asm \
-      camera.asm
+      camera.asm \
+      level_data.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
@@ -18,18 +19,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	mkdir -p .b/
 	ca65 -o $@ $(patsubst .b/%.o, %.asm, $@) -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.palette.dat \
-               .b/resource.graphics00.dat .b/resource.graphics01.dat
+.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
-.b/detect_collision.o: detect_collision.asm .b/collision.dat
-	ca65 -o .b/detect_collision.o detect_collision.asm -g
+.b/level_data.o: level_data.asm .b/level_data.dat
+	ca65 -o .b/level_data.o level_data.asm -g
 
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
 	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16
 
-.b/kitchen.chr.dat .b/resource.graphics00.dat .b/resource.graphics01.dat: \
+.b/kitchen.chr.dat .b/kitchen.nametable00.dat: \
             entire-level.png
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
@@ -40,7 +40,13 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
             .b/screen02.o .b/screen03.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
-            -g .b/resource.graphics%d.dat
+            -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
+
+.b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
+                   .b/collision.dat
+	python build_level_data.py -n .b/kitchen.nametable%d.dat \
+            -a .b/kitchen.attribute%d.dat -c .b/collision.dat \
+            -o .b/level_data%s.dat
 
 .b/resource.chr.dat .b/resource.palette.dat: \
             .b/sprites.chr.dat .b/kitchen.chr.dat
@@ -49,7 +55,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
 	tail -c 16 .b/sprites.palette.dat >> .b/resource.palette.dat
 
-.b/collision.dat: collision.png
+.b/collision.dat: build_collision.py collision.png
 	python build_collision.py collision.png -o .b/collision.dat
 
 filthy-kitchen.nes: $(OBJ)

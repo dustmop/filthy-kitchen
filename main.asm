@@ -4,6 +4,7 @@
 .include "read_controller.h.asm"
 .include "player.h.asm"
 .include "camera.h.asm"
+.include "level_data.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics0, graphics1
@@ -54,13 +55,7 @@ Wait1:
   ldy #>palette
   jsr LoadPalette
 
-  ; Load nametable and attributes, which are defined in the prologue.
-  ldx #<graphics0
-  ldy #>graphics0
-  jsr LoadGraphicsNt0
-  ldx #<graphics1
-  ldy #>graphics1
-  jsr LoadGraphicsNt1
+  jsr LevelDataFillEntireScreen
 
   jsr PlayerInit
   jsr CameraInit

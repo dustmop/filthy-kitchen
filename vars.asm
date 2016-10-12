@@ -28,3 +28,7 @@ values: .word 0,0,0,0,0,0,0,0
 .exportzp camera_h, camera_nt
 .exportzp values
 .exportzp pointer
+
+collision_map = $500
+
+.export collision_map

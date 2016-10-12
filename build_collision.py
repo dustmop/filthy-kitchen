@@ -19,20 +19,19 @@ def save_output(filename, data):
 
 
 def build_collision(img, out_name):
+  size_x, size_y = img.size
   accum = []
   pixels = img.load()
-  for block_y in xrange(15):
-    byte = 0
-    for tile_x in xrange(32):
-      y = block_y * 16 + 8
-      x = tile_x * 8
-      c = convert_color(pixels[x,y])
-      offset = tile_x % 8
-      byte |= (c << offset)
-      if offset == 7:
-        # flush
-        accum.append(byte)
-        byte = 0
+  for chunk_x in xrange(size_x / 32):
+    for block_y in xrange(size_y / 16):
+      byte = 0
+      for tile_x in xrange(4):
+        y = block_y * 16 + 8
+        x = chunk_x * 32 + tile_x * 8
+        c = convert_color(pixels[x,y])
+        byte |= (c << (tile_x * 2))
+      accum.append(byte)
+    accum.append(0xff)
   save_output(out_name, accum)
 
 

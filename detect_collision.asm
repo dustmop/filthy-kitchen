@@ -4,17 +4,22 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 
+.import collision_map
 .importzp values
 
-pos_v  = values + $00
-pos_h  = values + $01
-row    = values + $02
-corner = values + $03
+pos_v      = values + $00
+pos_h      = values + $01
+pos_screen = values + $02
+row        = values + $03
+corner     = values + $04
+upper      = values + $05
 
-temp0 = $300
-temp1 = $301
-temp2 = $302
-
+; DEBUGGING ONLY
+temp0 = $400 ; Row number
+temp1 = $401 ; Upper byte (left or right half)
+temp2 = $402 ; Column number
+temp3 = $403 ; Index into collison map (row | column | upper)
+temp4 = $404 ; Byte at the collison map
 
 
 .segment "CODE"
@@ -28,19 +33,18 @@ temp2 = $302
 ; Carry set = standing on ground
 ; Carry clear = in air
 .proc DetectCollisionWithBackground
+  sta pos_screen
   sty pos_v
   stx pos_h
 
   ; (Y + 0x20) = bottom of player
-  ; (Y + 0x20) / 16 = block_y at bottom of player
-  ; (Y + 0x20) / 16 * 4 = row of collision_data
+  ; (Y + 0x18) = offset by a single tile
+  ; (Y + 0x18) / 16 = block_y at bottom of player
+  ; (Y + 0x18) / 16 * 16 = row of collision_map
   lda pos_v
   clc
   adc #$18
-  .repeat 2
-  lsr a
-  .endrepeat
-  and #$fc
+  and #$f0
   sta row
   sta temp0
 
@@ -65,9 +69,6 @@ Failure:
   rts
 Success:
   lda row
-  .repeat 2
-  asl a
-  .endrepeat
   sec
   sbc #$18
   sec
@@ -76,26 +77,40 @@ Success:
 
 
 .proc CheckCollisionCorner
-  ; X / 0x40 = which byte to lookup in the row (0..3)
+  lda pos_screen
+  adc #0
+  and #$01
+  .repeat 3
+  asl a
+  .endrepeat
+  sta upper
+  sta temp1
+
+  ; X / 0x20 = column, which byte to lookup in the row (0..7)
   lda corner
-  .repeat 6
+  .repeat 5
   lsr a
   .endrepeat
-  sta temp1
-  ora row
   sta temp2
+  ; Combine with upper (left or right half) and row number.
+  ora upper
+  ora row
+  sta temp3
   tax
 
-  ; (X / 8) % 8 = offset into that byte
+  ; (X / 8) % 4 = Offset into that byte
   lda corner
   .repeat 3
   lsr a
   .endrepeat
-  and #$07
+  and #$03
   tay
 
-  lda collision_data,x
+  lda collision_map,x
+  sta temp4
   and bit_mask,y
+  ; 1 = Platform top, stops vertical movement
+  ; 2 = Wall, stops horizontal movement (TODO: Implement me)
   beq Failure
 Success:
   sec
@@ -107,8 +122,4 @@ Failure:
 
 
 bit_mask:
-.byte $01, $02, $04, $08, $10, $20, $40, $80
-
-
-collision_data:
-.incbin ".b/collision.dat"
+.byte $03,$0c,$30,$c0

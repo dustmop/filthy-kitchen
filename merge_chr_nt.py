@@ -92,12 +92,14 @@ def perform_merge(left_chr_page, right_chr_page, nametable):
   return nametable
 
 
-def merge_objects(collect, out_chr_name, out_palette_name, out_gfx_tmpl):
+def merge_objects(collect, out_chr_name, out_palette_name,
+                  out_nt_tmpl, out_attr_tmpl):
   obj = collect[0]
   chr_bin = get_bytes(obj, 'chr')
   nametable = get_bytes(obj, 'nametable', expand=True)
   attribute = get_bytes(obj, 'attribute', expand=True)
-  save_output(fill_template(out_gfx_tmpl, 0), nametable + attribute)
+  save_output(fill_template(out_nt_tmpl, 0), nametable)
+  save_output(fill_template(out_attr_tmpl, 0), attribute)
   palette = get_bytes(obj, 'palette', expand=True)
   save_output(out_palette_name, palette)
   combined_chr_page = chr_data.SortableChrPage.from_binary(str(chr_bin))
@@ -109,13 +111,15 @@ def merge_objects(collect, out_chr_name, out_palette_name, out_gfx_tmpl):
     attribute = get_bytes(obj, 'attribute', expand=True)
     right_chr_page = chr_data.SortableChrPage.from_binary(str(chr_bin))
     perform_merge(combined_chr_page, right_chr_page, nametable)
-    save_output(fill_template(out_gfx_tmpl, i), nametable + attribute)
+    save_output(fill_template(out_nt_tmpl, i), nametable)
+    save_output(fill_template(out_attr_tmpl, i), attribute)
   data = combined_chr_page.to_bytes()
   data = data + bytearray([0] * (0x2000 - len(data)))
   save_output(out_chr_name, data)
 
 
-def process(input_files, out_chr_name, out_palette_name, out_gfx_tmpl):
+def process(input_files, out_chr_name, out_palette_name,
+            out_nt_tmpl, out_attr_tmpl):
   collect = []
   for f in input_files:
     fp = open(f, 'rb')
@@ -126,7 +130,8 @@ def process(input_files, out_chr_name, out_palette_name, out_gfx_tmpl):
     obj = valiant.ObjectFile()
     obj.ParseFromString(content)
     collect.append(obj)
-  merge_objects(collect, out_chr_name, out_palette_name, out_gfx_tmpl)
+  merge_objects(collect, out_chr_name, out_palette_name,
+                out_nt_tmpl, out_attr_tmpl)
 
 
 def run():
@@ -134,9 +139,10 @@ def run():
   parser.add_argument('input', type=str, nargs='+')
   parser.add_argument('-c', dest='chr')
   parser.add_argument('-p', dest='palette')
-  parser.add_argument('-g', dest='graphics')
+  parser.add_argument('-n', dest='nametable')
+  parser.add_argument('-a', dest='attribute')
   args = parser.parse_args()
-  process(args.input, args.chr, args.palette, args.graphics)
+  process(args.input, args.chr, args.palette, args.nametable, args.attribute)
 
 
 if __name__ == '__main__':

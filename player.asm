@@ -45,6 +45,7 @@ is_on_ground = values + $04
 .scope CheckGround
   bit player_jump
   bmi NotOnGround
+  lda player_screen
   ldx player_h
   ldy player_v
   jsr DetectCollisionWithBackground
