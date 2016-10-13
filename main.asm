@@ -95,6 +95,8 @@ NMI:
   ; DMA sprites.
   mov OAM_ADDR, #$00
   mov OAM_DATA, #$02
+  ; Execute any render actions that need to happen for level scrolling.
+  jsr LevelDataUpdateScroll
   ; Reset ppu pointer.
   lda #0
   sta PPU_ADDR

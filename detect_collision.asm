@@ -15,11 +15,11 @@ corner     = values + $04
 upper      = values + $05
 
 ; DEBUGGING ONLY
-temp0 = $400 ; Row number
-temp1 = $401 ; Upper byte (left or right half)
-temp2 = $402 ; Column number
-temp3 = $403 ; Index into collison map (row | column | upper)
-temp4 = $404 ; Byte at the collison map
+debug_00_row     = $400 ; Row number
+debug_01_upper   = $401 ; Upper byte (left or right half)
+debug_02_col     = $402 ; Column number
+debug_03_index   = $403 ; Index into collison map (row | column | upper)
+debug_04_collide = $404 ; Byte at the collison map
 
 
 .segment "CODE"
@@ -46,7 +46,7 @@ temp4 = $404 ; Byte at the collison map
   adc #$18
   and #$f0
   sta row
-  sta temp0
+  sta debug_00_row
 
   ; Check lower-left corner.
   lda pos_h
@@ -84,18 +84,18 @@ Success:
   asl a
   .endrepeat
   sta upper
-  sta temp1
+  sta debug_01_upper
 
   ; X / 0x20 = column, which byte to lookup in the row (0..7)
   lda corner
   .repeat 5
   lsr a
   .endrepeat
-  sta temp2
+  sta debug_02_col
   ; Combine with upper (left or right half) and row number.
   ora upper
   ora row
-  sta temp3
+  sta debug_03_index
   tax
 
   ; (X / 8) % 4 = Offset into that byte
@@ -107,7 +107,7 @@ Success:
   tay
 
   lda collision_map,x
-  sta temp4
+  sta debug_04_collide
   and bit_mask,y
   ; 1 = Platform top, stops vertical movement
   ; 2 = Wall, stops horizontal movement (TODO: Implement me)

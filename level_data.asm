@@ -1,21 +1,42 @@
-.export LevelDataFillEntireScreen
+.export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
+.include "include.scroll-action.asm"
 .include "include.sys.asm"
 
-.importzp pointer, ppu_ctrl_current
-.importzp values
+.importzp ppu_ctrl_current
+.importzp NMI_pointer
+.importzp NMI_values
+.importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .import collision_map
+
+FILL_LOOKAHEAD = 9
+
+pointer = NMI_pointer
+values = NMI_values
 
 strip_id   = values + $00
 target     = values + $01
 offset     = values + $02
 upper_addr = values + $03
-count      = values + $04
-high_byte  = values + $05
+high_byte  = values + $04
+
+; DEBUGGING ONLY
+debug_10_action   = $410
+debug_11_offset   = $411
+debug_12_offset   = $412
+debug_13_strip_id = $413
+
 
 .segment "CODE"
+
+
+.proc LevelDataGetStripId
+  tax
+  lda level_data,x
+  rts
+.endproc
 
 
 .proc LevelDataFillEntireScreen
@@ -24,8 +45,60 @@ high_byte  = values + $05
 Loop:
   jsr FillFullStrip
   inx
-  cpx #$10
+  cpx #FILL_LOOKAHEAD
   bne Loop
+  rts
+.endproc
+
+
+.proc LevelDataUpdateScroll
+  lda NMI_SCROLL_action
+  beq Return
+
+  sta debug_10_action
+
+  cmp #SCROLL_ACTION_ATTR
+  beq UpdateAttribute
+  cmp #SCROLL_ACTION_COLLISION
+  beq UpdateCollision
+  cmp #SCROLL_ACTION_LIMIT
+  bge Acknowledge
+
+UpdateNametable:
+  ;
+  sec
+  sbc #2
+  lsr a
+  sta offset
+  sta debug_11_offset
+  ;
+  mov target, NMI_SCROLL_target
+  sta debug_12_offset
+  mov strip_id, NMI_SCROLL_strip_id
+  sta debug_13_strip_id
+  ;
+  jsr PrepareRender
+  jsr RenderNametableSingleSubstrip
+  jmp Acknowledge
+UpdateAttribute:
+  mov target, NMI_SCROLL_target
+  sta debug_12_offset
+  mov strip_id, NMI_SCROLL_strip_id
+  sta debug_13_strip_id
+  jsr RenderAttribute
+  jmp Acknowledge
+UpdateCollision:
+  mov target, NMI_SCROLL_target
+  sta debug_12_offset
+  mov strip_id, NMI_SCROLL_strip_id
+  sta debug_13_strip_id
+  jsr FillCollision
+
+Acknowledge:
+  ; Acknowledge action.
+  mov NMI_SCROLL_action, #0
+
+Return:
   rts
 .endproc
 
@@ -55,12 +128,12 @@ Loop:
 
 
 .proc RenderNametableStrip
-  ; Count which sub-strip to render, of which there are 4.
-  mov count, #0
+  ; Offset of the sub-strip to render, of which there are 4.
+  mov offset, #0
 Loop:
   jsr RenderNametableSingleSubstrip
-  inc count
-  lda count
+  inc offset
+  lda offset
   cmp #4
   bne Loop
   rts
@@ -68,12 +141,10 @@ Loop:
 
 
 ; Input:
-;   A[reg]   - Offset within the strip, 0..3
+;   offset   - Offset within the strip, 0..3
 ;   target   - Which strip in the nametable to render, 0..15
 ;   strip_id - Strip id to get level data from.
 .proc RenderNametableSingleSubstrip
-  sta offset
-
   mov high_byte, #0
   ; Set up pointer to nametable data.
   ; ((strip_id * 4) + offset) * (30[length] + 2[pad])
@@ -198,7 +269,9 @@ Loop:
   sta pointer+1
 
   ; Poke into memory vertically.
-  ldx target
+  lda target
+  and #$0f
+  tax
   ldy #0
 Loop:
   lda (pointer),y
@@ -213,6 +286,7 @@ Loop:
 
   rts
 .endproc
+
 
 
 level_data:
