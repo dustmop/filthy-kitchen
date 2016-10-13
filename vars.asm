@@ -25,6 +25,8 @@ NMI_SCROLL_strip_id: .byte 0
 NMI_SCROLL_action: .byte 0
 NMI_pointer: .word 0
 NMI_values: .word 0,0,0,0
+object_list_head: .byte 0
+object_list_tail: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -35,6 +37,7 @@ NMI_values: .word 0,0,0,0
 .exportzp values, pointer
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .exportzp NMI_values, NMI_pointer
+.exportzp object_list_head, object_list_tail
 
 collision_map = $500
 

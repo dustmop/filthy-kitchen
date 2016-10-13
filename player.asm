@@ -7,6 +7,7 @@
 .include "include.controller.asm"
 .include "include.sprites.asm"
 .include "detect_collision.h.asm"
+.include "object_list.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
@@ -73,8 +74,23 @@ Jump:
 Next:
 .endscope
 
+.scope HandleThrow
+  lda buttons_press
+  ; TODO: Only throw if the swatter is being held by the player.
+  and #BUTTON_B
+  beq Next
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_SWATTER
+  mov {object_pos_h,x}, player_h
+  mov {object_pos_v,x}, player_v
+  ; TODO: Left or right direction.
+  mov {object_dir,x}, #0
+  mov {object_frame,x}, #0
+  mov {object_step,x}, _
+Next:
+.endscope
+
 .scope Gravity
-  ; Gravity.
   lda player_jump
   clc
   adc player_v
