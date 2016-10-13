@@ -27,6 +27,9 @@ NMI_pointer: .word 0
 NMI_values: .word 0,0,0,0
 object_list_head: .byte 0
 object_list_tail: .byte 0
+sprite_space_index: .byte 0
+sprite_space_avail: .byte 0
+sprite_space_force: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -38,6 +41,7 @@ object_list_tail: .byte 0
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .exportzp NMI_values, NMI_pointer
 .exportzp object_list_head, object_list_tail
+.exportzp sprite_space_index, sprite_space_avail, sprite_space_force
 
 collision_map = $500
 

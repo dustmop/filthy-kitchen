@@ -7,6 +7,7 @@
 .include "include.mov-macros.asm"
 .include "include.scroll-action.asm"
 .include "include.sprites.asm"
+.include "sprite_space.h.asm"
 
 .importzp object_list_head, object_list_tail, camera_h
 .importzp values
@@ -60,7 +61,6 @@ Done:
 
 
 .proc ObjectListUpdate
-  jsr ObjectListErase
   ldx #0
 Loop:
   lda object_kind,x
@@ -85,29 +85,6 @@ Body:
 Increment:
   inx
   cpx #MAX_NUM_OBJECTS
-  bne Loop
-  rts
-.endproc
-
-
-.proc ObjectListErase
-  ; Erase all of the sprites in shadow OAM.
-  lda #$ff
-  ldx #$00
-  ldy #$10
-  ; Skip the sprite zero.
-  bpl StartAfterZero
-Loop:
-  sta sprite_v+$00,x
-StartAfterZero:
-  sta sprite_v+$40,x
-  sta sprite_v+$80,x
-  sta sprite_v+$c0,x
-  inx
-  inx
-  inx
-  inx
-  dey
   bne Loop
   rts
 .endproc
@@ -140,9 +117,8 @@ StartAfterZero:
   lda object_kind,y
   tay
 Draw:
-  ; TODO: OAM cycling
   ; Left-side
-  ldx #$80
+  jsr SpriteSpaceAllocate
   mov {sprite_tile,x}, {table_object_sprite0,y}
   mov {sprite_v,x},    pos_v
   mov {sprite_attr,x}, {table_object_attr,y}
@@ -153,7 +129,7 @@ Draw:
   adc #8
   sta pos_h
   ; Right-side
-  ldx #$84
+  jsr SpriteSpaceAllocate
   lda table_object_sprite1,y
   beq Return
   sta sprite_tile,x

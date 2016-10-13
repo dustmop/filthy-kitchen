@@ -6,6 +6,7 @@
 .include "camera.h.asm"
 .include "level_data.h.asm"
 .include "object_list.h.asm"
+.include "sprite_space.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics0, graphics1
@@ -61,6 +62,7 @@ Wait1:
   jsr PlayerInit
   jsr CameraInit
   jsr ObjectListInit
+  jsr SpriteSpaceInit
 
   ; Turn on the nmi, then wait for the next frame before enabling the display.
   ; This prevents a partially rendered frame from appearing at start-up.
@@ -74,10 +76,9 @@ Wait1:
   sta PPU_CTRL
 
 ForeverLoop:
-  ; Wait for the next frame to start.
   jsr WaitNewFrame
-  ; Read controller, but don't do anything with it.
   jsr ReadController
+  jsr SpriteSpaceEraseAll
 
   jsr PlayerUpdate
   jsr CameraUpdate

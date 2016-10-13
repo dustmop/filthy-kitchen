@@ -8,6 +8,7 @@
 .include "include.sprites.asm"
 .include "detect_collision.h.asm"
 .include "object_list.h.asm"
+.include "sprite_space.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
@@ -143,12 +144,12 @@ Next:
 
 
 .proc PlayerDraw
-  ldx #$00
-
   mov draw_tile, #(SWATTER_TILE + 1)
   mov draw_attr, #0
 
   ; Swatter
+  ldx #$04
+  jsr SpriteSpaceEnsure
   lda player_render_v
   clc
   adc #8
@@ -158,13 +159,12 @@ Next:
   adc #6
   sta draw_h
   jsr DrawSingleTile
+  ldx #$08
+  jsr SpriteSpaceEnsure
   jsr DrawRightSideTile
 
   mov draw_tile, #(PLAYER_TILE + 1)
   inc draw_attr
-  .repeat 4
-  inx
-  .endrepeat
 
   ; Row 0,1
   mov draw_v, player_render_v
@@ -175,9 +175,6 @@ Next:
 
   mov draw_tile, #(PLAYER_TILE_BOTTOM + 1)
   inc draw_attr
-  .repeat 4
-  inx
-  .endrepeat
 
   ; Row 2,3
   lda draw_v
@@ -197,14 +194,12 @@ Next:
   clc
   adc #8
   sta draw_h
-  .repeat 4
-  inx
-  .endrepeat
   fallt DrawSingleTile
 .endproc
 
 
 .proc DrawSingleTile
+  jsr SpriteSpaceAllocate
   mov {sprite_v,x}, draw_v
   mov {sprite_tile,x}, draw_tile
   mov {sprite_attr,x}, draw_attr
