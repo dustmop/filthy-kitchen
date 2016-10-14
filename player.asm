@@ -13,6 +13,7 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
 .importzp buttons, buttons_press
+.importzp level_max_h, level_max_screen
 .importzp values
 
 SWATTER_TILE = $02
@@ -38,11 +39,28 @@ is_on_ground = values + $04
   mov player_v, #START_V
   mov player_h, #START_H
   mov player_jump, #$00
+  ; Level data
+  mov level_max_screen, #3
+  mov level_max_h, #$ef
   rts
 .endproc
 
 
 .proc PlayerUpdate
+
+.scope Gravity
+  lda player_jump
+  clc
+  adc player_v
+  sta player_v
+  inc player_jump_low
+  lda player_jump_low
+  cmp #5
+  blt Next
+  mov player_jump_low, #0
+  inc player_jump
+Next:
+.endscope
 
 .scope CheckGround
   bit player_jump
@@ -96,20 +114,6 @@ Next:
 Next:
 .endscope
 
-.scope Gravity
-  lda player_jump
-  clc
-  adc player_v
-  sta player_v
-  inc player_jump_low
-  lda player_jump_low
-  cmp #5
-  blt Next
-  mov player_jump_low, #0
-  inc player_jump
-Next:
-.endscope
-
 .scope MaybeLeftOrRight
   lda buttons
   and #BUTTON_LEFT
@@ -129,6 +133,12 @@ MoveLeft:
   lda player_screen
   sbc #0
   sta player_screen
+  bpl MoveLeftOkay
+  ; Underflow
+  lda #0
+  sta player_h
+  sta player_screen
+MoveLeftOkay:
   jmp Next
 MoveRight:
   lda player_h_low
@@ -141,6 +151,15 @@ MoveRight:
   lda player_screen
   adc #0
   sta player_screen
+  cmp level_max_screen
+  blt Next
+  lda level_max_screen
+  sta player_screen
+  lda player_h
+  cmp level_max_h
+  blt Next
+  lda level_max_h
+  sta player_h
 Next:
 .endscope
 

@@ -6,9 +6,11 @@
 .include "include.scroll-action.asm"
 .include "level_data.h.asm"
 
-.importzp camera_h, camera_nt, player_h, player_v
+.importzp camera_h, camera_screen, player_h, player_v
 .importzp player_screen, player_render_h, player_render_v
 .importzp bg_x_scroll, ppu_ctrl_current
+.importzp level_max_camera_screen
+.importzp level_max_camera_h
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .importzp values
 
@@ -17,6 +19,7 @@ FILL_LOOKAHEAD = 9
 orig_h             = values + $00
 orig_scroll_action = values + $01
 level_bit          = values + $02
+tmp                = values + $03
 
 
 .segment "CODE"
@@ -24,6 +27,9 @@ level_bit          = values + $02
 
 .proc CameraInit
   mov camera_h, #0
+  mov camera_screen, _
+  mov level_max_camera_screen, #3
+  mov level_max_camera_h, #0
   rts
 .endproc
 
@@ -39,9 +45,10 @@ level_bit          = values + $02
   lda player_h
   cmp #$80
   bge CalcOffset
+
 ZeroOffset:
   mov camera_h, #0
-  mov camera_nt, _
+  mov camera_screen, _
   jmp GotOffset
 CalcOffset:
   lda player_h
@@ -50,8 +57,20 @@ CalcOffset:
   sta camera_h
   lda player_screen
   sbc #0
-  and #$03
-  sta camera_nt
+  sta camera_screen
+
+  cmp level_max_camera_screen
+  blt GotOffset
+  beq :+
+  bge Overflow
+:
+  lda camera_h
+  cmp level_max_camera_h
+  blt GotOffset
+Overflow:
+  mov camera_h, level_max_camera_h
+  mov camera_screen, level_max_camera_screen
+
 GotOffset:
 
   ; Figure out if there's a rendering action to perform due to scrolling.
@@ -72,7 +91,7 @@ GotOffset:
 
   ; High bit of the level position.
   mov level_bit, #0
-  lda camera_nt
+  lda camera_screen
   .repeat 3
   asl a
   .endrepeat
@@ -80,7 +99,7 @@ GotOffset:
   sta level_bit
 
   ; Get whether nametable is even or odd. Use that bit to figure out the target.
-  lda camera_nt
+  lda camera_screen
   lsr a
   lda camera_h
   ror a
@@ -107,7 +126,10 @@ Next:
   ; Camera's high byte assigned to nametable select.
   lda ppu_ctrl_current
   and #$fc
-  ora camera_nt
+  sta tmp
+  lda camera_screen
+  and #$03
+  ora tmp
   sta ppu_ctrl_current
 
   ; Render player based upon their position and the camera.
