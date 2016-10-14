@@ -1,4 +1,6 @@
 .export DrawPicture
+.export player_picture_data
+.export player_sprite_data
 .export swatter_picture_data
 .export swatter_sprite_data
 
@@ -24,8 +26,15 @@ attribute = values + $00
   ldy draw_picture_id
 FrameLoop:
   lda (draw_picture_pointer),y
+  cmp #$fe
+  blt DrawCommand
+MetaCommand:
   cmp #$ff
   beq FrameDone
+IncPalette:
+  inc draw_palette
+  bne Increment
+DrawCommand:
   and #$3f
   sta draw_picture_id
   lda (draw_picture_pointer),y
@@ -37,6 +46,7 @@ FrameLoop:
   clc
   adc #8
   sta draw_h
+Increment:
   iny
   bne FrameLoop
 FrameDone:
@@ -74,6 +84,26 @@ FrameDone:
   rts
 .endproc
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+player_picture_data:
+
+player_standing_right:
+.byte $00,$03,$fe,$06,$09,$ff
+
+player_standing_left:
+.byte $43,$40,$fe,$49,$46,$ff
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+player_sprite_data:
+; top-left
+.byte $00,$00,$17
+; top-right
+.byte $00,$00,$19
+; bottom-left
+.byte $10,$f0,$1b
+; top-right
+.byte $10,$f0,$1d
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 swatter_picture_data:

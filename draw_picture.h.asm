@@ -1,4 +1,6 @@
 .import DrawPicture
+.import player_picture_data
+.import player_sprite_data
 .import swatter_picture_data
 .import swatter_sprite_data
 

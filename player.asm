@@ -170,10 +170,13 @@ Next:
 .proc PlayerDraw
   mov draw_attr, #0
 
+  ; Ensure that the swatter is drawn above the player by using indexes 4 and 8.
   ldx #$08
   jsr SpriteSpaceEnsure
   ldx #$04
   jsr SpriteSpaceEnsure
+
+  ; Swatter
   lda player_render_v
   clc
   adc #8
@@ -188,46 +191,16 @@ Next:
   MovWord draw_sprite_pointer, swatter_sprite_data
   jsr DrawPicture
 
-  mov draw_tile, #(PLAYER_TILE + 1)
-  mov draw_attr, #1
-
-  ; Row 0,1
-  mov draw_v, player_render_v
-  dec draw_v
-  mov draw_h, player_render_h
-  jsr DrawSingleTile
-  jsr DrawRightSideTile
-
-  mov draw_tile, #(PLAYER_TILE_BOTTOM + 1)
-  inc draw_attr
-
-  ; Row 2,3
-  lda draw_v
-  clc
-  adc #$10
+  ; Player
+  lda player_render_v
   sta draw_v
-  mov draw_h, player_render_h
-  jsr DrawSingleTile
-  fallt DrawRightSideTile
-.endproc
-
-
-.proc DrawRightSideTile
-  inc draw_tile
-  inc draw_tile
-  lda draw_h
-  clc
-  adc #8
+  lda player_render_h
   sta draw_h
-  fallt DrawSingleTile
-.endproc
+  mov draw_picture_id, #0
+  mov draw_palette, #1
+  MovWord draw_picture_pointer, player_picture_data
+  MovWord draw_sprite_pointer, player_sprite_data
+  jsr DrawPicture
 
-
-.proc DrawSingleTile
-  jsr SpriteSpaceAllocate
-  mov {sprite_v,x}, draw_v
-  mov {sprite_tile,x}, draw_tile
-  mov {sprite_attr,x}, draw_attr
-  mov {sprite_h,x}, draw_h
   rts
 .endproc
