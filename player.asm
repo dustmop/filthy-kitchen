@@ -81,13 +81,18 @@ Next:
   and #BUTTON_B
   beq Next
   jsr ObjectAllocate
+  jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
-  mov {object_pos_h,x}, player_h
-  mov {object_pos_v,x}, player_v
+  lda player_h
+  clc
+  adc #$0c
+  sta object_pos_h,x
+  lda player_v
+  clc
+  adc #$08
+  sta object_pos_v,x
   ; TODO: Left or right direction.
   mov {object_dir,x}, #0
-  mov {object_frame,x}, #0
-  mov {object_step,x}, _
 Next:
 .endscope
 
@@ -144,24 +149,39 @@ Next:
 
 
 .proc PlayerDraw
-  mov draw_tile, #(SWATTER_TILE + 1)
   mov draw_attr, #0
 
   ; Swatter
+  ; left-side {
+  ;  v=18, h=5, tile=3
+  ; }
+  ; right-side {
+  ;  v=2, h=13, tile=5
+  ; }
   ldx #$04
   jsr SpriteSpaceEnsure
   lda player_render_v
   clc
-  adc #8
+  adc #17
   sta draw_v
   lda player_render_h
   clc
-  adc #6
+  adc #5
   sta draw_h
+  mov draw_tile, #(SWATTER_TILE + 1)
   jsr DrawSingleTile
   ldx #$08
   jsr SpriteSpaceEnsure
-  jsr DrawRightSideTile
+  lda player_render_v
+  clc
+  adc #1
+  sta draw_v
+  lda player_render_h
+  clc
+  adc #13
+  sta draw_h
+  mov draw_tile, #(SWATTER_TILE + 3)
+  jsr DrawSingleTile
 
   mov draw_tile, #(PLAYER_TILE + 1)
   inc draw_attr
