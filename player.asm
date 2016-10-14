@@ -13,6 +13,7 @@
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
+.importzp player_dir
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp values
@@ -38,7 +39,8 @@ is_on_ground = values + $03
 .proc PlayerInit
   mov player_v, #START_V
   mov player_h, #START_H
-  mov player_jump, #$00
+  mov player_dir, #$00
+  mov player_jump, _
   ; Level data
   mov level_max_screen, #3
   mov level_max_h, #$ef
@@ -101,16 +103,27 @@ Next:
   jsr ObjectAllocate
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
+  ; Spawn to the left or right of player.
+  bit player_dir
+  bpl SpawnToTheRight
+SpawnToTheLeft:
+  lda player_h
+  sec
+  sbc #$0c
+  sta object_pos_h,x
+  jmp SetVerticalPos
+SpawnToTheRight:
   lda player_h
   clc
   adc #$0c
   sta object_pos_h,x
+SetVerticalPos:
   lda player_v
   clc
   adc #$08
   sta object_pos_v,x
-  ; TODO: Left or right direction.
-  mov {object_dir,x}, #0
+  lda player_dir
+  sta object_dir,x
 Next:
 .endscope
 
@@ -123,6 +136,7 @@ Next:
   bne MoveRight
   beq Next
 MoveLeft:
+  mov player_dir, #$ff
   lda player_h_low
   sec
   sbc #SPEED_LOW
@@ -141,6 +155,7 @@ MoveLeft:
 MoveLeftOkay:
   jmp Next
 MoveRight:
+  mov player_dir, #0
   lda player_h_low
   clc
   adc #SPEED_LOW
@@ -153,6 +168,7 @@ MoveRight:
   sta player_screen
   cmp level_max_screen
   blt Next
+  ; Overflow
   lda level_max_screen
   sta player_screen
   lda player_h
@@ -170,33 +186,45 @@ Next:
 .proc PlayerDraw
   mov draw_attr, #0
 
+.scope SwatterDraw
   ; Ensure that the swatter is drawn above the player by using indexes 4 and 8.
   ldx #$08
   jsr SpriteSpaceEnsure
   ldx #$04
   jsr SpriteSpaceEnsure
 
-  ; Swatter
-  lda player_render_v
-  clc
-  adc #8
-  sta draw_v
-  lda player_render_h
-  clc
-  adc #6
-  sta draw_h
-  mov draw_picture_id, #3
   mov draw_palette, #0
   MovWord draw_picture_pointer, swatter_picture_data
   MovWord draw_sprite_pointer, swatter_sprite_data
+
+  bit player_dir
+  bmi FacingLeft
+FacingRight:
+  mov draw_picture_id, #3
+  lda #$06
+  bpl DrawIt
+FacingLeft:
+  mov draw_picture_id, #8
+  lda #$0fc
+DrawIt:
+  clc
+  adc player_render_h
+  sta draw_h
+  lda #$09
+  clc
+  adc player_render_v
+  sta draw_v
   jsr DrawPicture
+.endscope
 
   ; Player
   lda player_render_v
   sta draw_v
   lda player_render_h
   sta draw_h
-  mov draw_picture_id, #0
+  lda player_dir
+  and #$06
+  sta draw_picture_id
   mov draw_palette, #1
   MovWord draw_picture_pointer, player_picture_data
   MovWord draw_sprite_pointer, player_sprite_data

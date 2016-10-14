@@ -74,11 +74,20 @@ Loop:
 Body:
   jsr ObjectRetrieveInfo
   mov draw_v, {object_pos_v,x}
-  ; TODO: Direction
-  ; Move forward
-  lda object_pos_h,x
+  ; Move in the given direction.
+  lda object_dir,x
+  bpl MoveRight
+MoveLeft:
+  lda speed
+  eor #$ff
   clc
-  adc speed
+  adc #1
+  jmp HaveSpeed
+MoveRight:
+  lda speed
+HaveSpeed:
+  clc
+  adc object_pos_h,x
   sta object_pos_h,x
   sec
   sbc camera_h

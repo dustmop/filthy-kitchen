@@ -12,6 +12,7 @@ pointer: .word 0
 player_v: .byte 0
 player_h: .byte 0
 player_h_low: .byte 0
+player_dir: .byte 0
 player_jump: .byte 0
 player_jump_low: .byte 0
 player_screen: .byte 0
@@ -45,7 +46,7 @@ draw_palette: .byte 0
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
 .exportzp bg_x_scroll, bg_y_scroll, buttons, buttons_last, buttons_press
-.exportzp player_v, player_h, player_h_low, player_screen
+.exportzp player_v, player_h, player_h_low, player_screen, player_dir
 .exportzp player_jump, player_jump_low, player_render_v, player_render_h
 .exportzp camera_h, camera_screen
 .exportzp values, pointer
