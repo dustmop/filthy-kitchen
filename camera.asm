@@ -14,12 +14,14 @@
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .importzp values
 
-FILL_LOOKAHEAD = 9
+FILL_MOVING_RIGHT = 9
+FILL_MOVING_LEFT  = $fe
 
 orig_h             = values + $00
 orig_scroll_action = values + $01
 level_bit          = values + $02
 tmp                = values + $03
+lookahead          = values + $04
 
 
 .segment "CODE"
@@ -75,15 +77,25 @@ GotOffset:
 
   ; Figure out if there's a rendering action to perform due to scrolling.
 .scope ScrollAction
-  ; TODO: Handle moving left.
   lda camera_h
   cmp orig_h
   beq Next
+  blt MovingLeft
 
+MovingRight:
+  mov lookahead, #FILL_MOVING_RIGHT
+  jmp GotMoving
+MovingLeft:
+  mov lookahead, #FILL_MOVING_LEFT
+GotMoving:
+
+  ; Low bits of camera position determine the scroll action.
+  lda camera_h
   and #$0e
+  ; If the same as last frame, do nothing.
   cmp orig_scroll_action
   beq Next
-
+  ; If outside of the action range, do nothing.
   cmp #SCROLL_ACTION_LIMIT
   bge Next
   ; Found an action that needs to be performed.
@@ -107,12 +119,13 @@ GotOffset:
   lsr a
   .endrepeat
   clc
-  adc #FILL_LOOKAHEAD
+  adc lookahead
   sta NMI_SCROLL_target
 
   ; Target is only applicable to a position in the nametable. The level position
   ; can be larger than that. OR the level bit and lookup the strip id.
-  ora level_bit
+  clc
+  adc level_bit
   jsr LevelDataGetStripId
   sta NMI_SCROLL_strip_id
 

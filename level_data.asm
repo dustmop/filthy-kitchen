@@ -25,7 +25,7 @@ high_byte  = values + $04
 ; DEBUGGING ONLY
 debug_10_action   = $410
 debug_11_offset   = $411
-debug_12_offset   = $412
+debug_12_target   = $412
 debug_13_strip_id = $413
 
 
@@ -73,7 +73,7 @@ UpdateNametable:
   sta debug_11_offset
   ;
   mov target, NMI_SCROLL_target
-  sta debug_12_offset
+  sta debug_12_target
   mov strip_id, NMI_SCROLL_strip_id
   sta debug_13_strip_id
   ;
@@ -82,14 +82,14 @@ UpdateNametable:
   jmp Acknowledge
 UpdateAttribute:
   mov target, NMI_SCROLL_target
-  sta debug_12_offset
+  sta debug_12_target
   mov strip_id, NMI_SCROLL_strip_id
   sta debug_13_strip_id
   jsr RenderAttribute
   jmp Acknowledge
 UpdateCollision:
   mov target, NMI_SCROLL_target
-  sta debug_12_offset
+  sta debug_12_target
   mov strip_id, NMI_SCROLL_strip_id
   sta debug_13_strip_id
   jsr FillCollision
