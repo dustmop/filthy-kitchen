@@ -13,7 +13,8 @@ SRC = main.asm \
       camera.asm \
       level_data.asm \
       object_list.asm \
-      sprite_space.asm
+      sprite_space.asm \
+      draw_picture.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 

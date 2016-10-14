@@ -8,20 +8,19 @@
 .include "include.mov-macros.asm"
 .include "include.scroll-action.asm"
 .include "include.sprites.asm"
-.include "sprite_space.h.asm"
+.include "draw_picture.h.asm"
 
 .importzp object_list_head, object_list_tail, camera_h
 .importzp values
 
-pos_v         = values + $00
-pos_h         = values + $01
-speed         = values + $02
-frame         = values + $03
-lifetime      = values + $04
-picture_id    = values + $05
-animate_limit = values + $06
-num_frames    = values + $07
-flip_bits     = values + $08
+;DrawPicture    values + $00
+speed         = values + $01
+frame         = values + $02
+lifetime      = values + $03
+picture_id    = values + $04
+animate_limit = values + $05
+num_frames    = values + $06
+flip_bits     = values + $07
 
 
 .export object_data
@@ -74,6 +73,7 @@ Loop:
   bmi Increment
 Body:
   jsr ObjectRetrieveInfo
+  mov draw_v, {object_pos_v,x}
   ; TODO: Direction
   ; Move forward
   lda object_pos_h,x
@@ -82,7 +82,7 @@ Body:
   sta object_pos_h,x
   sec
   sbc camera_h
-  sta pos_h
+  sta draw_h
   ; Animation.
 .scope StepAnimation
   inc object_step,x
@@ -97,9 +97,14 @@ Body:
   mov {object_frame,x}, #0
 Next:
 .endscope
-  mov frame, {object_frame,x}
+  ldy object_frame,x
+  lda swatter_animation_sequence,y
+  sta draw_picture_id
+  MovWord draw_picture_pointer, swatter_picture_data
+  MovWord draw_sprite_pointer, swatter_sprite_data
+  mov draw_palette, #0
   ; Draw the sprites.
-  jsr ObjectDraw
+  jsr DrawPicture
   ; Step forward lifetime
   inc object_life,x
   lda object_life,x
@@ -116,7 +121,6 @@ Increment:
 
 
 .proc ObjectRetrieveInfo
-  mov pos_v, {object_pos_v,x}
   ; push X
   txa
   pha
@@ -133,65 +137,8 @@ Increment:
 .endproc
 
 
-.proc ObjectDraw
-  txa
-  pha
-  tay
-  ;lda object_kind,y
-  ;tay
-  ldy frame
-  lda swatter_animation_sequence,y
-  tay
-FrameLoop:
-  lda swatter_frames,y
-  cmp #$ff
-  beq FrameDone
-  and #$3f
-  sta picture_id
-  lda swatter_frames,y
-  and #$c0
-  sta flip_bits
-  jsr DrawSinglePicture
-  lda pos_h
-  clc
-  adc #8
-  sta pos_h
-  iny
-  bne FrameLoop
-FrameDone:
-  pla
-  tax
-  rts
-.endproc
-
-
-.proc DrawSinglePicture
-  tya
-  pha
-  ldy picture_id
-  jsr SpriteSpaceAllocate
-  ; V
-  lda picture_data,y
-  clc
-  adc pos_v
-  sta sprite_v,x
-  iny
-  ; H
-  lda picture_data,y
-  clc
-  adc pos_h
-  sta sprite_h,x
-  iny
-  ; tile
-  lda picture_data,y
-  sta sprite_tile,x
-  ; attr
-  lda flip_bits
-  sta sprite_attr,x
-  pla
-  tay
-  rts
-.endproc
+swatter_animation_sequence:
+.byte $06,$03,$00,$13,$11,$0e,$0b,$08
 
 
 .proc ObjectAllocate
@@ -266,53 +213,4 @@ table_object_lifetime:
 table_object_speed:
 .byte 5
 
-swatter_animation_sequence:
-.byte $06,$03,$00,$13,$11,$0e,$0b,$08
 
-swatter_frames:
-swatter_dir_0: ; horizontal, offset=$00
-.byte $00,$03,$ff
-
-swatter_dir_1: ; diagonal up-right, offset=$03
-.byte $06,$09,$ff
-
-swatter_dir_2: ; vertical, offset=$06
-.byte $0c,$ff
-
-swatter_dir_3: ; diagonal up-left, offset=$08
-.byte $49,$46,$ff
-
-swatter_dir_4: ; horizontal, offset=$0b
-.byte $43,$40,$ff
-
-swatter_dir_5: ; diagonal down-left, offset=$0e
-.byte $d2,$cf,$ff
-
-swatter_dir_6: ; vertical, offset=$11
-.byte $8c,$ff
-
-swatter_dir_7: ; diagonal down-right, offset=$13
-.byte $8f,$92,$ff
-
-picture_data:
-; swatter horizontal, left-half
-; { v=6, h=0, tile=7 },  picture_id = $00
-.byte $06, $00, $07
-; swatter horizontal, right-half
-; { v=-5, h=8, tile=9 }, picture_id = $03
-.byte $fb, $00, $09
-; swatter up-diag, left-half
-; { v=9, h=-1, tile=3 }, picture_id = $06
-.byte $09, $ff, $03
-; swatter up-diag, right-half
-; { v=-7, h=7, tile=5 }, picture_id = $09
-.byte $f9, $ff, $05
-; swatter vertical
-; { v=0, h=4, tile=1 },  picture_id = $0c
-.byte $00, $04, $01
-; swatter down-diag, left-half
-; { v=-9, h=-1, tile=3 }, picture_id = $0f
-.byte $f7, $ff, $03
-; swatter down-diag, right-half
-; { v=7, h=7, tile=5 }, picture_id = $12
-.byte $07, $ff, $05

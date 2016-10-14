@@ -30,10 +30,17 @@ object_list_tail: .byte 0
 sprite_space_index: .byte 0
 sprite_space_avail: .byte 0
 sprite_space_force: .byte 0
+sprite_space_force2: .byte 0
 level_max_h: .byte 0
 level_max_screen: .byte 0
 level_max_camera_h: .byte 0
 level_max_camera_screen: .byte 0
+draw_picture_pointer: .word 0
+draw_sprite_pointer: .word 0
+draw_picture_id: .byte 0
+draw_h: .byte 0
+draw_v: .byte 0
+draw_palette: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -45,9 +52,12 @@ level_max_camera_screen: .byte 0
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .exportzp NMI_values, NMI_pointer
 .exportzp object_list_head, object_list_tail
-.exportzp sprite_space_index, sprite_space_avail, sprite_space_force
+.exportzp sprite_space_index, sprite_space_avail
+.exportzp sprite_space_force, sprite_space_force2
 .exportzp level_max_h, level_max_screen
 .exportzp level_max_camera_h, level_max_camera_screen
+.exportzp draw_picture_pointer, draw_sprite_pointer
+.exportzp draw_picture_id, draw_h, draw_v, draw_palette
 
 collision_map = $500
 

@@ -9,6 +9,7 @@
 .include "detect_collision.h.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "draw_picture.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
@@ -25,11 +26,10 @@ SPEED_HIGH = $01
 START_V = $a8
 START_H = $10
 
-draw_v       = values + $00
-draw_h       = values + $01
-draw_tile    = values + $02
-draw_attr    = values + $03
-is_on_ground = values + $04
+;DrawPicture   values + $00
+draw_tile    = values + $01
+draw_attr    = values + $02
+is_on_ground = values + $03
 
 
 .segment "CODE"
@@ -170,40 +170,26 @@ Next:
 .proc PlayerDraw
   mov draw_attr, #0
 
-  ; Swatter
-  ; left-side {
-  ;  v=18, h=5, tile=3
-  ; }
-  ; right-side {
-  ;  v=2, h=13, tile=5
-  ; }
+  ldx #$08
+  jsr SpriteSpaceEnsure
   ldx #$04
   jsr SpriteSpaceEnsure
   lda player_render_v
   clc
-  adc #17
+  adc #8
   sta draw_v
   lda player_render_h
   clc
-  adc #5
+  adc #6
   sta draw_h
-  mov draw_tile, #(SWATTER_TILE + 1)
-  jsr DrawSingleTile
-  ldx #$08
-  jsr SpriteSpaceEnsure
-  lda player_render_v
-  clc
-  adc #1
-  sta draw_v
-  lda player_render_h
-  clc
-  adc #13
-  sta draw_h
-  mov draw_tile, #(SWATTER_TILE + 3)
-  jsr DrawSingleTile
+  mov draw_picture_id, #3
+  mov draw_palette, #0
+  MovWord draw_picture_pointer, swatter_picture_data
+  MovWord draw_sprite_pointer, swatter_sprite_data
+  jsr DrawPicture
 
   mov draw_tile, #(PLAYER_TILE + 1)
-  inc draw_attr
+  mov draw_attr, #1
 
   ; Row 0,1
   mov draw_v, player_render_v

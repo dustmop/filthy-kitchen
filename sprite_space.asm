@@ -8,7 +8,8 @@
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 
-.importzp sprite_space_index, sprite_space_avail, sprite_space_force
+.importzp sprite_space_index, sprite_space_avail
+.importzp sprite_space_force, sprite_space_force2
 .importzp values
 
 NUM_RESERVED = 3
@@ -21,6 +22,7 @@ NUM_RESERVED = 3
   mov sprite_space_index, #(NUM_RESERVED * $04)
   mov sprite_space_avail, _
   mov sprite_space_force, #$00
+  mov sprite_space_force2, _
   rts
 .endproc
 
@@ -36,6 +38,7 @@ Okay:
   sta sprite_space_index
   sta sprite_space_avail
   mov sprite_space_force, #$00
+  mov sprite_space_force2, _
   rts
 .endproc
 
@@ -45,7 +48,8 @@ Okay:
   beq Normal
 Forced:
   tax
-  mov sprite_space_force, #$00
+  mov sprite_space_force, sprite_space_force2
+  mov sprite_space_force2, #$00
   bpl Return
 Normal:
   lda sprite_space_avail
@@ -63,6 +67,7 @@ Return:
 
 
 .proc SpriteSpaceEnsure
+  mov sprite_space_force2, sprite_space_force
   stx sprite_space_force
   rts
 .endproc
