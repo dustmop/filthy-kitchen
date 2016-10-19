@@ -43,8 +43,10 @@ object_speed_low = object_data + $80
 OBJECT_KIND_NONE = $ff
 OBJECT_KIND_SWATTER = $00
 
-COLLIDE_PLAYER_SWATTER_V = 10
-COLLIDE_PLAYER_SWATTER_H = 8
+COLLIDE_PLAYER_SWATTER_V_HITBOX = 12
+COLLIDE_PLAYER_SWATTER_H_HITBOX = 8
+COLLIDE_PLAYER_SWATTER_V_OFFSET = 8
+COLLIDE_PLAYER_SWATTER_H_OFFSET = 0
 
 MAX_NUM_OBJECTS = 8
 
@@ -146,21 +148,24 @@ DidMovement:
   ; Maybe collide with player.
 .scope CollideWithPlayer
   lda delta_h
-  adc #8
+  sec
+  sbc #COLLIDE_PLAYER_SWATTER_H_OFFSET
   bpl AbsoluteH
   eor #$ff
   clc
   adc #1
 AbsoluteH:
-  cmp #COLLIDE_PLAYER_SWATTER_H
+  cmp #COLLIDE_PLAYER_SWATTER_H_HITBOX
   bge Next
   lda delta_v
+  sec
+  sbc #COLLIDE_PLAYER_SWATTER_V_OFFSET
   bpl AbsoluteV
   eor #$ff
   clc
   adc #1
 AbsoluteV:
-  cmp #COLLIDE_PLAYER_SWATTER_V
+  cmp #COLLIDE_PLAYER_SWATTER_V_HITBOX
   bge Next
   ; Collided.
   mov player_has_swatter, #1
