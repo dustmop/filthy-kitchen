@@ -1,0 +1,1 @@
+SWATTER_SPEED = 5

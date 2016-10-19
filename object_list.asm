@@ -8,9 +8,10 @@
 .include "include.mov-macros.asm"
 .include "include.scroll-action.asm"
 .include "include.sprites.asm"
+.include "include.const.asm"
 .include "draw_picture.h.asm"
 
-.importzp object_list_head, object_list_tail, camera_h
+.importzp object_list_head, object_list_tail, camera_h, player_h, player_screen
 .importzp values
 
 ;DrawPicture    values + $00
@@ -21,18 +22,21 @@ picture_id    = values + $04
 animate_limit = values + $05
 num_frames    = values + $06
 flip_bits     = values + $07
-
+delta_h       = values + $08
+delta_screen  = values + $09
 
 .export object_data
-object_data  = $440
-object_kind  = object_data + $00
-object_next  = object_data + $10
-object_pos_v = object_data + $10
-object_pos_h = object_data + $20
-object_dir   = object_data + $30
-object_frame = object_data + $40
-object_step  = object_data + $50
-object_life  = object_data + $60
+object_data      = $440
+object_kind      = object_data + $00
+object_next      = object_data + $10
+object_v         = object_data + $10
+object_h         = object_data + $20
+object_h_screen  = object_data + $30
+object_frame     = object_data + $40
+object_step      = object_data + $50
+object_life      = object_data + $60
+object_speed     = object_data + $70
+object_speed_low = object_data + $80
 
 
 OBJECT_KIND_NONE = $ff
@@ -72,26 +76,111 @@ Loop:
   lda object_kind,x
   bmi Increment
 Body:
+  jsr ObjectDispatch
+  ; Step forward lifetime
+  inc object_life,x
+  beq IsImmortal
+  lda object_life,x
+  cmp lifetime
+  blt Increment
+  ; Destroy
+  jsr ObjectFree
+  jmp Increment
+IsImmortal:
+  mov {object_life,x}, #$ff
+Increment:
+  inx
+  cpx #MAX_NUM_OBJECTS
+  bne Loop
+  rts
+.endproc
+
+
+.proc ObjectDispatch
+  ; Retrieve info for the object.
   jsr ObjectRetrieveInfo
-  mov draw_v, {object_pos_v,x}
-  ; Move in the given direction.
-  lda object_dir,x
-  bpl MoveRight
-MoveLeft:
-  lda speed
-  eor #$ff
+  mov draw_v, {object_v,x}
+
+Movement:
+  ; Move by adding speed.
+  lda object_speed,x
   clc
-  adc #1
-  jmp HaveSpeed
-MoveRight:
-  lda speed
-HaveSpeed:
-  clc
-  adc object_pos_h,x
-  sta object_pos_h,x
+  adc object_h,x
+  sta object_h,x
+  lda object_speed,x
+  bmi MovingLeft
+MovingRight:
+  lda object_h_screen,x
+  adc #0
+  sta object_h_screen,x
+  jmp DidMovement
+MovingLeft:
+  lda object_h_screen,x
+  sbc #0
+  sta object_h_screen,x
+DidMovement:
+
+  ; Draw position.
+  lda object_h,x
   sec
   sbc camera_h
   sta draw_h
+
+Accelerate:
+  ; Change speed
+  lda object_h,x
+  sec
+  sbc player_h
+  sta delta_h
+  lda object_h_screen,x
+  sbc player_screen
+  sta delta_screen
+  ; Screen = $00 if swatter is to the right of the player.
+  ; Screen = $ff if swatter is to the left of the player.
+  beq ObjectToTheRight
+ObjectToTheLeft:
+  ; Check if far enough away.
+  lda delta_h
+  cmp #$e0
+  bge DidChange
+  ; Accelerate.
+  lda object_speed_low,x
+  sec
+  sbc #$40
+  sta object_speed_low,x
+  bcs DidChange
+  inc object_speed,x
+  jmp DidChange
+ObjectToTheRight:
+  ; Check if far enough away.
+  lda delta_h
+  cmp #$20
+  blt DidChange
+  ; Accelerate.
+  lda object_speed_low,x
+  clc
+  adc #$40
+  sta object_speed_low,x
+  bcc DidChange
+  dec object_speed,x
+DidChange:
+
+.scope MaximumSpeed
+  ; Clamp
+  lda object_speed,x
+  bmi Negative
+Positive:
+  cmp #SWATTER_SPEED
+  blt Okay
+  mov {object_speed,x}, #SWATTER_SPEED
+  jmp Okay
+Negative:
+  cmp #($100 - SWATTER_SPEED)
+  bge Okay
+  mov {object_speed,x}, #($100 - SWATTER_SPEED)
+Okay:
+.endscope
+
   ; Animation.
 .scope StepAnimation
   inc object_step,x
@@ -114,17 +203,7 @@ Next:
   mov draw_palette, #0
   ; Draw the sprites.
   jsr DrawPicture
-  ; Step forward lifetime
-  inc object_life,x
-  lda object_life,x
-  cmp lifetime
-  blt Increment
-  ; Destroy
-  jsr ObjectFree
-Increment:
-  inx
-  cpx #MAX_NUM_OBJECTS
-  bne Loop
+Return:
   rts
 .endproc
 
@@ -178,6 +257,8 @@ Done:
   sta object_frame,x
   sta object_step,x
   sta object_life,x
+  sta object_speed,x
+  sta object_speed_low,x
   rts
 .endproc
 

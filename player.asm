@@ -6,6 +6,7 @@
 .include "include.mov-macros.asm"
 .include "include.controller.asm"
 .include "include.sprites.asm"
+.include "include.const.asm"
 .include "detect_collision.h.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
@@ -49,7 +50,7 @@ is_on_ground = values + $03
 
 
 .proc PlayerUpdate
-
+  ; Apply gravity to v, for both jumping and falling.
 .scope Gravity
   lda player_jump
   clc
@@ -63,7 +64,7 @@ is_on_ground = values + $03
   inc player_jump
 Next:
 .endscope
-
+  ; Check player against collision being below their feet.
 .scope CheckGround
   bit player_jump
   bmi NotOnGround
@@ -81,7 +82,7 @@ IsOnGround:
   mov player_jump, #$00
 Next:
 .endscope
-
+  ; Check if A is being pressed. If so, start a jump.
 .scope HandleJump
   lda buttons_press
   and #BUTTON_A
@@ -94,7 +95,7 @@ Jump:
   mov player_jump_low, #0
 Next:
 .endscope
-
+  ; Check if B is being pressed. If so, throw a swatter.
 .scope HandleThrow
   lda buttons_press
   ; TODO: Only throw if the swatter is being held by the player.
@@ -103,6 +104,8 @@ Next:
   jsr ObjectAllocate
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
+  mov {object_h_screen,x}, player_screen
+  mov {object_life,x}, #$ff
   ; Spawn to the left or right of player.
   bit player_dir
   bpl SpawnToTheRight
@@ -110,23 +113,31 @@ SpawnToTheLeft:
   lda player_h
   sec
   sbc #$0c
-  sta object_pos_h,x
+  sta object_h,x
   jmp SetVerticalPos
 SpawnToTheRight:
   lda player_h
   clc
   adc #$0c
-  sta object_pos_h,x
+  sta object_h,x
 SetVerticalPos:
   lda player_v
   clc
   adc #$08
-  sta object_pos_v,x
-  lda player_dir
-  sta object_dir,x
+  sta object_v,x
+Speed:
+  bit player_dir
+  bpl FacingRight
+FacingLeft:
+  lda #($100 - SWATTER_SPEED)
+  jmp HaveSpeed
+FacingRight:
+  lda #SWATTER_SPEED
+HaveSpeed:
+  sta object_speed,x
 Next:
 .endscope
-
+  ; Check if Left or Right is being pressed.
 .scope MaybeLeftOrRight
   lda buttons
   and #BUTTON_LEFT
