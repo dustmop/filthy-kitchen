@@ -31,13 +31,14 @@ object_data      = $440
 object_kind      = object_data + $00
 object_next      = object_data + $10
 object_v         = object_data + $10
-object_h         = object_data + $20
-object_h_screen  = object_data + $30
-object_frame     = object_data + $40
-object_step      = object_data + $50
-object_life      = object_data + $60
-object_speed     = object_data + $70
-object_speed_low = object_data + $80
+object_v_low     = object_data + $20
+object_h         = object_data + $30
+object_h_screen  = object_data + $40
+object_frame     = object_data + $50
+object_step      = object_data + $60
+object_life      = object_data + $70
+object_speed     = object_data + $80
+object_speed_low = object_data + $90
 
 
 OBJECT_KIND_NONE = $ff
@@ -125,6 +126,32 @@ MovingLeft:
   sbc #0
   sta object_h_screen,x
 DidMovement:
+
+.scope VerticalMovement
+  lda object_v,x
+  sec
+  sbc #$08
+  sec
+  sbc player_v
+  beq Next
+  bge ObjectIsDown
+ObjectIsAbove:
+  lda object_v_low,x
+  sec
+  sbc #$80
+  sta object_v_low,x
+  bcs Next
+  inc object_v,x
+  jmp Next
+ObjectIsDown:
+  lda object_v_low,x
+  clc
+  adc #$80
+  sta object_v_low,x
+  bcc Next
+  dec object_v,x
+Next:
+.endscope
 
   ; Draw position.
   lda object_h,x
