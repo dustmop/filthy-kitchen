@@ -119,12 +119,18 @@ SpawnToTheLeft:
   sec
   sbc #$0c
   sta object_h,x
+  lda object_h_screen,x
+  sbc #0
+  sta object_h_screen,x
   jmp SetVerticalPos
 SpawnToTheRight:
   lda player_h
   clc
   adc #$0c
   sta object_h,x
+  lda object_h_screen,x
+  adc #0
+  sta object_h_screen,x
 SetVerticalPos:
   lda player_v
   clc
