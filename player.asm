@@ -14,7 +14,7 @@
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
-.importzp player_dir
+.importzp player_dir, player_has_swatter
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp values
@@ -42,6 +42,7 @@ is_on_ground = values + $03
   mov player_h, #START_H
   mov player_dir, #$00
   mov player_jump, _
+  mov player_has_swatter, #1
   ; Level data
   mov level_max_screen, #3
   mov level_max_h, #$ef
@@ -98,9 +99,13 @@ Next:
   ; Check if B is being pressed. If so, throw a swatter.
 .scope HandleThrow
   lda buttons_press
-  ; TODO: Only throw if the swatter is being held by the player.
   and #BUTTON_B
   beq Next
+  ; Only throw if the swatter is being held by the player.
+  lda player_has_swatter
+  beq Next
+  mov player_has_swatter, #0
+  ; Success. Allocate and construct the object.
   jsr ObjectAllocate
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
@@ -198,6 +203,8 @@ Next:
   mov draw_attr, #0
 
 .scope SwatterDraw
+  lda player_has_swatter
+  beq Next
   ; Ensure that the swatter is drawn above the player by using indexes 4 and 8.
   ldx #$08
   jsr SpriteSpaceEnsure
@@ -226,6 +233,7 @@ DrawIt:
   adc player_render_v
   sta draw_v
   jsr DrawPicture
+Next:
 .endscope
 
   ; Player

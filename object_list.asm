@@ -12,7 +12,7 @@
 .include "draw_picture.h.asm"
 
 .importzp object_list_head, object_list_tail, camera_h
-.importzp player_v, player_h, player_screen
+.importzp player_v, player_h, player_screen, player_has_swatter
 .importzp values
 
 ;DrawPicture    values + $00
@@ -162,6 +162,8 @@ AbsoluteH:
 AbsoluteV:
   cmp #COLLIDE_PLAYER_SWATTER_V
   bge Next
+  ; Collided.
+  mov player_has_swatter, #1
   jsr ObjectFree
   jmp Return
 Next:
