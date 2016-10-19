@@ -11,19 +11,20 @@
 .include "include.const.asm"
 .include "draw_picture.h.asm"
 
-.importzp object_list_head, object_list_tail, camera_h, player_h, player_screen
+.importzp object_list_head, object_list_tail, camera_h
+.importzp player_v, player_h, player_screen
 .importzp values
 
 ;DrawPicture    values + $00
 speed         = values + $01
-frame         = values + $02
-lifetime      = values + $03
-picture_id    = values + $04
-animate_limit = values + $05
-num_frames    = values + $06
-flip_bits     = values + $07
-delta_h       = values + $08
-delta_screen  = values + $09
+lifetime      = values + $02
+animate_limit = values + $03
+num_frames    = values + $04
+flip_bits     = values + $05
+delta_h       = values + $06
+delta_v       = values + $07
+delta_screen  = values + $08
+collide_dist  = values + $09
 
 .export object_data
 object_data      = $440
@@ -41,6 +42,9 @@ object_speed_low = object_data + $80
 
 OBJECT_KIND_NONE = $ff
 OBJECT_KIND_SWATTER = $00
+
+COLLIDE_PLAYER_SWATTER_V = 10
+COLLIDE_PLAYER_SWATTER_H = 8
 
 MAX_NUM_OBJECTS = 8
 
@@ -126,8 +130,11 @@ DidMovement:
   sbc camera_h
   sta draw_h
 
-Accelerate:
-  ; Change speed
+  ; Get deltas.
+  lda object_v,x
+  sec
+  sbc player_v
+  sta delta_v
   lda object_h,x
   sec
   sbc player_h
@@ -135,8 +142,35 @@ Accelerate:
   lda object_h_screen,x
   sbc player_screen
   sta delta_screen
+
+  ; Maybe collide with player.
+.scope CollideWithPlayer
+  lda delta_h
+  adc #8
+  bpl AbsoluteH
+  eor #$ff
+  clc
+  adc #1
+AbsoluteH:
+  cmp #COLLIDE_PLAYER_SWATTER_H
+  bge Next
+  lda delta_v
+  bpl AbsoluteV
+  eor #$ff
+  clc
+  adc #1
+AbsoluteV:
+  cmp #COLLIDE_PLAYER_SWATTER_V
+  bge Next
+  jsr ObjectFree
+  jmp Return
+Next:
+.endscope
+
+Accelerate:
   ; Screen = $00 if swatter is to the right of the player.
   ; Screen = $ff if swatter is to the left of the player.
+  lda delta_screen
   beq ObjectToTheRight
 ObjectToTheLeft:
   ; Check if far enough away.
