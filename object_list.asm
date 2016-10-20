@@ -201,37 +201,56 @@ AbsoluteV:
 Next:
 .endscope
 
-Accelerate:
+.scope Accelerate
   ; Screen = $00 if swatter is to the right of the player.
   ; Screen = $ff if swatter is to the left of the player.
   lda delta_screen
   beq ObjectToTheRight
 ObjectToTheLeft:
-  ; Check if far enough away.
+  ; If far enough away from player, accelerate at full rate.
   lda delta_h
   cmp #$e0
-  bge DidChange
-  ; Accelerate.
-  lda object_speed_low,x
-  sec
-  sbc #$40
+  blt FullRateFromLeft
+  ; If speed is already pointed to the right, accelerate at full rate.
+  lda object_speed,x
+  bpl FullRateFromLeft
+  ; Otherwise, accelerate at partial rate.
+  jmp PartialRateFromLeft
+FullRateFromLeft:
+  lda #($100 - $40)
+  jmp AccelerateFromLeft
+PartialRateFromLeft:
+  lda #($100 - $10)
+AccelerateFromLeft:
+  clc
+  adc object_speed_low,x
   sta object_speed_low,x
-  bcs DidChange
+  bcs Next
   inc object_speed,x
-  jmp DidChange
+  jmp Next
 ObjectToTheRight:
-  ; Check if far enough away.
+  ; If far enough away from player, accelerate at full rate.
   lda delta_h
   cmp #$20
-  blt DidChange
-  ; Accelerate.
-  lda object_speed_low,x
+  bge FullRateFromRight
+  ; If speed is already pointed to the left, accelerate at full rate.
+  lda object_speed,x
+  bmi FullRateFromRight
+  ; Otherwise, accelerate at partial rate.
+  jmp PartialRateFromRight
+FullRateFromRight:
+  lda #$40
+  jmp AccelerateFromRight
+PartialRateFromRight:
+  lda #$10
+AccelerateFromRight:
   clc
-  adc #$40
+  adc object_speed_low,x
   sta object_speed_low,x
-  bcc DidChange
+  bcc Next
   dec object_speed,x
-DidChange:
+Next:
+.endscope
 
 .scope MaximumSpeed
   ; Clamp
