@@ -20,7 +20,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
 .b/%.o: %.asm
 	mkdir -p .b/
-	ca65 -o $@ $(patsubst .b/%.o, %.asm, $@) -g
+	python lint_objects.py $<
+	ca65 -o $@ $< -g
 
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
