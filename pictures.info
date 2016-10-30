@@ -1,0 +1,23 @@
+swatter_picture_data:
+
+swatter_right      @ 16,8
+swatter_up_right   @ 16,33
+swatter_up         @ 16,58
+swatter_up_left    @ 16,79
+swatter_left       @ 16,105
+swatter_down_left  @ 16,132
+swatter_down       @ 16,157
+swatter_down_right @ 16,180
+
+swatter_sprite_data:
+.flush
+
+
+player_picture_data:
+
+player_right       @ 48,7
+player_left        @ 48,32
+
+player_sprite_data:
+.flush
+
