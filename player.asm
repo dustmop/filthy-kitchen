@@ -11,6 +11,7 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "draw_picture.h.asm"
+.include ".b/pictures.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
@@ -224,11 +225,11 @@ Next:
   bit player_dir
   bmi FacingLeft
 FacingRight:
-  mov draw_picture_id, #3
+  mov draw_picture_id, #PICTURE_ID_SWATTER_UP_RIGHT
   lda #$06
   bpl DrawIt
 FacingLeft:
-  mov draw_picture_id, #8
+  mov draw_picture_id, #PICTURE_ID_SWATTER_UP_LEFT
   lda #$0fc
 DrawIt:
   clc
@@ -248,7 +249,7 @@ Next:
   lda player_render_h
   sta draw_h
   lda player_dir
-  and #$06
+  and #PICTURE_ID_PLAYER_LEFT
   sta draw_picture_id
   mov draw_palette, #1
   MovWord draw_picture_pointer, player_picture_data

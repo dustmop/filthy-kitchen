@@ -26,8 +26,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
-.b/draw_picture.o: draw_picture.asm .b/pictures.inc
+.b/draw_picture.o: draw_picture.asm .b/pictures.asm
 	ca65 -o .b/draw_picture.o draw_picture.asm -g
+
+.b/player.o: player.asm .b/pictures.h.asm
+	ca65 -o .b/player.o player.asm -g
 
 .b/level_data.o: level_data.asm .b/level_data.dat
 	ca65 -o .b/level_data.o level_data.asm -g
@@ -36,9 +39,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	mkdir -p .b/
 	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16
 
-.b/pictures.inc: pictures.png pictures.info .b/sprites.chr.dat build_pictures.py
+.b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/sprites.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
-            -c .b/sprites.chr.dat -o .b/pictures.inc
+            -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
 
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat: \
             entire-level.png

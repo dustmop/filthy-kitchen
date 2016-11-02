@@ -20,6 +20,7 @@ class PictureInfo(object):
   def __init__(self, identifier, origin_y, origin_x, is_flush=False):
     self.is_flush = is_flush
     self.identifier = identifier
+    self.upcase = identifier.upper() if identifier else None
     self.origin_y = origin_y
     self.origin_x = origin_x
     self.target_y = None
@@ -245,14 +246,18 @@ def derive_pictures(sprites, info_collection):
   if available:
     print 'unused', available
 
-def produce_data(info_collection, out_filename):
+def produce_data(info_collection, out_filename, header_filename):
   fout = open(out_filename, 'w')
+  fheader = open(header_filename, 'w')
   sprite_data = {}
   sprite_counter = 0
+  sprite_distance = 0
   for info in info_collection:
     if info.skip():
       if info.identifier:
-        fout.write('%s:\n' % info.identifier)
+        fheader.write('.import %s\n' % info.identifier)
+        fout.write('.export %s\n' % info.identifier)
+        fout.write('%s:\n\n' % info.identifier)
       if info.is_flush:
         items = sprite_data.items()
         items.sort(key=lambda x:x[1])
@@ -262,6 +267,7 @@ def produce_data(info_collection, out_filename):
         fout.write('\n')
         sprite_data = {}
         sprite_counter = 0
+        sprite_distance = 0
       continue
     flip_bits = info.picture[0][2] & SPIN_FLIP
     palette = info.picture[0][2] & 0x03
@@ -282,10 +288,14 @@ def produce_data(info_collection, out_filename):
       sprite_list.append(sprite_id * SIZE_ID_MULTIPLE | flip_bits)
     sprite_list.append(0xff)
     info.sprite_list = sprite_list
+    fheader.write('PICTURE_ID_%s = %s\n' % (info.upcase, sprite_distance))
+    fout.write('PICTURE_ID_%s = %s\n' % (info.upcase, sprite_distance))
+    sprite_distance += len(info.sprite_list)
     fout.write('%s:\n' % info.identifier)
     fout.write('.byte %s\n' % ','.join(['$%02x' % e for e in info.sprite_list]))
     fout.write('\n')
   fout.close()
+  fheader.close()
 
 def run():
   parser = argparse.ArgumentParser()
@@ -293,13 +303,14 @@ def run():
   parser.add_argument('-p', dest='picture')
   parser.add_argument('-c', dest='chrfile')
   parser.add_argument('-o', dest='output')
+  parser.add_argument('-header', dest='header')
   args = parser.parse_args()
   target_map = chr_to_lookup_map(read_chr(args.chrfile))
   sprites, origins = extract_sprites(args.picture, target_map)
   info_collection = parse_info(args.info)
   combine_info_with_origins(info_collection, origins)
   derive_pictures(sprites, info_collection)
-  produce_data(info_collection, args.output)
+  produce_data(info_collection, args.output, args.header)
 
 if __name__ == '__main__':
   run()

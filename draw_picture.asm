@@ -1,8 +1,4 @@
 .export DrawPicture
-.export player_picture_data
-.export player_sprite_data
-.export swatter_picture_data
-.export swatter_sprite_data
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -85,4 +81,4 @@ FrameDone:
 .endproc
 
 
-.include ".b/pictures.inc"
+.include ".b/pictures.asm"
