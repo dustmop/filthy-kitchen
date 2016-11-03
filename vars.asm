@@ -19,6 +19,8 @@ player_screen: .byte 0
 player_render_v: .byte 0
 player_render_h: .byte 0
 player_has_swatter: .byte 0
+player_ducking: .byte 0
+player_collision_idx: .byte 0
 camera_h: .byte 0
 camera_screen: .byte 0
 values: .word 0,0,0,0,0,0,0,0
@@ -49,7 +51,7 @@ draw_palette: .byte 0
 .exportzp bg_x_scroll, bg_y_scroll, buttons, buttons_last, buttons_press
 .exportzp player_v, player_h, player_h_low, player_screen, player_dir
 .exportzp player_jump, player_jump_low, player_render_v, player_render_h
-.exportzp player_has_swatter
+.exportzp player_has_swatter, player_ducking, player_collision_idx
 .exportzp camera_h, camera_screen
 .exportzp values, pointer
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action

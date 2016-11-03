@@ -10,9 +10,11 @@
 .include "include.sprites.asm"
 .include "include.const.asm"
 .include "draw_picture.h.asm"
+.include "collision_data.h.asm"
 
 .importzp object_list_head, object_list_tail, camera_h
 .importzp player_v, player_h, player_screen, player_has_swatter
+.importzp player_collision_idx
 .importzp values
 
 ;DrawPicture    values + $00
@@ -43,11 +45,6 @@ object_speed_low = object_data + $90
 
 OBJECT_KIND_NONE = $ff
 OBJECT_KIND_SWATTER = $00
-
-COLLIDE_PLAYER_SWATTER_V_HITBOX = 12
-COLLIDE_PLAYER_SWATTER_H_HITBOX = 8
-COLLIDE_PLAYER_SWATTER_V_OFFSET = 8
-COLLIDE_PLAYER_SWATTER_H_OFFSET = 0
 
 MAX_NUM_OBJECTS = 8
 
@@ -174,25 +171,29 @@ Next:
 
   ; Maybe collide with player.
 .scope CollideWithPlayer
+  ldy player_collision_idx
   lda delta_h
   sec
-  sbc #COLLIDE_PLAYER_SWATTER_H_OFFSET
+  sbc collision_data_player,y ; h_offset
   bpl AbsoluteH
   eor #$ff
   clc
   adc #1
 AbsoluteH:
-  cmp #COLLIDE_PLAYER_SWATTER_H_HITBOX
+  iny
+  cmp collision_data_player,y ; h_hitbox
   bge Next
   lda delta_v
   sec
-  sbc #COLLIDE_PLAYER_SWATTER_V_OFFSET
+  iny
+  sbc collision_data_player,y ; v_offset
   bpl AbsoluteV
   eor #$ff
   clc
   adc #1
 AbsoluteV:
-  cmp #COLLIDE_PLAYER_SWATTER_V_HITBOX
+  iny
+  cmp collision_data_player,y ; v_hitbox
   bge Next
   ; Collided.
   mov player_has_swatter, #1
@@ -389,5 +390,4 @@ table_object_lifetime:
 
 table_object_speed:
 .byte 5
-
 

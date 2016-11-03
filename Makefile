@@ -14,7 +14,8 @@ SRC = main.asm \
       level_data.asm \
       object_list.asm \
       sprite_space.asm \
-      draw_picture.asm
+      draw_picture.asm \
+      collision_data.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
@@ -69,8 +70,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
 	tail -c 16 .b/sprites.palette.dat >> .b/resource.palette.dat
 
-.b/collision.dat: build_collision.py collision.png
-	python build_collision.py collision.png -o .b/collision.dat
+.b/bg_collision.dat: build_collision.py bg_collision.png
+	python build_collision.py bg_collision.png -o .b/bg_collision.dat
 
 filthy-kitchen.nes: $(OBJ)
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln

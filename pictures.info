@@ -17,7 +17,8 @@ player_picture_data:
 
 player_right       @ 48,7
 player_left        @ 48,32
+player_duck_right  @ 48,72
+player_duck_left   @ 48,120
 
 player_sprite_data:
 .flush
-

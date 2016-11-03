@@ -1,0 +1,4 @@
+.import collision_data_player
+
+COLLISION_DATA_PLAYER_STANDING = 0
+COLLISION_DATA_PLAYER_DUCKING  = 4

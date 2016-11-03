@@ -11,11 +11,12 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "draw_picture.h.asm"
+.include "collision_data.h.asm"
 .include ".b/pictures.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
-.importzp player_dir, player_has_swatter
+.importzp player_dir, player_has_swatter, player_ducking, player_collision_idx
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp values
@@ -82,6 +83,23 @@ IsOnGround:
   sta player_v
   mov is_on_ground, #$00
   mov player_jump, #$00
+Next:
+.endscope
+  ; Check if down is being pressed. If so, duck.
+.scope HandleDuck
+  lda buttons
+  and #BUTTON_DOWN
+  beq Standing
+MaybeJump:
+  bit is_on_ground
+  bmi Standing
+Ducking:
+  mov player_ducking, #$ff
+  mov player_collision_idx, #COLLISION_DATA_PLAYER_DUCKING
+  jmp Next
+Standing:
+  mov player_ducking, #0
+  mov player_collision_idx, #COLLISION_DATA_PLAYER_STANDING
 Next:
 .endscope
   ; Check if A is being pressed. If so, start a jump.
@@ -151,6 +169,8 @@ Next:
 .endscope
   ; Check if Left or Right is being pressed.
 .scope MaybeLeftOrRight
+  bit player_ducking
+  bmi Next
   lda buttons
   and #BUTTON_LEFT
   bne MoveLeft
@@ -226,11 +246,23 @@ Next:
   bmi FacingLeft
 FacingRight:
   mov draw_picture_id, #PICTURE_ID_SWATTER_UP_RIGHT
+  bit player_ducking
+  bmi DuckingRight
+StandingRight:
   lda #$06
+  bpl DrawIt
+DuckingRight:
+  lda #$0e
   bpl DrawIt
 FacingLeft:
   mov draw_picture_id, #PICTURE_ID_SWATTER_UP_LEFT
+  bit player_ducking
+  bmi DuckingLeft
+StandingLeft:
   lda #$0fc
+  bmi DrawIt
+DuckingLeft:
+  lda #$0f4
 DrawIt:
   clc
   adc player_render_h
@@ -248,8 +280,26 @@ Next:
   sta draw_v
   lda player_render_h
   sta draw_h
-  lda player_dir
-  and #PICTURE_ID_PLAYER_LEFT
+  bit player_ducking
+  bmi Ducking
+Standing:
+  bit player_dir
+  bmi StandingLeft
+StandingRight:
+  lda #PICTURE_ID_PLAYER_RIGHT
+  jmp DrawPlayer
+StandingLeft:
+  lda #PICTURE_ID_PLAYER_LEFT
+  jmp DrawPlayer
+Ducking:
+  bit player_dir
+  bmi DuckingLeft
+DuckingRight:
+  lda #PICTURE_ID_PLAYER_DUCK_RIGHT
+  jmp DrawPlayer
+DuckingLeft:
+  lda #PICTURE_ID_PLAYER_DUCK_LEFT
+DrawPlayer:
   sta draw_picture_id
   mov draw_palette, #1
   MovWord draw_picture_pointer, player_picture_data

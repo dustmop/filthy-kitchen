@@ -163,6 +163,14 @@ def process_origins(filename, outfile):
         found_terminal = (y+1,x+1)
         pixels[x,y] = PINK_BG
       elif not found_origin is None:
+        # Go down as well.
+        y_inner = y
+        while y_inner < img.size[1]:
+          if pixels[x-1,y_inner + 1] == BLUE:
+            y_inner += 1
+            continue
+          found_terminal = (y_inner+1,x+1-1)
+          break
         origins.append((found_origin, found_terminal))
         found_origin = found_terminal = None
   img.save(outfile)
@@ -172,6 +180,7 @@ def extract_sprites(filename, chr_map):
   tmpdir = tempfile.mkdtemp()
   tmpfile = os.path.join(tmpdir, 'pictures.png')
   tmpzone = os.path.join(tmpdir, 'free-zone.png')
+  print tmpdir
   #
   origins = process_origins(filename, tmpfile)
   outpattern = os.path.join(tmpdir, '%s.dat')
@@ -194,7 +203,7 @@ def extract_sprites(filename, chr_map):
     try:
       xlat[c] = chr_map[str(bytearray(bytes))]
     except KeyError:
-      raise
+      print 'Failed at %d' % c*2
   # Exchange tile numbers.
   for k, spr in enumerate(sprites_extracted):
     spr[0] = spr[0] + 1
@@ -240,7 +249,7 @@ def derive_pictures(sprites, info_collection):
       else:
         break
     if not single_picture:
-      raise RuntimeError('stop')
+      raise RuntimeError('stop %s' % rect)
     single_picture.sort(key=lambda x: (x[2], x[3], x[0]))
     info.picture = single_picture
   if available:
