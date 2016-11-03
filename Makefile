@@ -15,7 +15,9 @@ SRC = main.asm \
       object_list.asm \
       sprite_space.asm \
       draw_picture.asm \
-      collision_data.asm
+      collision_data.asm \
+      fly.asm \
+      swatter.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 

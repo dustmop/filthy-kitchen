@@ -5,6 +5,7 @@
 .import ObjectConstruct
 
 OBJECT_KIND_SWATTER = $00
+OBJECT_KIND_FLY     = $01
 
 .import object_data
 object_kind      = object_data + $00

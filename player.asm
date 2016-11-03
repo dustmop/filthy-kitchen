@@ -126,6 +126,7 @@ Next:
   mov player_has_swatter, #0
   ; Success. Allocate and construct the object.
   jsr ObjectAllocate
+  bcs Next
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
   mov {object_h_screen,x}, player_screen

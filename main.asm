@@ -7,6 +7,7 @@
 .include "level_data.h.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "fly.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics0, graphics1
@@ -79,6 +80,8 @@ ForeverLoop:
   jsr WaitNewFrame
   jsr ReadController
   jsr SpriteSpaceEraseAll
+
+  jsr FlyListUpdate
 
   jsr PlayerUpdate
   jsr CameraUpdate

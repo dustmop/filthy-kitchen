@@ -45,6 +45,7 @@ draw_picture_id: .byte 0
 draw_h: .byte 0
 draw_v: .byte 0
 draw_palette: .byte 0
+spawn_count: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -63,6 +64,7 @@ draw_palette: .byte 0
 .exportzp level_max_camera_h, level_max_camera_screen
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_palette
+.exportzp spawn_count
 
 collision_map = $500
 
