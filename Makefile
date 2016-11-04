@@ -60,9 +60,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
 
 .b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
-                   .b/collision.dat
+                   .b/bg_collision.dat
 	python build_level_data.py -n .b/kitchen.nametable%d.dat \
-            -a .b/kitchen.attribute%d.dat -c .b/collision.dat \
+            -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
             -o .b/level_data%s.dat
 
 .b/resource.chr.dat .b/resource.palette.dat: \
