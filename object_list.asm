@@ -21,15 +21,15 @@
 .importzp values
 
 .export object_data
-object_data      = $440
-object_kind      = object_data + $00
-object_next      = object_data + $10
-object_v         = object_data + $10
-object_h         = object_data + $20
-object_h_screen  = object_data + $30
-object_frame     = object_data + $40
-object_step      = object_data + $50
-object_life      = object_data + $60
+object_data   = $440
+object_kind   = object_data + $00
+object_next   = object_data + $10
+object_v      = object_data + $10
+object_h      = object_data + $20
+object_screen = object_data + $30
+object_frame  = object_data + $40
+object_step   = object_data + $50
+object_life   = object_data + $60
 .export object_data_extend
 object_data_extend = object_data + $70
 
@@ -150,21 +150,21 @@ PopStack:
   lda delta_h
   bmi MovementLeft
 MovementRight:
-  lda object_h_screen,x
+  lda object_screen,x
   adc #0
-  sta object_h_screen,x
+  sta object_screen,x
   jmp MovementDone
 MovementLeft:
-  lda object_h_screen,x
+  lda object_screen,x
   sbc #0
-  sta object_h_screen,x
+  sta object_screen,x
 MovementDone:
   rts
 .endproc
 
 
 .proc ObjectCollisionWithPlayer
-  ; Get deltas.
+  ; Calculate deltas from player.
   lda object_v,x
   sec
   sbc player_v
@@ -173,7 +173,7 @@ MovementDone:
   sec
   sbc player_h
   sta delta_h
-  lda object_h_screen,x
+  lda object_screen,x
   sbc player_screen
   sta delta_screen
 

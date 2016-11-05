@@ -11,7 +11,8 @@
 
 .importzp player_owns_swatter, player_collision_idx
 .importzp player_v, player_h, player_screen
-.importzp camera_h
+.importzp draw_screen
+.importzp camera_h, camera_screen
 
 .import object_data_extend
 swatter_speed     = object_data_extend + $00
@@ -52,6 +53,7 @@ Next:
 
   jsr ObjectMovementApplyDelta
 
+  ; Player deltas also used for seeking behavior.
 .scope CheckCollision
   jsr ObjectCollisionWithPlayer
   bcc Next
@@ -134,6 +136,9 @@ Okay:
   sec
   sbc camera_h
   sta draw_h
+  lda object_screen,x
+  sbc camera_screen
+  sta draw_screen
   mov draw_v, {object_v,x}
 
   ; Animation.

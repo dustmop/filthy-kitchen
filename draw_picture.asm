@@ -6,7 +6,7 @@
 .include "sprite_space.h.asm"
 
 .importzp draw_picture_pointer, draw_sprite_pointer
-.importzp draw_picture_id, draw_h, draw_v, draw_palette
+.importzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
 .importzp values
 
 
@@ -19,6 +19,9 @@ attribute = values + $00
 .proc DrawPicture
   txa
   pha
+  lda draw_screen
+  bne FrameDone
+  ; In sight, draw it.
   ldy draw_picture_id
 FrameLoop:
   lda (draw_picture_pointer),y

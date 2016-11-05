@@ -20,6 +20,7 @@
 .importzp player_dir, player_owns_swatter, player_ducking, player_collision_idx
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
+.importzp draw_screen
 .importzp values
 
 SWATTER_TILE = $02
@@ -130,7 +131,7 @@ Next:
   stx player_owns_swatter
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
-  mov {object_h_screen,x}, player_screen
+  mov {object_screen,x}, player_screen
   mov {object_life,x}, #$ff
   ; Spawn to the left or right of player.
   bit player_dir
@@ -140,18 +141,18 @@ SpawnToTheLeft:
   sec
   sbc #$0c
   sta object_h,x
-  lda object_h_screen,x
+  lda object_screen,x
   sbc #0
-  sta object_h_screen,x
+  sta object_screen,x
   jmp SetVerticalPos
 SpawnToTheRight:
   lda player_h
   clc
   adc #$0c
   sta object_h,x
-  lda object_h_screen,x
+  lda object_screen,x
   adc #0
-  sta object_h_screen,x
+  sta object_screen,x
 SetVerticalPos:
   lda player_v
   clc
@@ -230,6 +231,7 @@ Next:
 
 .proc PlayerDraw
   mov draw_attr, #0
+  mov draw_screen, _
 
 .scope SwatterDraw
   lda player_owns_swatter
