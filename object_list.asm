@@ -13,6 +13,7 @@
 .include "include.sprites.asm"
 .include "swatter.h.asm"
 .include "fly.h.asm"
+.include "explode.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -37,7 +38,11 @@ object_data_extend = object_data + $70
 
 OBJECT_KIND_NONE = $ff
 OBJECT_KIND_SWATTER = $00
-OBJECT_KIND_FLY = $01
+OBJECT_KIND_FLY     = $01
+OBJECT_KIND_EXPLODE = $02
+
+OBJECT_IS_NEW = $40
+OBJECT_CLEAR_NEW = $3f
 
 MAX_NUM_OBJECTS = 8
 
@@ -88,14 +93,17 @@ Increment:
 Loop:
   lda object_kind,x
   bmi Increment
+  cmp #OBJECT_IS_NEW
+  bge Increment
 Body:
   jsr ObjectDispatch
   ; Step forward lifetime
-  inc object_life,x
-  beq IsImmortal
   lda object_life,x
-  cmp lifetime
-  blt Increment
+  cmp #$ff
+  ; Is immortal
+  beq Increment
+  dec object_life,x
+  bne Increment
   ; Destroy
   jsr ObjectFree
   jmp Increment
@@ -105,6 +113,17 @@ Increment:
   inx
   cpx #MAX_NUM_OBJECTS
   bne Loop
+  ; Clear "new" bit from objects
+ClearLoop:
+  lda object_kind,x
+  bmi ClearDecrement
+  cmp #OBJECT_IS_NEW
+  blt ClearDecrement
+  and #OBJECT_CLEAR_NEW
+  sta object_kind,x
+ClearDecrement:
+  dex
+  bpl ClearLoop
   rts
 .endproc
 
@@ -115,7 +134,6 @@ Increment:
   ; Retrieve info for the object.
   mov animate_limit, {table_object_animate_limit,y}
   mov num_frames,    {table_object_num_frames,y}
-  mov lifetime,      {table_object_lifetime,y}
   ; Animation
   inc object_step,x
   lda object_step,x
@@ -136,19 +154,21 @@ Next:
   beq DispatchSwatter
   cmp #OBJECT_KIND_FLY
   beq DispatchFly
-  bne PopStack
+  cmp #OBJECT_KIND_EXPLODE
+  beq DispatchExplode
+  bne DispatchDone
 DispatchSwatter:
   jsr SwatterDispatch
   jmp DispatchDone
 DispatchFly:
   jsr FlyDispatch
+  jmp DispatchDone
+DispatchExplode:
+  jsr ExplodeDispatch
 DispatchDone:
   pla
   tax
-  rts
-PopStack:
-  pla
-  tax
+Return:
   rts
 .endproc
 
@@ -259,7 +279,6 @@ Failure:
   lda #0
   sta object_frame,x
   sta object_step,x
-  sta object_life,x
   rts
 .endproc
 
@@ -293,10 +312,7 @@ Done:
 
 
 table_object_num_frames:
-.byte 8, 3
+.byte 8, 3, 3
 
 table_object_animate_limit:
-.byte 2, 3
-
-table_object_lifetime:
-.byte 20, 20
+.byte 2, 3, 6

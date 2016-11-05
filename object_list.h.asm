@@ -9,6 +9,9 @@
 
 OBJECT_KIND_SWATTER = $00
 OBJECT_KIND_FLY     = $01
+OBJECT_KIND_EXPLODE = $02
+
+OBJECT_IS_NEW = $40
 
 .import object_data
 object_kind   = object_data + $00
