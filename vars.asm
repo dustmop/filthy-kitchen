@@ -46,6 +46,7 @@ draw_h: .byte 0
 draw_v: .byte 0
 draw_screen: .byte 0
 draw_palette: .byte 0
+random_value: .byte 0
 spawn_count: .byte 0
 
 
@@ -65,6 +66,7 @@ spawn_count: .byte 0
 .exportzp level_max_camera_h, level_max_camera_screen
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
+.exportzp random_value
 .exportzp spawn_count
 
 collision_map = $500

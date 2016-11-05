@@ -8,6 +8,7 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "fly.h.asm"
+.include "random.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
 .import palette, graphics0, graphics1
@@ -60,6 +61,7 @@ Wait1:
 
   jsr LevelDataFillEntireScreen
 
+  jsr RandomSeedInit
   jsr PlayerInit
   jsr CameraInit
   jsr ObjectListInit
@@ -79,6 +81,7 @@ Wait1:
 ForeverLoop:
   jsr WaitNewFrame
   jsr ReadController
+  jsr RandomEntropy
   jsr SpriteSpaceEraseAll
 
   jsr FlyListUpdate

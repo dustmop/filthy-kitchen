@@ -6,6 +6,7 @@
 .include "include.sprites.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "random.h.asm"
 .include "shared_object_values.asm"
 
 .importzp player_screen, player_h, camera_h, camera_screen
@@ -27,6 +28,7 @@
   mov {object_kind,x}, #OBJECT_KIND_FLY
   mov {object_life,x}, #$ff
 
+  ; Horizontal position
   lda player_h
   clc
   adc #$60
@@ -34,7 +36,13 @@
   lda player_screen
   adc #0
   sta object_screen,x
-  mov {object_v,x}, #$80
+  ; Vertical position
+  jsr RandomGet
+  lsr a
+  lsr a
+  clc
+  adc #$60
+  sta object_v,x
 
 Return:
   rts

@@ -17,7 +17,8 @@ SRC = main.asm \
       draw_picture.asm \
       collision_data.asm \
       fly.asm \
-      swatter.asm
+      swatter.asm \
+      random.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
