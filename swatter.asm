@@ -9,7 +9,7 @@
 .include "shared_object_values.asm"
 .include ".b/pictures.h.asm"
 
-.importzp player_has_swatter, player_collision_idx
+.importzp player_owns_swatter, player_collision_idx
 .importzp player_v, player_h, player_screen
 .importzp camera_h
 
@@ -56,7 +56,7 @@ Next:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
-  mov player_has_swatter, #1
+  mov player_owns_swatter, #$ff
   jsr ObjectFree
   jmp Return
 Next:

@@ -17,8 +17,7 @@
 
 
 .importzp object_list_head, object_list_tail, camera_h
-.importzp player_v, player_h, player_screen, player_has_swatter
-.importzp player_collision_idx
+.importzp player_v, player_h, player_screen, player_collision_idx
 .importzp values
 
 .export object_data

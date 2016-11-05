@@ -17,7 +17,7 @@
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
-.importzp player_dir, player_has_swatter, player_ducking, player_collision_idx
+.importzp player_dir, player_owns_swatter, player_ducking, player_collision_idx
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp values
@@ -45,7 +45,7 @@ is_on_ground = values + $03
   mov player_h, #START_H
   mov player_dir, #$00
   mov player_jump, _
-  mov player_has_swatter, #1
+  mov player_owns_swatter, #$ff
   ; Level data
   mov level_max_screen, #3
   mov level_max_h, #$ef
@@ -122,12 +122,12 @@ Next:
   and #BUTTON_B
   beq Next
   ; Only throw if the swatter is being held by the player.
-  lda player_has_swatter
-  beq Next
-  mov player_has_swatter, #0
+  lda player_owns_swatter
+  bpl Next
   ; Success. Allocate and construct the object.
   jsr ObjectAllocate
   bcs Next
+  stx player_owns_swatter
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
   mov {object_h_screen,x}, player_screen
@@ -232,8 +232,8 @@ Next:
   mov draw_attr, #0
 
 .scope SwatterDraw
-  lda player_has_swatter
-  beq Next
+  lda player_owns_swatter
+  bpl Next
   ; Ensure that the swatter is drawn above the player by using indexes 4 and 8.
   ldx #$08
   jsr SpriteSpaceEnsure
