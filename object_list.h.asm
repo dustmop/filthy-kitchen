@@ -1,5 +1,6 @@
 .import ObjectListInit
 .import ObjectListUpdate
+.import ObjectListCountAvail
 .import ObjectAllocate
 .import ObjectFree
 .import ObjectConstruct

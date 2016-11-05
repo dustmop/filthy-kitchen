@@ -9,7 +9,11 @@
 .include "random.h.asm"
 .include "shared_object_values.asm"
 
-.importzp player_screen, player_h, camera_h, camera_screen
+COLLISION_SWATTER_FLY_H_HITBOX = 10
+COLLISION_SWATTER_FLY_V_HITBOX = 10
+
+.importzp player_screen, player_h, player_owns_swatter
+.importzp camera_h, camera_screen
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
 
@@ -21,6 +25,10 @@
   cmp #100
   blt Return
   mov spawn_count, #0
+
+  jsr ObjectListCountAvail
+  cmp #2
+  blt Return
 
   jsr ObjectAllocate
   bcs Return
@@ -57,6 +65,47 @@ FLY_ANIMATE_3 = $0f
 .proc FlyDispatch
   txa
   pha
+
+.scope CollisionWithSwatter
+  ldy player_owns_swatter
+  bmi Break
+  ; Vertical
+  lda object_v,x
+  sec
+  sbc object_v,y
+  bpl AbsoluteV
+  eor #$ff
+  clc
+  adc #1
+AbsoluteV:
+  sta delta_v
+  cmp #COLLISION_SWATTER_FLY_V_HITBOX
+  bge Break
+  ; Horizontal
+  lda object_h,x ; fly
+  sec
+  sbc object_h,y ; swatter
+  sta delta_h
+  lda object_screen,x ; fly
+  sbc object_screen,y ; swatter
+  beq HaveDeltaH
+  ; If delta_screen is not 0 or -1, collision is out of range.
+  cmp #$ff
+  bne Break
+  lda delta_h
+  eor #$ff
+  clc
+  adc #1
+  sta delta_h
+HaveDeltaH:
+  lda delta_h
+  cmp #COLLISION_SWATTER_FLY_H_HITBOX
+  bge Break
+Collision:
+  jsr ObjectFree
+  jmp Return
+Break:
+.endscope
 
   ; Draw position.
   mov draw_v, {object_v,x}

@@ -1,5 +1,6 @@
 .export ObjectListInit
 .export ObjectListUpdate
+.export ObjectListCountAvail
 .export ObjectAllocate
 .export ObjectFree
 .export ObjectConstruct
@@ -62,6 +63,22 @@ Done:
   mov {object_next,x}, #$ff
   mov object_list_head, #$00
   mov object_list_tail, #$07
+  rts
+.endproc
+
+
+.proc ObjectListCountAvail
+  ldy #MAX_NUM_OBJECTS
+  ldx #0
+Loop:
+  lda object_kind,x
+  bmi Increment
+  dey
+Increment:
+  inx
+  cpx #MAX_NUM_OBJECTS
+  bne Loop
+  tya
   rts
 .endproc
 
