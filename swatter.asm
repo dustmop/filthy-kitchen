@@ -1,51 +1,30 @@
 .export SwatterDispatch
+.export swatter_speed
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.const.asm"
 .include "object_list.h.asm"
 .include "draw_picture.h.asm"
-.include "collision_data.h.asm"
+.include "shared_object_values.asm"
+.include ".b/pictures.h.asm"
 
 .importzp player_has_swatter, player_collision_idx
 .importzp player_v, player_h, player_screen
 .importzp camera_h
 
-.importzp values
+.import object_data_extend
+swatter_speed     = object_data_extend + $00
+swatter_speed_low = object_data_extend + $10
+swatter_v_low     = object_data_extend + $20
 
-;DrawPicture    values + $00
-speed         = values + $01
-lifetime      = values + $02
-animate_limit = values + $03
-num_frames    = values + $04
-flip_bits     = values + $05
-delta_h       = values + $06
-delta_v       = values + $07
-delta_screen  = values + $08
-collide_dist  = values + $09
 
 .proc SwatterDispatch
 
-Movement:
-  ; Move by adding speed.
-  lda object_speed,x
-  clc
-  adc object_h,x
-  sta object_h,x
-  lda object_speed,x
-  bmi MovingLeft
-MovingRight:
-  lda object_h_screen,x
-  adc #0
-  sta object_h_screen,x
-  jmp DidMovement
-MovingLeft:
-  lda object_h_screen,x
-  sbc #0
-  sta object_h_screen,x
-DidMovement:
+  mov delta_h, {swatter_speed,x}
+  mov delta_v, #0
 
-.scope VerticalMovement
+.scope VerticalAcceleration
   lda object_v,x
   sec
   sbc #$08
@@ -54,70 +33,29 @@ DidMovement:
   beq Next
   bge ObjectIsDown
 ObjectIsAbove:
-  lda object_v_low,x
+  lda swatter_v_low,x
   sec
   sbc #$80
-  sta object_v_low,x
+  sta swatter_v_low,x
   bcs Next
-  inc object_v,x
+  inc delta_v
   jmp Next
 ObjectIsDown:
-  lda object_v_low,x
+  lda swatter_v_low,x
   clc
   adc #$80
-  sta object_v_low,x
+  sta swatter_v_low,x
   bcc Next
-  dec object_v,x
+  dec delta_v
 Next:
 .endscope
 
-  ; Draw position.
-  lda object_h,x
-  sec
-  sbc camera_h
-  sta draw_h
-  mov draw_v, {object_v,x}
+  jsr ObjectMovementApplyDelta
 
-  ; Get deltas.
-  lda object_v,x
-  sec
-  sbc player_v
-  sta delta_v
-  lda object_h,x
-  sec
-  sbc player_h
-  sta delta_h
-  lda object_h_screen,x
-  sbc player_screen
-  sta delta_screen
-
-  ; Maybe collide with player.
-.scope CollideWithPlayer
-  ldy player_collision_idx
-  lda delta_h
-  sec
-  sbc collision_data_player,y ; h_offset
-  bpl AbsoluteH
-  eor #$ff
-  clc
-  adc #1
-AbsoluteH:
-  iny
-  cmp collision_data_player,y ; h_hitbox
-  bge Next
-  lda delta_v
-  sec
-  iny
-  sbc collision_data_player,y ; v_offset
-  bpl AbsoluteV
-  eor #$ff
-  clc
-  adc #1
-AbsoluteV:
-  iny
-  cmp collision_data_player,y ; v_hitbox
-  bge Next
-  ; Collided.
+.scope CheckCollision
+  jsr ObjectCollisionWithPlayer
+  bcc Next
+DidCollide:
   mov player_has_swatter, #1
   jsr ObjectFree
   jmp Return
@@ -135,7 +73,7 @@ ObjectToTheLeft:
   cmp #$e0
   blt FullRateFromLeft
   ; If speed is already pointed to the right, accelerate at full rate.
-  lda object_speed,x
+  lda swatter_speed,x
   bpl FullRateFromLeft
   ; Otherwise, accelerate at partial rate.
   jmp PartialRateFromLeft
@@ -146,10 +84,10 @@ PartialRateFromLeft:
   lda #($100 - $10)
 AccelerateFromLeft:
   clc
-  adc object_speed_low,x
-  sta object_speed_low,x
+  adc swatter_speed_low,x
+  sta swatter_speed_low,x
   bcs Next
-  inc object_speed,x
+  inc swatter_speed,x
   jmp Next
 ObjectToTheRight:
   ; If far enough away from player, accelerate at full rate.
@@ -157,7 +95,7 @@ ObjectToTheRight:
   cmp #$20
   bge FullRateFromRight
   ; If speed is already pointed to the left, accelerate at full rate.
-  lda object_speed,x
+  lda swatter_speed,x
   bmi FullRateFromRight
   ; Otherwise, accelerate at partial rate.
   jmp PartialRateFromRight
@@ -168,44 +106,38 @@ PartialRateFromRight:
   lda #$10
 AccelerateFromRight:
   clc
-  adc object_speed_low,x
-  sta object_speed_low,x
+  adc swatter_speed_low,x
+  sta swatter_speed_low,x
   bcc Next
-  dec object_speed,x
+  dec swatter_speed,x
 Next:
 .endscope
 
 .scope MaximumSpeed
   ; Clamp
-  lda object_speed,x
+  lda swatter_speed,x
   bmi Negative
 Positive:
-  cmp #SWATTER_SPEED
+  cmp #SWATTER_MAX_SPEED
   blt Okay
-  mov {object_speed,x}, #SWATTER_SPEED
+  mov {swatter_speed,x}, #SWATTER_MAX_SPEED
   jmp Okay
 Negative:
-  cmp #($100 - SWATTER_SPEED)
+  cmp #($100 - SWATTER_MAX_SPEED)
   bge Okay
-  mov {object_speed,x}, #($100 - SWATTER_SPEED)
+  mov {swatter_speed,x}, #($100 - SWATTER_MAX_SPEED)
 Okay:
 .endscope
 
+  ; Draw position.
+  lda object_h,x
+  sec
+  sbc camera_h
+  sta draw_h
+  mov draw_v, {object_v,x}
+
   ; Animation.
-.scope StepAnimation
-  inc object_step,x
-  lda object_step,x
-  cmp animate_limit
-  blt Next
-  mov {object_step,x}, #0
-  inc object_frame,x
-  lda object_frame,x
-  cmp num_frames
-  blt Next
-  mov {object_frame,x}, #0
-Next:
-.endscope
-  ldy object_frame,x
+  ldy draw_frame
   lda swatter_animation_sequence,y
   sta draw_picture_id
   MovWord draw_picture_pointer, swatter_picture_data
@@ -220,4 +152,11 @@ Return:
 
 
 swatter_animation_sequence:
-.byte $06,$03,$00,$13,$11,$0e,$0b,$08
+.byte PICTURE_ID_SWATTER_UP
+.byte PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_RIGHT
+.byte PICTURE_ID_SWATTER_DOWN_RIGHT
+.byte PICTURE_ID_SWATTER_DOWN
+.byte PICTURE_ID_SWATTER_DOWN_LEFT
+.byte PICTURE_ID_SWATTER_LEFT
+.byte PICTURE_ID_SWATTER_UP_LEFT

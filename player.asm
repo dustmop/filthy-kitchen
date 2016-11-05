@@ -12,6 +12,7 @@
 .include "sprite_space.h.asm"
 .include "draw_picture.h.asm"
 .include "collision_data.h.asm"
+.include "swatter.h.asm"
 .include ".b/pictures.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
@@ -160,12 +161,12 @@ Speed:
   bit player_dir
   bpl FacingRight
 FacingLeft:
-  lda #($100 - SWATTER_SPEED)
+  lda #($100 - SWATTER_MAX_SPEED)
   jmp HaveSpeed
 FacingRight:
-  lda #SWATTER_SPEED
+  lda #SWATTER_MAX_SPEED
 HaveSpeed:
-  sta object_speed,x
+  sta swatter_speed,x
 Next:
 .endscope
   ; Check if Left or Right is being pressed.

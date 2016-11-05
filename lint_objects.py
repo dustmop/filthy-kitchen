@@ -2,10 +2,10 @@ import re
 import sys
 
 def has_scalar(text):
-  return re.search(r'\bplayer_', text) or re.search(r'\bswatter_', text)
+  return re.search(r'\bplayer_', text)
 
 def has_field(text):
-  return re.search(r'\bobject_', text)
+  return re.search(r'\bobject_', text) or re.search(r'\bswatter_', text)
 
 def has_x_index(text):
   return re.search(r',x\b', text) or re.search(r',y\b', text)
@@ -13,7 +13,8 @@ def has_x_index(text):
 def should_ignore(text):
   words = ['.import', '.export', '.include', '.byte', ' = ',
            'object_list_head', 'object_list_tail', '!no_lint',
-           'swatter_animation_sequence']
+           'swatter_animation_sequence',
+           'swatter_picture_data', 'swatter_sprite_data']
   for w in words:
     if w in text:
       return True

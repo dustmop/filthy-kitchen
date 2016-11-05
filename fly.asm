@@ -6,23 +6,11 @@
 .include "include.sprites.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "shared_object_values.asm"
 
 .importzp player_screen, player_h, camera_h
 .importzp spawn_count
 .importzp draw_h, draw_v
-
-.importzp values
-
-;DrawPicture    values + $00
-speed         = values + $01
-lifetime      = values + $02
-animate_limit = values + $03
-num_frames    = values + $04
-flip_bits     = values + $05
-delta_h       = values + $06
-delta_v       = values + $07
-delta_screen  = values + $08
-collide_dist  = values + $09
 
 .segment "CODE"
 
@@ -73,7 +61,8 @@ FLY_ANIMATE_3 = $0f
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
-  lda #FLY_ANIMATE_1
+  ldy draw_frame
+  lda fly_animation_sequence,y
   sta sprite_tile,x
   lda #2
   sta sprite_attr,x
@@ -82,3 +71,10 @@ FLY_ANIMATE_3 = $0f
   tax
   rts
 .endproc
+
+
+fly_animation_sequence:
+.byte FLY_ANIMATE_1
+.byte FLY_ANIMATE_2
+.byte FLY_ANIMATE_3
+.byte FLY_ANIMATE_2
