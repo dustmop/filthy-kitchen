@@ -62,8 +62,8 @@ Wait1:
   ldy #>palette
   jsr LoadPalette
 
-  jsr LevelDataFillEntireScreen
   jsr HudDataFill
+  jsr LevelDataFillEntireScreen
 
   jsr RandomSeedInit
   jsr PlayerInit

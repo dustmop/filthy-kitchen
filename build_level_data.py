@@ -108,6 +108,14 @@ def get_bytes(template, i):
   return bytes
 
 
+def pad_hud_on_top(data):
+  data = bytearray(data)
+  for i in xrange(8):
+    data[i + 0] = 0x55
+    data[i + 8] = (data[i + 8] & 0xf0) | 0x05
+  return bytes(data)
+
+
 def process(nametable_tmpl, attribute_tmpl, collision_file, output_tmpl):
   builder = LevelDataBuilder()
   i = 0
@@ -117,7 +125,7 @@ def process(nametable_tmpl, attribute_tmpl, collision_file, output_tmpl):
       break
     builder.add_nametable(nametable)
     attribute = get_bytes(attribute_tmpl, i)
-    builder.add_attribute(attribute)
+    builder.add_attribute(pad_hud_on_top(attribute))
     i += 1
   fp = open(collision_file, 'rb')
   bytes = fp.read()

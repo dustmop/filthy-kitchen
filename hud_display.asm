@@ -14,7 +14,7 @@ SPRITE_0_TILE = $2b
 .proc HudSplitAssign
   mov $200, #19
   mov $201, #SPRITE_0_TILE
-  mov $202, #$22
+  mov $202, #$20
   mov $203, #122
   rts
 .endproc

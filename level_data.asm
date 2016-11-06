@@ -186,7 +186,7 @@ Loop:
   asl a
   clc
   adc offset
-  ; TODO add $c0 to address?
+  adc #$c0
   sta PPU_ADDR
   ; Render a sub-strip, 30 elements.
   ldx #($1e - 6)
@@ -230,10 +230,10 @@ Return:
   lda target
   and #$07
   clc
-  adc #$c0
+  adc #$c8
   tax
   ; Start at the top of the attributes, render 8 bytes.
-  ldy #0
+  ldy #1
 Loop:
 
   lda upper_addr
@@ -250,7 +250,7 @@ Loop:
   tax
 
   iny
-  cpy #$08
+  cpy #$07
   bne Loop
 
   rts
