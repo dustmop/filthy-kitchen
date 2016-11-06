@@ -4,6 +4,7 @@
 .include "read_controller.h.asm"
 .include "player.h.asm"
 .include "camera.h.asm"
+.include "hud_display.h.asm"
 .include "level_data.h.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
@@ -62,12 +63,15 @@ Wait1:
   jsr LoadPalette
 
   jsr LevelDataFillEntireScreen
+  jsr HudDataFill
 
   jsr RandomSeedInit
   jsr PlayerInit
   jsr CameraInit
   jsr ObjectListInit
   jsr SpriteSpaceInit
+
+  jsr HudSplitAssign
 
   ; Turn on the nmi, then wait for the next frame before enabling the display.
   ; This prevents a partially rendered frame from appearing at start-up.
@@ -93,6 +97,9 @@ ForeverLoop:
 
   DebugModeSetTint green_blue
   jsr SpriteSpaceEraseAll
+
+  DebugModeSetTint 0
+  jsr HudSplitWait
 
   DebugModeSetTint red_green
   jsr FlyListUpdate

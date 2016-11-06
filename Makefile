@@ -18,6 +18,7 @@ SRC = main.asm \
       collision_data.asm \
       debug_display.asm \
       render_action.asm \
+      hud_display.asm \
       fly.asm \
       swatter.asm \
       explode.asm \
@@ -39,6 +40,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 .b/player.o: player.asm .b/pictures.h.asm
 	ca65 -o .b/player.o player.asm -g
 
+.b/hud_display.o: hud_display.asm .b/hud.nametable.dat
+	ca65 -o .b/hud_display.o hud_display.asm -g
+
 .b/level_data.o: level_data.asm .b/level_data.dat
 	ca65 -o .b/level_data.o level_data.asm -g
 
@@ -50,8 +54,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	python build_pictures.py -i pictures.info -p pictures.png \
             -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
 
-.b/kitchen.chr.dat .b/kitchen.nametable00.dat: \
-            entire-level.png
+.b/hud.o: hud.png
+	mkdir -p .b/
+	makechr hud.png -o .b/hud.o -b 0f
+
+.b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
+            entire-level.png .b/hud.o
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
 	makechr .b/screen00.png -o .b/screen00.o -b 0f
@@ -59,9 +67,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	makechr .b/screen02.png -o .b/screen02.o -b 0f
 	makechr .b/screen03.png -o .b/screen03.o -b 0f
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
-            .b/screen02.o .b/screen03.o \
+            .b/screen02.o .b/screen03.o .b/hud.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
+	mv .b/kitchen.attribute04.dat .b/hud.attribute.dat
+	head -c 192 .b/kitchen.nametable04.dat > .b/hud.nametable.dat
+	rm .b/kitchen.nametable04.dat
 
 .b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
                    .b/bg_collision.dat
