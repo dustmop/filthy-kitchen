@@ -16,6 +16,8 @@ SRC = main.asm \
       sprite_space.asm \
       draw_picture.asm \
       collision_data.asm \
+      debug_display.asm \
+      render_action.asm \
       fly.asm \
       swatter.asm \
       explode.asm \

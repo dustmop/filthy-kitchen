@@ -3,6 +3,8 @@
 main_yield: .byte 0
 ppu_ctrl_current: .byte 0
 ppu_mask_current: .byte 0
+debug_mode: .byte 0
+render_last: .byte 0
 bg_x_scroll: .byte 0
 bg_y_scroll: .byte 0
 buttons: .byte 0
@@ -48,6 +50,7 @@ draw_screen: .byte 0
 draw_palette: .byte 0
 random_value: .byte 0
 spawn_count: .byte 0
+color: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -66,8 +69,8 @@ spawn_count: .byte 0
 .exportzp level_max_camera_h, level_max_camera_screen
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
-.exportzp random_value
-.exportzp spawn_count
+.exportzp random_value, debug_mode, render_last
+.exportzp spawn_count, color
 
 collision_map = $500
 

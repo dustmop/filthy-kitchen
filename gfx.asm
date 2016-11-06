@@ -2,9 +2,9 @@
 
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
-.export DisableDisplay
+.export DisableDisplay, TintApplyToPpuMask
 
-.importzp ppu_mask_current, ppu_ctrl_current, main_yield
+.importzp ppu_mask_current, ppu_ctrl_current, main_yield, color
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -113,6 +113,16 @@ WaitLoop:
 .proc DisableDisplay
   lda ppu_mask_current
   and #($ff & ~PPU_MASK_SHOW_SPRITES & ~PPU_MASK_SHOW_BG)
+  sta PPU_MASK
+  sta ppu_mask_current
+  rts
+.endproc
+
+.proc TintApplyToPpuMask
+  sta color
+  lda ppu_mask_current
+  and #PPU_MASK_TINT_DISABLE
+  ora color
   sta PPU_MASK
   sta ppu_mask_current
   rts

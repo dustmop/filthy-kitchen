@@ -7,10 +7,12 @@
 .include "level_data.h.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "debug_display.h.asm"
+.include "render_action.h.asm"
 .include "fly.h.asm"
 .include "random.h.asm"
 
-.importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current
+.importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .import palette, graphics0, graphics1
 
 .export RESET, NMI
@@ -80,16 +82,35 @@ Wait1:
 
 ForeverLoop:
   jsr WaitNewFrame
+
+  DebugModeWaitLoop 160
+
+  DebugModeSetTint red
   jsr ReadController
+
+  DebugModeSetTint green
   jsr RandomEntropy
+
+  DebugModeSetTint green_blue
   jsr SpriteSpaceEraseAll
 
+  DebugModeSetTint red_green
   jsr FlyListUpdate
 
+  DebugModeSetTint blue
   jsr PlayerUpdate
+
+  DebugModeSetTint red
   jsr CameraUpdate
+
+  DebugModeSetTint green
   jsr ObjectListUpdate
+
+  DebugModeSetTint red_blue
   jsr PlayerDraw
+
+  DebugModeSetTint 0
+  jsr MaybeDebugToggle
 
   jmp ForeverLoop
 
@@ -107,6 +128,8 @@ NMI:
   mov OAM_DATA, #$02
   ; Execute any render actions that need to happen for level scrolling.
   jsr LevelDataUpdateScroll
+  ; Render changes to the PPU.
+  jsr RenderActionApplyAll
   ; Reset ppu pointer.
   lda #0
   sta PPU_ADDR
