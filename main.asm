@@ -142,7 +142,7 @@ NMI:
   sta PPU_ADDR
   sta PPU_ADDR
   ; Assign the scroll.
-  lda bg_x_scroll
+  lda #0
   sta PPU_SCROLL
   lda bg_y_scroll
   sta PPU_SCROLL

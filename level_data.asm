@@ -52,9 +52,13 @@ Loop:
 
 
 .proc LevelDataUpdateScroll
+
   lda NMI_SCROLL_action
   beq Return
 
+  jsr PrepareRender
+
+  lda NMI_SCROLL_action
   sta debug_10_action
 
   cmp #SCROLL_ACTION_ATTR
@@ -175,16 +179,17 @@ Loop:
   sta PPU_ADDR
 
   ; Y is the position in the strip, starting at the top.
-  ldy #0
+  ldy #6
   lda target
   and #$07
   asl a
   asl a
   clc
   adc offset
+  ; TODO add $c0 to address?
   sta PPU_ADDR
   ; Render a sub-strip, 30 elements.
-  ldx #$1e
+  ldx #($1e - 6)
 RenderLoop:
   lda (pointer),y
   sta PPU_DATA

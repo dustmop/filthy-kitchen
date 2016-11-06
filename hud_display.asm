@@ -8,7 +8,7 @@
 
 SPRITE_0_TILE = $2b
 
-.importzp ppu_ctrl_current
+.importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select
 
 .segment "CODE"
 .proc HudSplitAssign
@@ -20,8 +20,18 @@ SPRITE_0_TILE = $2b
 .endproc
 
 .proc HudSplitWait
-  ;lda bg_x_scroll
-  ;sta PPU_SCROLL
+Wait0:
+  bit PPU_STATUS
+  bvs Wait0
+Wait1:
+  bit PPU_STATUS
+  bvc Wait1
+  lda bg_x_scroll
+  sta PPU_SCROLL
+  lda ppu_ctrl_current
+  and #$fc
+  ora bg_nt_select
+  sta PPU_CTRL
   rts
 .endproc
 

@@ -8,7 +8,7 @@
 
 .importzp camera_h, camera_screen, player_h, player_v
 .importzp player_screen, player_render_h, player_render_v
-.importzp bg_x_scroll, ppu_ctrl_current
+.importzp bg_x_scroll, bg_nt_select
 .importzp level_max_camera_screen
 .importzp level_max_camera_h
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
@@ -137,13 +137,9 @@ Next:
   sta bg_x_scroll
 
   ; Camera's high byte assigned to nametable select.
-  lda ppu_ctrl_current
-  and #$fc
-  sta tmp
   lda camera_screen
   and #$03
-  ora tmp
-  sta ppu_ctrl_current
+  sta bg_nt_select
 
   ; Render player based upon their position and the camera.
   lda player_h

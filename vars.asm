@@ -7,6 +7,7 @@ debug_mode: .byte 0
 render_last: .byte 0
 bg_x_scroll: .byte 0
 bg_y_scroll: .byte 0
+bg_nt_select: .byte 0
 buttons: .byte 0
 buttons_last: .byte 0
 buttons_press: .byte 0
@@ -54,7 +55,8 @@ color: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
-.exportzp bg_x_scroll, bg_y_scroll, buttons, buttons_last, buttons_press
+.exportzp bg_x_scroll, bg_y_scroll, bg_nt_select
+.exportzp buttons, buttons_last, buttons_press
 .exportzp player_v, player_h, player_h_low, player_screen, player_dir
 .exportzp player_jump, player_jump_low, player_render_v, player_render_h
 .exportzp player_owns_swatter, player_ducking, player_collision_idx
