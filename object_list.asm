@@ -305,6 +305,7 @@ IsEmptyList:
   stx object_list_head
   stx object_list_tail
   mov {object_next,x}, #$ff
+  mov {object_kind,x}, #OBJECT_KIND_NONE
 Done:
   rts
 .endproc
