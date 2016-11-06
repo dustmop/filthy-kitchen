@@ -12,7 +12,10 @@
 .importzp sprite_space_force, sprite_space_force2
 .importzp values
 
-NUM_RESERVED = 3
+NUM_RESERVED = 8
+
+SPRITE_SPACE_ROTATE = $34
+SPRITE_SPACE_NEXT   = $5c
 
 
 .segment "CODE"
@@ -30,7 +33,7 @@ NUM_RESERVED = 3
 .proc SpriteSpaceNext
   lda sprite_space_index
   clc
-  adc #$10
+  adc #SPRITE_SPACE_ROTATE
   bcc Okay
   clc
   adc #(NUM_RESERVED * $04)
@@ -55,7 +58,7 @@ Normal:
   lda sprite_space_avail
   tax
   clc
-  adc #$50
+  adc #SPRITE_SPACE_NEXT
   bcc Okay
   clc
   adc #(NUM_RESERVED * $04)

@@ -98,6 +98,9 @@ ForeverLoop:
   DebugModeSetTint green_blue
   jsr SpriteSpaceEraseAll
 
+  DebugModeSetTint red_blue
+  jsr HudElemsPut
+
   DebugModeSetTint 0
   jsr HudSplitWait
 
