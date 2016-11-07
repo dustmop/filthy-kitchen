@@ -18,6 +18,7 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp camera_h, camera_screen
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
+.importzp combo_low
 
 .segment "CODE"
 
@@ -137,9 +138,26 @@ Return:
 
 .proc GainPointsDueToFlyHitByAndSwatter
   lda #1
-  jsr ScoreAddLow
+  jsr ComboAddLow
+  lda combo_low
+  cmp #8
+  blt HaveCombo
+MaxCombo:
+  lda #8
+HaveCombo:
+  tay
+  lda combo_points_low,y
+  jsr ScoreAddLowNoRender
+  lda combo_points_medium,y
+  jsr ScoreAddMedium
   rts
 .endproc
+
+
+combo_points_low:
+.byte 1, 1, 2, 4, 8, 16, 32, 64, 28, 56
+combo_points_medium:
+.byte 0, 0, 0, 0, 0,  0,  0,  0,  1,  2
 
 
 .proc ExplodeTheFly

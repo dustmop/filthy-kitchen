@@ -6,6 +6,7 @@
 .include "include.const.asm"
 .include "object_list.h.asm"
 .include "draw_picture.h.asm"
+.include "score_combo.h.asm"
 .include "shared_object_values.asm"
 .include ".b/pictures.h.asm"
 
@@ -59,6 +60,7 @@ Next:
   bcc Next
 DidCollide:
   mov player_owns_swatter, #$ff
+  jsr ComboSetToZero
   jsr ObjectFree
   jmp Return
 Next:

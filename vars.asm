@@ -54,6 +54,8 @@ spawn_count: .byte 0
 color: .byte 0
 score_low: .byte 0
 score_medium: .byte 0
+combo_low: .byte 0
+combo_medium: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -75,7 +77,7 @@ score_medium: .byte 0
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
 .exportzp random_value, debug_mode, render_last
 .exportzp spawn_count, color
-.exportzp score_low, score_medium
+.exportzp score_low, score_medium, combo_low, combo_medium
 
 collision_map = $500
 
