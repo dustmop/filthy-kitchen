@@ -19,6 +19,7 @@ SRC = main.asm \
       debug_display.asm \
       render_action.asm \
       hud_display.asm \
+      score_combo.asm \
       fly.asm \
       swatter.asm \
       explode.asm \
@@ -58,8 +59,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	mkdir -p .b/
 	makechr hud.png -o .b/hud.o -b 0f
 
+.b/digits.o: digits.png
+	mkdir -p .b/
+	makechr digits.png -o .b/digits.o -b 0f
+
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
-            entire-level.png .b/hud.o
+            merge_chr_nt.py entire-level.png .b/hud.o .b/digits.o
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
 	makechr .b/screen00.png -o .b/screen00.o -b 0f
@@ -68,6 +73,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 	makechr .b/screen03.png -o .b/screen03.o -b 0f
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
             .b/screen02.o .b/screen03.o .b/hud.o \
+            -d .b/digits.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
 	mv .b/kitchen.attribute04.dat .b/hud.attribute.dat

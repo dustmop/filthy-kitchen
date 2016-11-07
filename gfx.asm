@@ -3,6 +3,7 @@
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
 .export DisableDisplay, TintApplyToPpuMask
+.export PrepareRenderVertical, PrepareRenderHorizontal
 
 .importzp ppu_mask_current, ppu_ctrl_current, main_yield, color
 
@@ -127,3 +128,23 @@ WaitLoop:
   sta ppu_mask_current
   rts
 .endproc
+
+.proc PrepareRenderVertical
+  bit PPU_STATUS
+  lda ppu_ctrl_current
+  ora #PPU_CTRL_VRAM_INC_32
+  sta ppu_ctrl_current
+  sta PPU_CTRL
+  rts
+.endproc
+
+.proc PrepareRenderHorizontal
+  bit PPU_STATUS
+  lda ppu_ctrl_current
+  and #($ff & ~PPU_CTRL_VRAM_INC_32)
+  sta ppu_ctrl_current
+  sta PPU_CTRL
+  rts
+.endproc
+
+

@@ -7,6 +7,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
+.include "gfx.h.asm"
 
 apply_count = NMI_values + $00
 
@@ -43,7 +44,7 @@ RENDER_ACTION_HEADER_SIZE = 3
 ; Apply all RenderActions in the $0700 page.
 ; Clobbers A,X,Y
 .proc RenderActionApplyAll
-  bit PPU_STATUS
+  jsr PrepareRenderHorizontal
   ldx #0
   stx apply_count
 UpdateLoop:

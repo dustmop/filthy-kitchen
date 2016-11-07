@@ -4,6 +4,7 @@
 .include "include.mov-macros.asm"
 .include "include.scroll-action.asm"
 .include "include.sys.asm"
+.include "gfx.h.asm"
 
 .importzp ppu_ctrl_current
 .importzp NMI_pointer
@@ -40,7 +41,7 @@ debug_13_strip_id = $413
 
 
 .proc LevelDataFillEntireScreen
-  jsr PrepareRender
+  jsr PrepareRenderVertical
   ldx #0
 Loop:
   jsr FillFullStrip
@@ -56,7 +57,7 @@ Loop:
   lda NMI_SCROLL_action
   beq Return
 
-  jsr PrepareRender
+  jsr PrepareRenderVertical
 
   lda NMI_SCROLL_action
   sta debug_10_action
@@ -81,7 +82,7 @@ UpdateNametable:
   mov strip_id, NMI_SCROLL_strip_id
   sta debug_13_strip_id
   ;
-  jsr PrepareRender
+  jsr PrepareRenderVertical
   jsr RenderNametableSingleSubstrip
   jmp Acknowledge
 UpdateAttribute:
@@ -117,16 +118,6 @@ Return:
   jsr FillCollision
   pla
   tax
-  rts
-.endproc
-
-
-.proc PrepareRender
-  bit PPU_STATUS
-  lda ppu_ctrl_current
-  ora #PPU_CTRL_VRAM_INC_32
-  sta ppu_ctrl_current
-  sta PPU_CTRL
   rts
 .endproc
 

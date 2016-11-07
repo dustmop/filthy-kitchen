@@ -7,6 +7,7 @@
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 .include "include.sys.asm"
+.include "gfx.h.asm"
 
 SPRITE_0_TILE = $2b
 
@@ -74,13 +75,8 @@ HUD_HEART = $2d
 
 
 .proc HudDataFill
+  jsr PrepareRenderHorizontal
   ;
-  lda ppu_ctrl_current
-  and #($ff & ~PPU_CTRL_VRAM_INC_32)
-  sta ppu_ctrl_current
-  sta PPU_CTRL
-  ;
-  bit PPU_STATUS
   mov PPU_ADDR, #$20
   mov PPU_ADDR, #$00
   ldx #0
