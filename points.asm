@@ -85,6 +85,9 @@ Return:
 .endproc
 
 
+PointsDispatch_Return = PointsDispatch::Return
+
+
 .proc DrawSingleDigit
   jsr SpriteSpaceAllocate
   lda draw_v
@@ -98,7 +101,16 @@ Return:
   lda draw_h
   clc
   adc #6
+  bcs StopDrawing
   sta draw_h
+  rts
+StopDrawing:
+  pla
+  pla
+  lda #>(PointsDispatch_Return - 1)
+  pha
+  lda #<(PointsDispatch_Return - 1)
+  pha
   rts
 .endproc
 
