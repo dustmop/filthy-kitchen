@@ -8,6 +8,7 @@
 .include "sprite_space.h.asm"
 .include "random.h.asm"
 .include "explode.h.asm"
+.include "points.h.asm"
 .include "score_combo.h.asm"
 .include "shared_object_values.asm"
 
@@ -140,12 +141,39 @@ Return:
   lda #1
   jsr ComboAddLow
   lda combo_low
-  cmp #8
+  cmp #9
   blt HaveCombo
 MaxCombo:
-  lda #8
+  lda #9
 HaveCombo:
   tay
+  ; Create points object
+  mov draw_v, {object_v,x}
+  mov draw_h, {object_h,x}
+  mov draw_screen, {object_screen,x}
+  txa
+  pha
+  tya
+  pha
+  jsr ObjectAllocate
+  bcs PopStack
+  mov {object_kind,x}, #(OBJECT_KIND_POINTS | OBJECT_IS_NEW)
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  mov {object_life,x}, #40
+  mov {object_step,x}, #0
+  mov {object_frame,x}, _
+  mov {points_digit_ones,x}, {ones_place,y}
+  mov {points_digit_tens,x}, {tens_place,y}
+  mov {points_digit_hundreds,x}, {hundreds_place,y}
+  jsr PointsDispatch
+PopStack:
+  pla
+  tay
+  pla
+  tax
+  ;
   lda combo_points_low,y
   jsr ScoreAddLowNoRender
   lda combo_points_medium,y
@@ -157,7 +185,12 @@ HaveCombo:
 combo_points_low:
 .byte 1, 1, 2, 4, 8, 16, 32, 64, 28, 56
 combo_points_medium:
+hundreds_place:
 .byte 0, 0, 0, 0, 0,  0,  0,  0,  1,  2
+tens_place:
+.byte 0, 0, 0, 0, 0,  1,  3,  6,  2,  5
+ones_place:
+.byte 1, 1, 2, 4, 8,  6,  2,  4,  8,  6
 
 
 .proc ExplodeTheFly
@@ -182,6 +215,7 @@ combo_points_medium:
   jsr ExplodeDispatch
   rts
 .endproc
+
 
 FLY_ANIMATE_1 = $0b
 FLY_ANIMATE_2 = $0d

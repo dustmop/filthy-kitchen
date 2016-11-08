@@ -23,6 +23,7 @@ SRC = main.asm \
       fly.asm \
       swatter.asm \
       explode.asm \
+      points.asm \
       random.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC))

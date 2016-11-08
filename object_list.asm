@@ -14,6 +14,7 @@
 .include "swatter.h.asm"
 .include "fly.h.asm"
 .include "explode.h.asm"
+.include "points.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -40,6 +41,7 @@ OBJECT_KIND_NONE = $ff
 OBJECT_KIND_SWATTER = $00
 OBJECT_KIND_FLY     = $01
 OBJECT_KIND_EXPLODE = $02
+OBJECT_KIND_POINTS  = $03
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -156,6 +158,8 @@ Next:
   beq DispatchFly
   cmp #OBJECT_KIND_EXPLODE
   beq DispatchExplode
+  cmp #OBJECT_KIND_POINTS
+  beq DispatchPoints
   bne DispatchDone
 DispatchSwatter:
   jsr SwatterDispatch
@@ -165,6 +169,9 @@ DispatchFly:
   jmp DispatchDone
 DispatchExplode:
   jsr ExplodeDispatch
+  jmp DispatchDone
+DispatchPoints:
+  jsr PointsDispatch
 DispatchDone:
   pla
   tax
@@ -313,7 +320,7 @@ Done:
 
 
 table_object_num_frames:
-.byte 8, 3, 3
+.byte 8, 3, 3, 1
 
 table_object_animate_limit:
-.byte 2, 3, 6
+.byte 2, 3, 6, 1
