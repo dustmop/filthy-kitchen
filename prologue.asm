@@ -4,8 +4,8 @@ MAPPER_NUMBER = 0
 
 
 .byte "NES", $1a
-.byte $01 ; prg * $4000
-.byte $01 ; chr
+.byte $02 ; prg * $4000
+.byte $00 ; chr-ram
 .byte ((MAPPER_NUMBER & $0f) << 4) | $01
 .byte (MAPPER_NUMBER & $f0) | $00
 .byte $00 ; 8) mapper variant
@@ -35,6 +35,9 @@ palette:
 .word 0
 
 
-.segment "CHRROM"
+.segment "CHRDATA"
 
+.export chr_data
+
+chr_data:
 .incbin ".b/resource.chr.dat"

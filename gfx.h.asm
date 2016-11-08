@@ -2,3 +2,4 @@
 .import EnableNmi, EnableDisplayAndNmi, WaitNewFrame
 .import EnableDisplay, DisableDisplay, TintApplyToPpuMask
 .import PrepareRenderVertical, PrepareRenderHorizontal
+.import LoadChrRam

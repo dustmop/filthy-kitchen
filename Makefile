@@ -97,6 +97,6 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 .b/bg_collision.dat: build_collision.py bg_collision.png
 	python build_collision.py bg_collision.png -o .b/bg_collision.dat
 
-filthy-kitchen.nes: $(OBJ)
+filthy-kitchen.nes: $(OBJ) link.cfg
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
 	python convertln.py filthy-kitchen.ln > filthy-kitchen.nes.0.nl

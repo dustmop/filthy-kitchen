@@ -62,6 +62,9 @@ Wait1:
   ldy #>palette
   jsr LoadPalette
 
+  ; Load chr-ram
+  jsr LoadChrRam
+
   jsr HudDataFill
   jsr LevelDataFillEntireScreen
 
