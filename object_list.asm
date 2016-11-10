@@ -46,7 +46,7 @@ OBJECT_KIND_POINTS  = $03
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
 
-MAX_NUM_OBJECTS = 8
+MAX_NUM_OBJECTS = 10
 
 
 .segment "CODE"
@@ -69,7 +69,7 @@ Done:
   dex
   mov {object_next,x}, #$ff
   mov object_list_head, #$00
-  mov object_list_tail, #$07
+  mov object_list_tail, #(MAX_NUM_OBJECTS - 1)
   rts
 .endproc
 

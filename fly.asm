@@ -21,6 +21,13 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp draw_h, draw_v, draw_screen
 .importzp combo_low
 
+.import object_data_extend
+fly_direction = object_data_extend + $00
+fly_step      = object_data_extend + $10
+fly_v_low     = object_data_extend + $20
+fly_h_low     = object_data_extend + $30
+
+
 .segment "CODE"
 
 .proc FlyListUpdate
@@ -31,7 +38,7 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
   mov spawn_count, #0
 
   jsr ObjectListCountAvail
-  cmp #2
+  cmp #3
   blt Return
 
   jsr ObjectAllocate
@@ -39,6 +46,8 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
   jsr ObjectConstruct
   mov {object_kind,x}, #OBJECT_KIND_FLY
   mov {object_life,x}, #$ff
+  mov {fly_direction,x}, #$ff
+  mov {fly_step,x}, #40
 
   ; Horizontal position
   lda player_h
@@ -61,9 +70,123 @@ Return:
 .endproc
 
 
+FLY_SPEED = $110
+MAX_WORD = $10000
+FLY_MIN_V = $30
+FLY_MAX_V = $b0
+
 .proc FlyDispatch
   txa
   pha
+
+.scope Movement
+  lda fly_direction,x
+  bpl MoveSomeDirection
+  jmp Wait
+MoveSomeDirection:
+  beq MoveRight
+  cmp #16
+  beq MoveUp
+  cmp #32
+  beq MoveLeft
+  bne MoveDown
+MoveRight:
+  lda #(FLY_SPEED & $ff)
+  clc
+  adc fly_h_low,x
+  sta fly_h_low,x
+  lda object_h,x
+  adc #(FLY_SPEED >> 8)
+  sta object_h,x
+  lda object_screen,x
+  adc #0
+  sta object_screen,x
+  jmp Decrement
+MoveUp:
+  lda #((MAX_WORD - FLY_SPEED) & $ff)
+  clc
+  adc fly_v_low,x
+  sta fly_v_low,x
+  lda object_v,x
+  adc #((MAX_WORD - FLY_SPEED) >> 8)
+  ; check overflow when moving up
+  cmp #FLY_MIN_V
+  blt MoveUpUnderflow
+  sta object_v,x
+  jmp Decrement
+MoveUpUnderflow:
+  mov {object_v,x}, #FLY_MIN_V
+  jmp RestNow
+MoveLeft:
+  lda #((MAX_WORD - FLY_SPEED) & $ff)
+  clc
+  adc fly_h_low,x
+  sta fly_h_low,x
+  lda object_h,x
+  adc #((MAX_WORD - FLY_SPEED) >> 8)
+  sta object_h,x
+  lda object_screen,x
+  adc #$ff
+  sta object_screen,x
+  jmp Decrement
+MoveDown:
+  lda #(FLY_SPEED & $ff)
+  clc
+  adc fly_v_low,x
+  sta fly_v_low,x
+  lda object_v,x
+  adc #(FLY_SPEED >> 8)
+  ; check overflow when moving down
+  cmp #FLY_MAX_V
+  bge MoveDownOverflow
+  sta object_v,x
+  jmp Decrement
+MoveDownOverflow:
+  mov {object_v,x}, #FLY_MAX_V
+  jmp RestNow
+Decrement:
+  dec fly_step,x
+  bne Next
+RestNow:
+  mov {fly_direction,x}, #$ff
+  jsr RandomGet
+  and #$1f
+  clc
+  adc #120
+  sta fly_step,x
+  jmp Next
+Wait:
+  dec fly_step,x
+  bne Next
+Pick:
+  jsr RandomGet
+  and #$30
+  sta fly_direction,x
+  jsr RandomGet
+  and #$0f
+  clc
+  adc #30
+  sta fly_step,x
+Next:
+.endscope
+
+.scope MaybeDespawnFarAway
+  lda object_h,x
+  sec
+  sbc player_h
+  lda object_screen,x
+  sbc player_screen
+  sta delta_screen
+  eor #$80
+  cmp #$81
+  bge Despawn
+  cmp #$7f
+  blt Despawn
+  jmp Next
+Despawn:
+  jsr ObjectFree
+Next:
+.endscope
 
 .scope CollisionWithSwatter
   ldy player_owns_swatter
