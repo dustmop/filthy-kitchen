@@ -11,6 +11,7 @@
 .include "points.h.asm"
 .include "score_combo.h.asm"
 .include "shared_object_values.asm"
+.include ".b/trig.h.asm"
 
 COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
@@ -80,70 +81,55 @@ FLY_MAX_V = $b0
   pha
 
 .scope Movement
-  lda fly_direction,x
-  bpl MoveSomeDirection
-  jmp Wait
-MoveSomeDirection:
-  beq MoveRight
-  cmp #16
-  beq MoveUp
-  cmp #32
-  beq MoveLeft
-  bne MoveDown
-MoveRight:
-  lda #(FLY_SPEED & $ff)
+  ldy fly_direction,x
+  bmi Wait
+  lda trig_lookup,y
+  tay
+HorizontalDelta:
+  lda trig_movement,y
   clc
   adc fly_h_low,x
   sta fly_h_low,x
-  lda object_h,x
-  adc #(FLY_SPEED >> 8)
+  iny
+  lda trig_movement,y
+  bmi ToTheLeft
+ToTheRight:
+  adc object_h,x
   sta object_h,x
   lda object_screen,x
   adc #0
   sta object_screen,x
-  jmp Decrement
-MoveUp:
-  lda #((MAX_WORD - FLY_SPEED) & $ff)
-  clc
-  adc fly_v_low,x
-  sta fly_v_low,x
-  lda object_v,x
-  adc #((MAX_WORD - FLY_SPEED) >> 8)
-  ; check overflow when moving up
-  cmp #FLY_MIN_V
-  blt MoveUpUnderflow
-  sta object_v,x
-  jmp Decrement
-MoveUpUnderflow:
-  mov {object_v,x}, #FLY_MIN_V
-  jmp RestNow
-MoveLeft:
-  lda #((MAX_WORD - FLY_SPEED) & $ff)
-  clc
-  adc fly_h_low,x
-  sta fly_h_low,x
-  lda object_h,x
-  adc #((MAX_WORD - FLY_SPEED) >> 8)
+  jmp VerticalDelta
+ToTheLeft:
+  adc object_h,x
   sta object_h,x
   lda object_screen,x
   adc #$ff
   sta object_screen,x
-  jmp Decrement
-MoveDown:
-  lda #(FLY_SPEED & $ff)
+VerticalDelta:
+  iny
+  lda trig_movement,y
   clc
   adc fly_v_low,x
   sta fly_v_low,x
-  lda object_v,x
-  adc #(FLY_SPEED >> 8)
-  ; check overflow when moving down
-  cmp #FLY_MAX_V
-  bge MoveDownOverflow
+  iny
+  lda trig_movement,y
+  adc object_v,x
   sta object_v,x
+CheckOverflow:
+  ; check overflow when moving up
+  cmp #FLY_MIN_V
+  blt MoveUpUnderflow
+  ; check overflow when moving down
+  cmp #(FLY_MAX_V + 1)
+  bge MoveDownOverflow
   jmp Decrement
+MoveUpUnderflow:
+  mov {object_v,x}, #FLY_MIN_V
+  bne RestNow
 MoveDownOverflow:
   mov {object_v,x}, #FLY_MAX_V
-  jmp RestNow
+  bne RestNow
 Decrement:
   dec fly_step,x
   bne Next
@@ -160,7 +146,7 @@ Wait:
   bne Next
 Pick:
   jsr RandomGet
-  and #$30
+  and #$3f
   sta fly_direction,x
   jsr RandomGet
   and #$0f

@@ -3,3 +3,4 @@
 *.nes
 *.nes.*.nl
 *.nes.deb
+*.pyc

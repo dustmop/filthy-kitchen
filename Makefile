@@ -26,7 +26,7 @@ SRC = main.asm \
       points.asm \
       random.asm
 
-OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
+OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/%.o: %.asm
 	mkdir -p .b/
@@ -96,6 +96,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC))
 
 .b/bg_collision.dat: build_collision.py bg_collision.png
 	python build_collision.py bg_collision.png -o .b/bg_collision.dat
+
+.b/trig.o .b/trig.h.asm: build_trig.py
+	mkdir -p .b/
+	python build_trig.py -a .b/trig.asm -f .b/trig.h.asm
+	ca65 -o .b/trig.o .b/trig.asm
 
 filthy-kitchen.nes: $(OBJ) link.cfg
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
