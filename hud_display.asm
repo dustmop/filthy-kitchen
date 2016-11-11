@@ -18,7 +18,7 @@ SPRITE_0_TILE = $2b
   mov $200, #19
   mov $201, #SPRITE_0_TILE
   mov $202, #$20
-  mov $203, #122
+  mov $203, #116
   rts
 .endproc
 
@@ -40,36 +40,37 @@ Wait1:
 .endproc
 
 
-HUD_FACE_LEFT = $3b
-HUD_FACE_RIGHT = $3d
-HUD_HEART = $2d
+HUD_FACE_LEFT_TILE = $3b
+HUD_FACE_RIGHT_TILE = $3d
+HUD_HEART_TILE = $2d
+HUD_HEART_H = $5b
 
 
 .proc HudElemsPut
   mov sprite_v   +$0c, #$0f
-  mov sprite_tile+$0c, #HUD_FACE_LEFT
+  mov sprite_tile+$0c, #HUD_FACE_LEFT_TILE
   mov sprite_attr+$0c, #1
   mov sprite_h   +$0c, #$08
 
   mov sprite_v   +$10, #$0f
-  mov sprite_tile+$10, #HUD_FACE_RIGHT
+  mov sprite_tile+$10, #HUD_FACE_RIGHT_TILE
   mov sprite_attr+$10, #1
   mov sprite_h   +$10, #$10
 
   mov sprite_v   +$14, #$11
-  mov sprite_tile+$14, #HUD_HEART
+  mov sprite_tile+$14, #HUD_HEART_TILE
   mov sprite_attr+$14, #0
-  mov sprite_h   +$14, #$62
+  mov sprite_h   +$14, #(HUD_HEART_H + 0)
 
   mov sprite_v   +$18, #$11
-  mov sprite_tile+$18, #HUD_HEART
+  mov sprite_tile+$18, #HUD_HEART_TILE
   mov sprite_attr+$18, #0
-  mov sprite_h   +$18, #$6f
+  mov sprite_h   +$18, #(HUD_HEART_H + 13)
 
   mov sprite_v   +$1c, #$11
-  mov sprite_tile+$1c, #HUD_HEART
+  mov sprite_tile+$1c, #HUD_HEART_TILE
   mov sprite_attr+$1c, #0
-  mov sprite_h   +$1c, #$7c
+  mov sprite_h   +$1c, #(HUD_HEART_H + 26)
   rts
 .endproc
 
