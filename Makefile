@@ -48,6 +48,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/level_data.o: level_data.asm .b/level_data.dat
 	ca65 -o .b/level_data.o level_data.asm -g
 
+.b/fly.o: fly.asm .b/trig.h.asm
+	ca65 -o .b/fly.o fly.asm -g
+
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
 	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16
