@@ -18,6 +18,7 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_jump, player_jump_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_ducking, player_collision_idx
+.importzp player_animate
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
@@ -173,16 +174,24 @@ Next:
   ; Check if Left or Right is being pressed.
 .scope MaybeLeftOrRight
   bit player_ducking
-  bmi Next
+  bmi StayStill
   lda buttons
   and #BUTTON_LEFT
   bne MoveLeft
   lda buttons
   and #BUTTON_RIGHT
   bne MoveRight
-  beq Next
+  beq StayStill
 MoveLeft:
   mov player_dir, #$ff
+  inc player_animate
+  lda player_animate
+  and #$1f
+  bne :+
+  clc
+  adc #1
+:
+  sta player_animate
   lda player_h_low
   sec
   sbc #SPEED_LOW
@@ -202,6 +211,10 @@ MoveLeftOkay:
   jmp Next
 MoveRight:
   mov player_dir, #0
+  inc player_animate
+  lda player_animate
+  and #$1f
+  sta player_animate
   lda player_h_low
   clc
   adc #SPEED_LOW
@@ -222,6 +235,9 @@ MoveRight:
   blt Next
   lda level_max_h
   sta player_h
+  jmp Next
+StayStill:
+  mov player_animate, #0
 Next:
 .endscope
 
@@ -286,14 +302,29 @@ Next:
   sta draw_h
   bit player_ducking
   bmi Ducking
+  lda player_animate
+  bne Walking
 Standing:
   bit player_dir
   bmi StandingLeft
 StandingRight:
-  lda #PICTURE_ID_PLAYER_RIGHT
+  lda #PICTURE_ID_PLAYER_RIGHT_STAND
   jmp DrawPlayer
 StandingLeft:
-  lda #PICTURE_ID_PLAYER_LEFT
+  lda #PICTURE_ID_PLAYER_LEFT_STAND
+  jmp DrawPlayer
+Walking:
+  .repeat 3
+  lsr a
+  .endrepeat
+  tay
+  bit player_dir
+  bmi WalkingLeft
+WalkingRight:
+  lda player_walk_right_animation,y
+  jmp DrawPlayer
+WalkingLeft:
+  lda player_walk_left_animation,y
   jmp DrawPlayer
 Ducking:
   bit player_dir
@@ -312,3 +343,16 @@ DrawPlayer:
 
   rts
 .endproc
+
+
+player_walk_right_animation:
+.byte PICTURE_ID_PLAYER_RIGHT_WALK0
+.byte PICTURE_ID_PLAYER_RIGHT_WALK1
+.byte PICTURE_ID_PLAYER_RIGHT_WALK0
+.byte PICTURE_ID_PLAYER_RIGHT_WALK2
+
+player_walk_left_animation:
+.byte PICTURE_ID_PLAYER_LEFT_WALK0
+.byte PICTURE_ID_PLAYER_LEFT_WALK1
+.byte PICTURE_ID_PLAYER_LEFT_WALK0
+.byte PICTURE_ID_PLAYER_LEFT_WALK2

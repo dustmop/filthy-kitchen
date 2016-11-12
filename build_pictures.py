@@ -32,8 +32,10 @@ class PictureInfo(object):
     return self.origin_x is None or self.origin_y is None
 
   def __str__(self):
-    if self.target_y is None:
-      return '<PictureInfo origin[y=%s x=%s]>' % (self.origin_y, self.origin_x)
+    if self.origin_y is None and self.target_y is None and self.is_flush:
+      return '<PictureInfo flush>'
+    elif self.origin_y is None and self.target_y is None and self.identifier:
+      return '<PictureInfo ident=%s>' % (self.identifier,)
     else:
       return '<PictureInfo origin[y=%s x=%s] target[y=%s x=%s]>' % (
         self.origin_y, self.origin_x, self.target_y, self.target_x)
@@ -294,7 +296,12 @@ def produce_data(info_collection, out_filename, header_filename):
         sprite_data[key] = sprite_counter
         sprite_counter += 1
       sprite_id = sprite_data[key]
-      sprite_list.append(sprite_id * SIZE_ID_MULTIPLE | flip_bits)
+      if sprite_id >= 0x40:
+        raise RuntimeError('Sprite ID overflow %02x, data = %s, name = %s' % (
+          sprite_id,
+          (y_pos, tile, attr, x_pos),
+          info.identifier))
+      sprite_list.append(sprite_id | flip_bits)
     sprite_list.append(0xff)
     info.sprite_list = sprite_list
     fheader.write('PICTURE_ID_%s = %s\n' % (info.upcase, sprite_distance))

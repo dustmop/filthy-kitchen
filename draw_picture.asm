@@ -58,7 +58,10 @@ FrameDone:
 .proc DrawSinglePicture
   tya
   pha
-  ldy draw_picture_id
+  lda draw_picture_id
+  asl a
+  adc draw_picture_id
+  tay
   jsr SpriteSpaceAllocate
   ; V
   lda (draw_sprite_pointer),y
