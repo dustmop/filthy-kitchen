@@ -3,12 +3,14 @@
 .export ScoreAddLowNoRender
 .export ComboAddLow
 .export ComboSetToZero
+.export FlashEarnedCombo
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "render_action.h.asm"
 
 .importzp score_low, score_medium, combo_low, combo_medium
+.importzp earned_combo_low, earned_combo_medium, earned_combo_count
 
 .segment "CODE"
 
@@ -65,6 +67,15 @@ Return:
 
 
 .proc ComboSetToZero
+  lda combo_low
+  cmp #2
+  blt SetZero
+DisplayDone:
+  ; If combo was 2 or higher, flash that earned score for a little bit.
+  mov earned_combo_low, combo_low
+  mov earned_combo_medium, combo_medium
+  mov earned_combo_count, #160
+SetZero:
   mov combo_low, #0
   mov combo_medium, _
   jsr RenderCombo
@@ -112,6 +123,47 @@ Return:
   sta render_action_data+1,y
   pla
   tax
+  rts
+.endproc
+
+
+.proc FlashEarnedCombo
+  ; If earned combo is done flashing, do nothing.
+  lda earned_combo_low
+  beq Return
+  ; If combo is non-zero, display it by not showing the earned combo.
+  lda combo_low
+  bne SetToZero
+  ; Flashing the earned combo, decrement the counter.
+  dec earned_combo_count
+  beq SetToZero
+  ; Flash speed is every 8 frame; check the $08 bit.
+  lda earned_combo_count
+  and #$08
+  beq ShowEarned
+HideEarned:
+  ; Display 3 empty tiles.
+  lda #3
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$20
+  mov {render_action_addr_low,y}, #$7c
+  mov {render_action_data+0,y}, #0
+  mov {render_action_data+1,y}, #0
+  mov {render_action_data+2,y}, #0
+  rts
+ShowEarned:
+  ; Temporarily override the combo count, render it, then restore it to zero.
+  mov combo_low, earned_combo_low
+  mov combo_medium, earned_combo_medium
+  jsr RenderCombo
+  mov combo_low, #0
+  mov combo_medium, #0
+  rts
+SetToZero:
+  mov earned_combo_low, #0
+  mov earned_combo_medium, #0
+  jsr RenderCombo
+Return:
   rts
 .endproc
 

@@ -3,3 +3,4 @@
 .import ScoreAddLowNoRender
 .import ComboAddLow
 .import ComboSetToZero
+.import FlashEarnedCombo

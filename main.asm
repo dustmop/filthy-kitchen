@@ -9,6 +9,7 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "debug_display.h.asm"
+.include "score_combo.h.asm"
 .include "render_action.h.asm"
 .include "fly.h.asm"
 .include "random.h.asm"
@@ -121,6 +122,9 @@ ForeverLoop:
 
   DebugModeSetTint red_blue
   jsr PlayerDraw
+
+  DebugModeSetTint red
+  jsr FlashEarnedCombo
 
   DebugModeSetTint 0
   jsr MaybeDebugToggle
