@@ -15,17 +15,17 @@ swatter_sprite_data:
 
 player_picture_data:
 
-player_right_stand @ 48,8
-player_left_stand  @ 48,32
+player_stand_right @ 48,8
+player_stand_left  @ 48,32
 
-player_right_walk0 @ 96,8
-player_left_walk0  @ 96,32
+player_walk0_right @ 96,8
+player_walk0_left  @ 96,32
 
-player_right_walk1 @ 96,56
-player_left_walk1  @ 96,80
+player_walk1_right @ 96,56
+player_walk1_left  @ 96,80
 
-player_right_walk2 @ 96,104
-player_left_walk2  @ 96,128
+player_walk2_right @ 96,104
+player_walk2_left  @ 96,128
 
 player_duck_right  @ 48,72
 player_duck_left   @ 48,120

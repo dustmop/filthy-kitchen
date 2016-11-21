@@ -42,6 +42,7 @@ PLAYER_STATE_WALKING  = 8
 draw_tile    = values + $01
 draw_attr    = values + $02
 is_on_ground = values + $03
+tmp          = values + $04
 
 
 .segment "CODE"
@@ -183,14 +184,14 @@ Next:
 .scope MaybeLeftOrRight
   lda player_state
   cmp #PLAYER_STATE_DUCKING
-  beq StayStill
+  beq NotWalking
   lda buttons
   and #BUTTON_LEFT
   bne MoveLeft
   lda buttons
   and #BUTTON_RIGHT
   bne MoveRight
-  beq StayStill
+  beq NotWalking
 MoveLeft:
   mov player_state, #PLAYER_STATE_WALKING
   mov player_dir, #$ff
@@ -247,7 +248,7 @@ MoveRight:
   lda level_max_h
   sta player_h
   jmp Next
-StayStill:
+NotWalking:
   mov player_animate, #0
 Next:
 .endscope
@@ -257,6 +258,7 @@ Next:
   bit is_on_ground
   bpl Next
   mov player_state, #PLAYER_STATE_IN_AIR
+  mov player_animate, #0
 Next:
 .endscope
 
@@ -267,6 +269,18 @@ Next:
 .proc PlayerDraw
   mov draw_attr, #0
   mov draw_screen, _
+
+  mov tmp, player_dir
+  lda player_animate
+  .repeat 3
+  lsr a
+  .endrepeat
+  clc
+  adc player_state
+  asl tmp
+  rol a
+  pha
+  tay
 
 .scope SwatterDraw
   lda player_owns_swatter
@@ -281,82 +295,32 @@ Next:
   MovWord draw_picture_pointer, swatter_picture_data
   MovWord draw_sprite_pointer, swatter_sprite_data
 
-  bit player_dir
-  bmi FacingLeft
-FacingRight:
-  mov draw_picture_id, #PICTURE_ID_SWATTER_UP_RIGHT
-  lda player_state
-  cmp #PLAYER_STATE_DUCKING
-  beq DuckingRight
-StandingRight:
-  lda #$06
-  bpl DrawIt
-DuckingRight:
-  lda #$0e
-  bpl DrawIt
-FacingLeft:
-  mov draw_picture_id, #PICTURE_ID_SWATTER_UP_LEFT
-  lda player_state
-  cmp #PLAYER_STATE_DUCKING
-  beq DuckingLeft
-StandingLeft:
-  lda #$0fc
-  bmi DrawIt
-DuckingLeft:
-  lda #$0f4
-DrawIt:
+  lda swatter_animation_id,y
+  sta draw_picture_id
+
+  lda swatter_animation_h,y
   clc
   adc player_render_h
   sta draw_h
-  lda #$09
+
+  lda swatter_animation_v,y
   clc
   adc player_render_v
   sta draw_v
+
   jsr DrawPicture
 Next:
 .endscope
+
+  pla
+  tay
 
   ; Player
   lda player_render_v
   sta draw_v
   lda player_render_h
   sta draw_h
-  lda player_state
-  cmp #PLAYER_STATE_DUCKING
-  beq Ducking
-  lda player_animate
-  bne Walking
-Standing:
-  bit player_dir
-  bmi StandingLeft
-StandingRight:
-  lda #PICTURE_ID_PLAYER_RIGHT_STAND
-  jmp DrawPlayer
-StandingLeft:
-  lda #PICTURE_ID_PLAYER_LEFT_STAND
-  jmp DrawPlayer
-Walking:
-  .repeat 3
-  lsr a
-  .endrepeat
-  tay
-  bit player_dir
-  bmi WalkingLeft
-WalkingRight:
-  lda player_walk_right_animation,y
-  jmp DrawPlayer
-WalkingLeft:
-  lda player_walk_left_animation,y
-  jmp DrawPlayer
-Ducking:
-  bit player_dir
-  bmi DuckingLeft
-DuckingRight:
-  lda #PICTURE_ID_PLAYER_DUCK_RIGHT
-  jmp DrawPlayer
-DuckingLeft:
-  lda #PICTURE_ID_PLAYER_DUCK_LEFT
-DrawPlayer:
+  lda player_animation_id,y
   sta draw_picture_id
   mov draw_palette, #1
   MovWord draw_picture_pointer, player_picture_data
@@ -367,14 +331,78 @@ DrawPlayer:
 .endproc
 
 
-player_walk_right_animation:
-.byte PICTURE_ID_PLAYER_RIGHT_WALK0
-.byte PICTURE_ID_PLAYER_RIGHT_WALK1
-.byte PICTURE_ID_PLAYER_RIGHT_WALK0
-.byte PICTURE_ID_PLAYER_RIGHT_WALK2
+player_animation_id:
+; PLAYER_STATE_STANDING
+.byte PICTURE_ID_PLAYER_STAND_RIGHT, PICTURE_ID_PLAYER_STAND_LEFT
+; PLAYER_STATE_DUCKING
+.byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT
+; PLAYER_STATE_IN_AIR, TODO
+.byte PICTURE_ID_PLAYER_STAND_RIGHT, PICTURE_ID_PLAYER_STAND_LEFT
+; padding
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+; PLAYER_STATE_WALKING
+.byte PICTURE_ID_PLAYER_WALK0_RIGHT, PICTURE_ID_PLAYER_WALK0_LEFT
+.byte PICTURE_ID_PLAYER_WALK1_RIGHT, PICTURE_ID_PLAYER_WALK1_LEFT
+.byte PICTURE_ID_PLAYER_WALK0_RIGHT, PICTURE_ID_PLAYER_WALK0_LEFT
+.byte PICTURE_ID_PLAYER_WALK2_RIGHT, PICTURE_ID_PLAYER_WALK2_LEFT
 
-player_walk_left_animation:
-.byte PICTURE_ID_PLAYER_LEFT_WALK0
-.byte PICTURE_ID_PLAYER_LEFT_WALK1
-.byte PICTURE_ID_PLAYER_LEFT_WALK0
-.byte PICTURE_ID_PLAYER_LEFT_WALK2
+swatter_animation_id:
+; PLAYER_STATE_STANDING
+.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+; PLAYER_STATE_DUCKING
+.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+; PLAYER_STATE_IN_AIR, TODO
+.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+; padding
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+; PLAYER_STATE_WALKING
+.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+.byte PICTURE_ID_SWATTER_RIGHT,    PICTURE_ID_SWATTER_LEFT
+.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+.byte PICTURE_ID_SWATTER_UP,       PICTURE_ID_SWATTER_UP
+
+swatter_animation_h:
+; PLAYER_STATE_STANDING
+.byte  5, $fb
+; PLAYER_STATE_DUCKING
+.byte 14, $f2
+; PLAYER_STATE_IN_AIR
+.byte  5, $fb
+; padding
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+; PLAYER_STATE_WALKING
+.byte  5, $fb
+.byte  1, $ff
+.byte  5, $fb
+.byte  6, $fa
+
+swatter_animation_v:
+; PLAYER_STATE_STANDING
+.byte  9, 9
+; PLAYER_STATE_DUCKING
+.byte 10, 10
+; PLAYER_STATE_IN_AIR
+.byte  9, 9
+; padding
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+.byte  0, 0
+; PLAYER_STATE_WALKING
+.byte  9, 9
+.byte 16, 16
+.byte  9, 9
+.byte  4, 4
