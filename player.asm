@@ -16,8 +16,8 @@
 .include ".b/pictures.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
-.importzp player_jump, player_jump_low, player_render_h, player_render_v
-.importzp player_dir, player_owns_swatter, player_ducking, player_collision_idx
+.importzp player_gravity, player_gravity_low, player_render_h, player_render_v
+.importzp player_dir, player_owns_swatter, player_state, player_collision_idx
 .importzp player_animate
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
@@ -33,6 +33,11 @@ SPEED_HIGH = $01
 START_V = $a8
 START_H = $10
 
+PLAYER_STATE_STANDING = 0
+PLAYER_STATE_DUCKING  = 1
+PLAYER_STATE_IN_AIR   = 2
+PLAYER_STATE_WALKING  = 8
+
 ;DrawPicture   values + $00
 draw_tile    = values + $01
 draw_attr    = values + $02
@@ -46,7 +51,7 @@ is_on_ground = values + $03
   mov player_v, #START_V
   mov player_h, #START_H
   mov player_dir, #$00
-  mov player_jump, _
+  mov player_gravity, _
   mov player_owns_swatter, #$ff
   ; Level data
   mov level_max_screen, #3
@@ -58,21 +63,21 @@ is_on_ground = values + $03
 .proc PlayerUpdate
   ; Apply gravity to v, for both jumping and falling.
 .scope Gravity
-  lda player_jump
+  lda player_gravity
   clc
   adc player_v
   sta player_v
-  inc player_jump_low
-  lda player_jump_low
+  inc player_gravity_low
+  lda player_gravity_low
   cmp #5
   blt Next
-  mov player_jump_low, #0
-  inc player_jump
+  mov player_gravity_low, #0
+  inc player_gravity
 Next:
 .endscope
   ; Check player against collision being below their feet.
 .scope CheckGround
-  bit player_jump
+  bit player_gravity
   bmi NotOnGround
   lda player_screen
   ldx player_h
@@ -81,11 +86,11 @@ Next:
   bcs IsOnGround
 NotOnGround:
   mov is_on_ground, #$ff
-  jmp Next
+  jmp AfterGroundMovement
 IsOnGround:
   sta player_v
   mov is_on_ground, #$00
-  mov player_jump, #$00
+  mov player_gravity, #$00
 Next:
 .endscope
   ; Check if down is being pressed. If so, duck.
@@ -97,11 +102,11 @@ MaybeJump:
   bit is_on_ground
   bmi Standing
 Ducking:
-  mov player_ducking, #$ff
+  mov player_state, #PLAYER_STATE_DUCKING
   mov player_collision_idx, #COLLISION_DATA_PLAYER_DUCKING
   jmp Next
 Standing:
-  mov player_ducking, #0
+  mov player_state, #PLAYER_STATE_STANDING
   mov player_collision_idx, #COLLISION_DATA_PLAYER_STANDING
 Next:
 .endscope
@@ -114,10 +119,12 @@ MaybeJump:
   bit is_on_ground
   bmi Next
 Jump:
-  mov player_jump, #$fc
-  mov player_jump_low, #0
+  mov player_gravity, #$fc
+  mov player_gravity_low, #0
 Next:
 .endscope
+
+AfterGroundMovement:
   ; Check if B is being pressed. If so, throw a swatter.
 .scope HandleThrow
   lda buttons_press
@@ -171,10 +178,12 @@ HaveSpeed:
   sta swatter_speed,x
 Next:
 .endscope
+
   ; Check if Left or Right is being pressed.
 .scope MaybeLeftOrRight
-  bit player_ducking
-  bmi StayStill
+  lda player_state
+  cmp #PLAYER_STATE_DUCKING
+  beq StayStill
   lda buttons
   and #BUTTON_LEFT
   bne MoveLeft
@@ -183,6 +192,7 @@ Next:
   bne MoveRight
   beq StayStill
 MoveLeft:
+  mov player_state, #PLAYER_STATE_WALKING
   mov player_dir, #$ff
   inc player_animate
   lda player_animate
@@ -210,6 +220,7 @@ MoveLeft:
 MoveLeftOkay:
   jmp Next
 MoveRight:
+  mov player_state, #PLAYER_STATE_WALKING
   mov player_dir, #0
   inc player_animate
   lda player_animate
@@ -241,6 +252,14 @@ StayStill:
 Next:
 .endscope
 
+  ; Modify player state if the player is not on the ground.
+.scope PlayerInAir
+  bit is_on_ground
+  bpl Next
+  mov player_state, #PLAYER_STATE_IN_AIR
+Next:
+.endscope
+
   rts
 .endproc
 
@@ -266,8 +285,9 @@ Next:
   bmi FacingLeft
 FacingRight:
   mov draw_picture_id, #PICTURE_ID_SWATTER_UP_RIGHT
-  bit player_ducking
-  bmi DuckingRight
+  lda player_state
+  cmp #PLAYER_STATE_DUCKING
+  beq DuckingRight
 StandingRight:
   lda #$06
   bpl DrawIt
@@ -276,8 +296,9 @@ DuckingRight:
   bpl DrawIt
 FacingLeft:
   mov draw_picture_id, #PICTURE_ID_SWATTER_UP_LEFT
-  bit player_ducking
-  bmi DuckingLeft
+  lda player_state
+  cmp #PLAYER_STATE_DUCKING
+  beq DuckingLeft
 StandingLeft:
   lda #$0fc
   bmi DrawIt
@@ -300,8 +321,9 @@ Next:
   sta draw_v
   lda player_render_h
   sta draw_h
-  bit player_ducking
-  bmi Ducking
+  lda player_state
+  cmp #PLAYER_STATE_DUCKING
+  beq Ducking
   lda player_animate
   bne Walking
 Standing:

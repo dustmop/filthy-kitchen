@@ -16,13 +16,13 @@ player_v: .byte 0
 player_h: .byte 0
 player_h_low: .byte 0
 player_dir: .byte 0
-player_jump: .byte 0
-player_jump_low: .byte 0
+player_gravity: .byte 0
+player_gravity_low: .byte 0
 player_screen: .byte 0
 player_render_v: .byte 0
 player_render_h: .byte 0
 player_owns_swatter: .byte 0
-player_ducking: .byte 0
+player_state: .byte 0
 player_collision_idx: .byte 0
 player_animate: .byte 0
 camera_h: .byte 0
@@ -66,8 +66,8 @@ earned_combo_count: .byte 0
 .exportzp bg_x_scroll, bg_y_scroll, bg_nt_select
 .exportzp buttons, buttons_last, buttons_press
 .exportzp player_v, player_h, player_h_low, player_screen, player_dir
-.exportzp player_jump, player_jump_low, player_render_v, player_render_h
-.exportzp player_owns_swatter, player_ducking, player_collision_idx
+.exportzp player_gravity, player_gravity_low, player_render_v, player_render_h
+.exportzp player_owns_swatter, player_state, player_collision_idx
 .exportzp player_animate
 .exportzp camera_h, camera_screen
 .exportzp values, pointer
