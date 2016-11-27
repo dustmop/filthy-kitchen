@@ -17,7 +17,7 @@ SIZE_ID_MULTIPLE = 3
 
 
 class PictureInfo(object):
-  def __init__(self, identifier, origin_y, origin_x,
+  def __init__(self, identifier, origin_y, origin_x, mod_y=None, mod_x=None,
                is_flush=False, merge_count=None):
     self.is_flush = is_flush
     self.merge_count = merge_count
@@ -25,6 +25,8 @@ class PictureInfo(object):
     self.upcase = identifier.upper() if identifier else None
     self.origin_y = origin_y
     self.origin_x = origin_x
+    self.mod_y = mod_y or 0
+    self.mod_x = mod_x or 0
     self.target_y = None
     self.target_x = None
     self.picture = None
@@ -39,8 +41,9 @@ class PictureInfo(object):
     elif self.origin_y is None and self.target_y is None and self.identifier:
       return '<PictureInfo ident=%s>' % (self.identifier,)
     else:
-      return '<PictureInfo origin[y=%s x=%s] target[y=%s x=%s]>' % (
-        self.origin_y, self.origin_x, self.target_y, self.target_x)
+      return('<PictureInfo origin[y=%s x=%s] target[y=%s x=%s] mod[y=%s x=%s]>'
+             % (self.origin_y, self.origin_x, self.target_y, self.target_x,
+                self.mod_y, self.mod_x))
 
 
 class Rect(object):
@@ -109,10 +112,13 @@ def parse_info(filename):
       param = int(line.split(' ')[1])
       info_collection.append(PictureInfo(None, None, None, merge_count=param))
       continue
-    pieces = line.split('@')
-    identifier = pieces[0].strip()
-    pos_y, pos_x = [int(n) for n in pieces[1].split(',')]
-    info_collection.append(PictureInfo(identifier, pos_y, pos_x))
+    identifier, params = line.split('@')
+    mod_y, mod_x = (0,0)
+    if '+' in params:
+      params, mod = params.split('+')
+      mod_y, mod_x = [int(n) for n in mod.split(',')]
+    pos_y, pos_x = [int(n) for n in params.split(',')]
+    info_collection.append(PictureInfo(identifier, pos_y, pos_x, mod_y, mod_x))
   return info_collection
 
 def read_spritelist(filename):
@@ -288,8 +294,8 @@ def build_data(info_collection):
       if attr & 0x03 != palette:
         sprite_list.append(0xfe)
         palette += 1
-      y_offset = y_pos - info.origin_y
-      x_offset = x_pos - info.origin_x - k*8
+      y_offset = y_pos - info.origin_y - info.mod_y
+      x_offset = x_pos - info.origin_x - info.mod_x - k*8
       key = (y_offset % 0x100, x_offset % 0x100, tile)
       if not key in sprite_data:
         sprite_data[key] = sprite_counter

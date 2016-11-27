@@ -401,8 +401,8 @@ swatter_animation_v:
 ; PLAYER_STATE_DUCKING
 .byte 10, 10
 ; PLAYER_STATE_IN_AIR
-.byte  8, 8
-.byte $fc,$fc
+.byte  4, 4
+.byte $f8,$f8
 ; padding
 .byte  0, 0
 .byte  0, 0
