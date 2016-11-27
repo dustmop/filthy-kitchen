@@ -27,8 +27,12 @@
 SWATTER_TILE = $02
 PLAYER_TILE = $16
 PLAYER_TILE_BOTTOM = $1a
-SPEED_LOW  = $60
-SPEED_HIGH = $01
+SPEED_LOW_RIGHT    = $60
+SPEED_HIGH_RIGHT   = $01
+SPEED_SCREEN_RIGHT = $00
+SPEED_LOW_LEFT     = $a0
+SPEED_HIGH_LEFT    = $fe
+SPEED_SCREEN_LEFT  = $ff
 
 START_V = $a8
 START_H = $10
@@ -41,8 +45,8 @@ PLAYER_STATE_WALKING  = 8
 ;DrawPicture   values + $00
 draw_tile    = values + $01
 draw_attr    = values + $02
-is_on_ground = values + $03
-tmp          = values + $04
+is_on_ground = values + $07
+tmp          = values + $08
 
 
 .segment "CODE"
@@ -83,7 +87,7 @@ Next:
   lda player_screen
   ldx player_h
   ldy player_v
-  jsr DetectCollisionWithBackground
+  jsr DetectCollisionWithGround
   bcs IsOnGround
 NotOnGround:
   mov is_on_ground, #$ff
@@ -187,66 +191,42 @@ Next:
   beq NotWalking
   lda buttons
   and #BUTTON_LEFT
-  bne MoveLeft
+  bne MaybeMoveLeft
   lda buttons
   and #BUTTON_RIGHT
-  bne MoveRight
+  bne MaybeMoveRight
   beq NotWalking
+MaybeMoveLeft:
+  lda player_screen
+  ldx player_h
+  ldy player_v
+  jsr DetectCollisionWithWallLeft
+  bcs NotWalking
 MoveLeft:
-  mov player_state, #PLAYER_STATE_WALKING
   mov player_dir, #$ff
-  inc player_animate
-  lda player_animate
-  and #$1f
-  bne :+
-  clc
-  adc #1
-:
-  sta player_animate
-  lda player_h_low
-  sec
-  sbc #SPEED_LOW
-  sta player_h_low
-  lda player_h
-  sbc #SPEED_HIGH
-  sta player_h
+  lda #SPEED_LOW_LEFT
+  ldx #SPEED_HIGH_LEFT
+  ldy #SPEED_SCREEN_LEFT
+  jsr MovePlayerSideways
+  jmp AnimateWalking
+MaybeMoveRight:
   lda player_screen
-  sbc #0
-  sta player_screen
-  bpl MoveLeftOkay
-  ; Underflow
-  lda #0
-  sta player_h
-  sta player_screen
-MoveLeftOkay:
-  jmp Next
+  ldx player_h
+  ldy player_v
+  jsr DetectCollisionWithWallRight
+  bcs NotWalking
 MoveRight:
-  mov player_state, #PLAYER_STATE_WALKING
   mov player_dir, #0
+  lda #SPEED_LOW_RIGHT
+  ldx #SPEED_HIGH_RIGHT
+  ldy #SPEED_SCREEN_RIGHT
+  jsr MovePlayerSideways
+AnimateWalking:
+  mov player_state, #PLAYER_STATE_WALKING
   inc player_animate
   lda player_animate
   and #$1f
   sta player_animate
-  lda player_h_low
-  clc
-  adc #SPEED_LOW
-  sta player_h_low
-  lda player_h
-  adc #SPEED_HIGH
-  sta player_h
-  lda player_screen
-  adc #0
-  sta player_screen
-  cmp level_max_screen
-  blt Next
-  ; Overflow
-  lda level_max_screen
-  sta player_screen
-  lda player_h
-  cmp level_max_h
-  blt Next
-  lda level_max_h
-  sta player_h
   jmp Next
 NotWalking:
   mov player_animate, #0
@@ -269,6 +249,40 @@ Falling:
 Next:
 .endscope
 
+  rts
+.endproc
+
+
+; A = speed_low
+; X = speed_high
+; Y = speed_screen
+.proc MovePlayerSideways
+  clc
+  adc player_h_low
+  sta player_h_low
+  txa
+  adc player_h
+  sta player_h
+  tya
+  adc player_screen
+  sta player_screen
+  bmi Underflow
+  cmp level_max_screen
+  blt Return
+  lda player_h
+  cmp level_max_h
+  blt Return
+Overflow:
+  lda level_max_screen
+  sta player_screen
+  lda level_max_h
+  sta player_h
+  rts
+Underflow:
+  lda #0
+  sta player_h
+  sta player_screen
+Return:
   rts
 .endproc
 

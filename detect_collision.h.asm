@@ -1,2 +1,5 @@
 .import DetectCollisionInit
-.import DetectCollisionWithBackground
+.import DetectCollisionWithGround
+.import DetectCollisionWithWallLeft
+.import DetectCollisionWithWallRight
+

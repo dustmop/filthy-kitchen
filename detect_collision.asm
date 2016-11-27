@@ -1,5 +1,7 @@
 .export DetectCollisionInit
-.export DetectCollisionWithBackground
+.export DetectCollisionWithGround
+.export DetectCollisionWithWallLeft
+.export DetectCollisionWithWallRight
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -7,12 +9,18 @@
 .import collision_map
 .importzp values
 
-pos_v      = values + $00
-pos_h      = values + $01
-pos_screen = values + $02
-row        = values + $03
-corner     = values + $04
-upper      = values + $05
+pos_v        = values + $00
+pos_h        = values + $01
+pos_screen   = values + $02
+row          = values + $03
+corner       = values + $04
+upper        = values + $05
+collide_type = values + $06
+
+
+COLLIDE_TYPE_GROUND = $55
+COLLIDE_TYPE_WALL   = $aa
+
 
 ; DEBUGGING ONLY
 debug_00_row     = $400 ; Row number
@@ -32,10 +40,12 @@ debug_04_collide = $404 ; Byte at the collison map
 
 ; Carry set = standing on ground
 ; Carry clear = in air
-.proc DetectCollisionWithBackground
+.proc DetectCollisionWithGround
   sta pos_screen
   sty pos_v
   stx pos_h
+
+  mov collide_type, #COLLIDE_TYPE_GROUND
 
   ; (Y + 0x20) = bottom of player
   ; (Y + 0x18) = offset by a single tile
@@ -76,6 +86,66 @@ Success:
 .endproc
 
 
+.proc DetectCollisionWithWallLeft
+  sta pos_screen
+  sty pos_v
+  stx pos_h
+
+  mov collide_type, #COLLIDE_TYPE_WALL
+
+  ; (Y + 0x20) = bottom of player
+  lda pos_v
+  clc
+  adc #$10
+  and #$f0
+  sta row
+
+  ; Check lower-left corner.
+  lda pos_h
+  sta corner
+  jsr CheckCollisionCorner
+  bcs Success
+
+Failure:
+  clc
+  rts
+Success:
+  sec
+  rts
+.endproc
+
+
+.proc DetectCollisionWithWallRight
+  sta pos_screen
+  sty pos_v
+  stx pos_h
+
+  mov collide_type, #COLLIDE_TYPE_WALL
+
+  ; (Y + 0x20) = bottom of player
+  lda pos_v
+  clc
+  adc #$10
+  and #$f0
+  sta row
+
+  ; Check lower-left corner.
+  lda pos_h
+  clc
+  adc #$10
+  sta corner
+  jsr CheckCollisionCorner
+  bcs Success
+
+Failure:
+  clc
+  rts
+Success:
+  sec
+  rts
+.endproc
+
+
 .proc CheckCollisionCorner
   lda pos_screen
   adc #0
@@ -109,8 +179,7 @@ Success:
   lda collision_map,x
   sta debug_04_collide
   and bit_mask,y
-  ; 1 = Platform top, stops vertical movement
-  ; 2 = Wall, stops horizontal movement (TODO: Implement me)
+  and collide_type
   beq Failure
 Success:
   sec

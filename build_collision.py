@@ -8,6 +8,8 @@ def convert_color(p):
     return 0
   elif p == (0xfd, 0x4d, 0x69):
     return 1
+  elif p == (0x69, 0xd8, 0xfd):
+    return 2
   else:
     raise RuntimeError('Unknown color %s' % (p,))
 
