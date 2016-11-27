@@ -23,3 +23,7 @@ Otherwise:
 .macro fallt label
   .assert * = label, error, "Fall-through failed"
 .endmacro
+
+.macro skip2
+  .byte $2c
+.endmacro

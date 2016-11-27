@@ -30,5 +30,16 @@ player_walk2_left  @ 96,128
 player_duck_right  @ 48,72
 player_duck_left   @ 48,120
 
+player_jump_right  @ 144,8
+player_jump_left   @ 144,32
+
+.merge 2
+player_fall_head_right @ 144,128
+player_fall_right  @ 144,64
+
+.merge 2
+player_fall_head_left  @ 144,152
+player_fall_left   @ 144,96
+
 player_sprite_data:
 .flush

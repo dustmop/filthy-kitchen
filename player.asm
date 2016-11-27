@@ -258,7 +258,14 @@ Next:
   bit is_on_ground
   bpl Next
   mov player_state, #PLAYER_STATE_IN_AIR
-  mov player_animate, #0
+  bit player_gravity
+  bpl Falling
+Jumping:
+  lda #0
+  skip2
+Falling:
+  lda #8
+  sta player_animate
 Next:
 .endscope
 
@@ -336,10 +343,10 @@ player_animation_id:
 .byte PICTURE_ID_PLAYER_STAND_RIGHT, PICTURE_ID_PLAYER_STAND_LEFT
 ; PLAYER_STATE_DUCKING
 .byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT
-; PLAYER_STATE_IN_AIR, TODO
-.byte PICTURE_ID_PLAYER_STAND_RIGHT, PICTURE_ID_PLAYER_STAND_LEFT
+; PLAYER_STATE_IN_AIR
+.byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT
+.byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 .byte 0, 0
@@ -356,9 +363,9 @@ swatter_animation_id:
 ; PLAYER_STATE_DUCKING
 .byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
 ; PLAYER_STATE_IN_AIR, TODO
-.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 .byte 0, 0
@@ -375,9 +382,9 @@ swatter_animation_h:
 ; PLAYER_STATE_DUCKING
 .byte 14, $f2
 ; PLAYER_STATE_IN_AIR
-.byte  5, $fb
+.byte $f4, $0c
+.byte $f4, $0c
 ; padding
-.byte  0, 0
 .byte  0, 0
 .byte  0, 0
 .byte  0, 0
@@ -394,9 +401,9 @@ swatter_animation_v:
 ; PLAYER_STATE_DUCKING
 .byte 10, 10
 ; PLAYER_STATE_IN_AIR
-.byte  9, 9
+.byte  8, 8
+.byte $fc,$fc
 ; padding
-.byte  0, 0
 .byte  0, 0
 .byte  0, 0
 .byte  0, 0

@@ -25,11 +25,20 @@ attribute = values + $00
   ldy draw_picture_id
 FrameLoop:
   lda (draw_picture_pointer),y
-  cmp #$fe
+  cmp #$fd
   blt DrawCommand
 MetaCommand:
+  cmp #$fd
+  beq ResetHoriz
+  cmp #$fe
+  beq IncPalette
   cmp #$ff
   beq FrameDone
+ResetHoriz:
+  lda draw_h
+  sec
+  sbc #$10
+  sta draw_h
 IncPalette:
   inc draw_palette
   bne Increment

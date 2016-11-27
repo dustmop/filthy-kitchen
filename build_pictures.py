@@ -17,8 +17,10 @@ SIZE_ID_MULTIPLE = 3
 
 
 class PictureInfo(object):
-  def __init__(self, identifier, origin_y, origin_x, is_flush=False):
+  def __init__(self, identifier, origin_y, origin_x,
+               is_flush=False, merge_count=None):
     self.is_flush = is_flush
+    self.merge_count = merge_count
     self.identifier = identifier
     self.upcase = identifier.upper() if identifier else None
     self.origin_y = origin_y
@@ -64,7 +66,7 @@ class Rect(object):
                 max(self.bottom, other.bottom),
                 min(self.left, other.left))
 
-  def __str__(self):
+  def __repr__(self):
     return '<Rect top=%s right=%s bottom=%s left=%s>' % (
       self.top, self.right, self.bottom, self.left)
 
@@ -103,6 +105,10 @@ def parse_info(filename):
     if line == '.flush':
       info_collection.append(PictureInfo(None, None, None, is_flush=True))
       continue
+    if line.startswith('.merge'):
+      param = int(line.split(' ')[1])
+      info_collection.append(PictureInfo(None, None, None, merge_count=param))
+      continue
     pieces = line.split('@')
     identifier = pieces[0].strip()
     pos_y, pos_x = [int(n) for n in pieces[1].split(',')]
@@ -113,6 +119,8 @@ def read_spritelist(filename):
   fp = open(filename, 'rb')
   data = fp.read()
   fp.close()
+  if data[-1] != '\xff':
+    raise RuntimeError('Spritelist doesnt end with "ff" terminator')
   data = data[:-1]
   sprites = [[ord(data[i*4+0]), ord(data[i*4+1]),
               ord(data[i*4+2]), ord(data[i*4+3])]
@@ -188,7 +196,7 @@ def extract_sprites(filename, chr_map):
   outpattern = os.path.join(tmpdir, '%s.dat')
   # Run makechr to create spritelist.
   cmd = ['makechr', '-s', '-b', '39=34', '-t', 'free-8x16', tmpfile, '-l',
-         '-o', outpattern, '--free-zone-view', tmpzone]
+         '-o', outpattern, '--allow-overflow', 's', '--free-zone-view', tmpzone]
   p = subprocess.Popen(' '.join(cmd), shell=True)
   p.communicate()
   # Extract data created by makechr.
@@ -255,27 +263,18 @@ def derive_pictures(sprites, info_collection):
     single_picture.sort(key=lambda x: (x[2], x[3], x[0]))
     info.picture = single_picture
   if available:
-    print 'unused', available
+    print 'unused', [sprites[k] for k in available]
 
-def produce_data(info_collection, out_filename, header_filename):
-  fout = open(out_filename, 'w')
-  fheader = open(header_filename, 'w')
+
+def build_data(info_collection):
+  built_sprite_data = []
   sprite_data = {}
   sprite_counter = 0
   sprite_distance = 0
   for info in info_collection:
     if info.skip():
-      if info.identifier:
-        fheader.write('.import %s\n' % info.identifier)
-        fout.write('.export %s\n' % info.identifier)
-        fout.write('%s:\n\n' % info.identifier)
       if info.is_flush:
-        items = sprite_data.items()
-        items.sort(key=lambda x:x[1])
-        keys = [k for k,v in items]
-        for k in xrange(len(keys)):
-          fout.write('.byte $%02x,$%02x,$%02x\n' % keys[k])
-        fout.write('\n')
+        built_sprite_data.append(sprite_data)
         sprite_data = {}
         sprite_counter = 0
         sprite_distance = 0
@@ -304,14 +303,68 @@ def produce_data(info_collection, out_filename, header_filename):
       sprite_list.append(sprite_id | flip_bits)
     sprite_list.append(0xff)
     info.sprite_list = sprite_list
-    fheader.write('PICTURE_ID_%s = %s\n' % (info.upcase, sprite_distance))
-    fout.write('PICTURE_ID_%s = %s\n' % (info.upcase, sprite_distance))
+    info.distance = sprite_distance
     sprite_distance += len(info.sprite_list)
+  return built_sprite_data
+
+
+def apply_merges(info_collection):
+  merge_count = None
+  accum = []
+  value = None
+  for info in info_collection:
+    if not info.merge_count is None:
+      merge_count = info.merge_count
+      accum = []
+      continue
+    if merge_count:
+      if info.identifier:
+        if merge_count > 1:
+          info.identifier = None
+          value = info.distance
+        else:
+          info.distance = value
+      if info.sprite_list:
+        accum += info.sprite_list
+        merge_count -= 1
+        if merge_count > 0:
+          info.origin_x, info.origin_y, info.sprite_list = (None, None, None)
+          if accum[-1] == 0xff:
+            accum[-1] = 0xfd
+        else:
+          info.sprite_list, accum, merge_count = (accum, [], None)
+
+
+def produce_output(info_collection, built_sprite_data,
+                   out_filename, out_header):
+  built_idx = 0
+  fout = open(out_filename, 'w')
+  fheader = open(out_header, 'w')
+  for info in info_collection:
+    if info.skip():
+      if info.identifier:
+        fheader.write('.import %s\n' % info.identifier)
+        fout.write('.export %s\n' % info.identifier)
+        fout.write('%s:\n\n' % info.identifier)
+      if info.is_flush:
+        sprite_data = built_sprite_data[built_idx]
+        built_idx += 1
+        items = sprite_data.items()
+        items.sort(key=lambda x:x[1])
+        keys = [k for k,v in items]
+        for k in keys:
+          fout.write('.byte $%02x,$%02x,$%02x\n' % k)
+        fout.write('\n')
+    if not info.sprite_list:
+      continue
+    fheader.write('PICTURE_ID_%s = %s\n' % (info.upcase, info.distance))
+    fout.write('PICTURE_ID_%s = %s\n' % (info.upcase, info.distance))
     fout.write('%s:\n' % info.identifier)
     fout.write('.byte %s\n' % ','.join(['$%02x' % e for e in info.sprite_list]))
     fout.write('\n')
   fout.close()
   fheader.close()
+
 
 def run():
   parser = argparse.ArgumentParser()
@@ -326,7 +379,9 @@ def run():
   info_collection = parse_info(args.info)
   combine_info_with_origins(info_collection, origins)
   derive_pictures(sprites, info_collection)
-  produce_data(info_collection, args.output, args.header)
+  built_sprite_data = build_data(info_collection)
+  apply_merges(info_collection)
+  produce_output(info_collection, built_sprite_data, args.output, args.header)
 
 if __name__ == '__main__':
   run()
