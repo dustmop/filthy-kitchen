@@ -15,6 +15,7 @@
 .include "fly.h.asm"
 .include "explode.h.asm"
 .include "points.h.asm"
+.include "food.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -42,6 +43,7 @@ OBJECT_KIND_SWATTER = $00
 OBJECT_KIND_FLY     = $01
 OBJECT_KIND_EXPLODE = $02
 OBJECT_KIND_POINTS  = $03
+OBJECT_KIND_FOOD    = $04
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -160,6 +162,8 @@ Next:
   beq DispatchExplode
   cmp #OBJECT_KIND_POINTS
   beq DispatchPoints
+  cmp #OBJECT_KIND_FOOD
+  beq DispatchFood
   bne DispatchDone
 DispatchSwatter:
   jsr SwatterDispatch
@@ -172,6 +176,9 @@ DispatchExplode:
   jmp DispatchDone
 DispatchPoints:
   jsr PointsDispatch
+  jmp DispatchDone
+DispatchFood:
+  jsr FoodDispatch
 DispatchDone:
   pla
   tax

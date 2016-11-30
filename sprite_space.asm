@@ -3,14 +3,20 @@
 .export SpriteSpaceAllocate
 .export SpriteSpaceEraseAll
 .export SpriteSpaceEnsure
+.export SpriteSpaceSetLowPriority
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 
 .importzp sprite_space_index, sprite_space_avail
-.importzp sprite_space_force, sprite_space_force2
+.importzp sprite_space_force, sprite_space_force2, sprite_space_force3
 .importzp values
+
+max_idx    = values + $01
+first_idx  = values + $02
+second_idx = values + $03
+
 
 NUM_RESERVED = 8
 
@@ -26,6 +32,7 @@ SPRITE_SPACE_NEXT   = $5c
   mov sprite_space_avail, _
   mov sprite_space_force, #$00
   mov sprite_space_force2, _
+  mov sprite_space_force3, _
   rts
 .endproc
 
@@ -42,6 +49,7 @@ Okay:
   sta sprite_space_avail
   mov sprite_space_force, #$00
   mov sprite_space_force2, _
+  mov sprite_space_force3, _
   rts
 .endproc
 
@@ -52,7 +60,8 @@ Okay:
 Forced:
   tax
   mov sprite_space_force, sprite_space_force2
-  mov sprite_space_force2, #$00
+  mov sprite_space_force2, sprite_space_force3
+  mov sprite_space_force3, #$00
   bpl Return
 Normal:
   lda sprite_space_avail
@@ -70,8 +79,51 @@ Return:
 
 
 .proc SpriteSpaceEnsure
+  mov sprite_space_force3, sprite_space_force2
   mov sprite_space_force2, sprite_space_force
   stx sprite_space_force
+  rts
+.endproc
+
+
+.proc SpriteSpaceSetLowPriority
+  txa
+  pha
+
+  jsr SpriteSpaceAllocate
+  stx max_idx
+
+  jsr SpriteSpaceAllocate
+  cpx max_idx
+  blt NotMax1
+NewMax1:
+  mov first_idx, max_idx
+  stx max_idx
+  jmp GotMax1
+NotMax1:
+  stx first_idx
+GotMax1:
+
+  jsr SpriteSpaceAllocate
+  cpx max_idx
+  blt NotMax2
+NewMax2:
+  mov second_idx, max_idx
+  stx max_idx
+  jmp GotMax2
+NotMax2:
+  stx second_idx
+GotMax2:
+  ldx first_idx
+  jsr SpriteSpaceEnsure
+  ldx second_idx
+  jsr SpriteSpaceEnsure
+  ldx max_idx
+  jsr SpriteSpaceEnsure
+
+  pla
+  tax
+
   rts
 .endproc
 

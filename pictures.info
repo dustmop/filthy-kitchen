@@ -47,3 +47,16 @@ player_hurt_left  @ 184,48
 player_sprite_data:
 .flush
 
+
+food_picture_data:
+
+.merge 2
+food_apple_inner @ 184,80
+food_apple_outer @ 184,97
+
+.merge 2
+food_steak_inner @ 184,128
+food_steak_outer @ 184,147
+
+food_sprite_data:
+.flush

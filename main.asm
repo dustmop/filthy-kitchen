@@ -12,6 +12,7 @@
 .include "score_combo.h.asm"
 .include "render_action.h.asm"
 .include "fly.h.asm"
+.include "food.h.asm"
 .include "random.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
@@ -116,6 +117,9 @@ ForeverLoop:
 
   DebugModeSetTint red
   jsr CameraUpdate
+
+  DebugModeSetTint green_blue
+  jsr FoodMaybeCreate
 
   DebugModeSetTint green
   jsr ObjectListUpdate

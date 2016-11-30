@@ -22,6 +22,7 @@ SRC = main.asm \
       score_combo.asm \
       fly.asm \
       swatter.asm \
+      food.asm \
       explode.asm \
       points.asm \
       random.asm

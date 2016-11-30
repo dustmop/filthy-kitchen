@@ -41,6 +41,7 @@ sprite_space_index: .byte 0
 sprite_space_avail: .byte 0
 sprite_space_force: .byte 0
 sprite_space_force2: .byte 0
+sprite_space_force3: .byte 0
 level_max_h: .byte 0
 level_max_screen: .byte 0
 level_max_camera_h: .byte 0
@@ -62,6 +63,7 @@ combo_medium: .byte 0
 earned_combo_low: .byte 0
 earned_combo_medium: .byte 0
 earned_combo_count: .byte 0
+have_spawned_food: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -77,7 +79,7 @@ earned_combo_count: .byte 0
 .exportzp NMI_values, NMI_pointer
 .exportzp object_list_head, object_list_tail
 .exportzp sprite_space_index, sprite_space_avail
-.exportzp sprite_space_force, sprite_space_force2
+.exportzp sprite_space_force, sprite_space_force2, sprite_space_force3
 .exportzp level_max_h, level_max_screen
 .exportzp level_max_camera_h, level_max_camera_screen
 .exportzp draw_picture_pointer, draw_sprite_pointer
@@ -86,6 +88,7 @@ earned_combo_count: .byte 0
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
+.exportzp have_spawned_food
 
 collision_map = $500
 
