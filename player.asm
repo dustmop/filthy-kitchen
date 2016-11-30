@@ -18,7 +18,7 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
-.importzp player_animate
+.importzp player_animate, player_injury
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
@@ -27,6 +27,7 @@
 SWATTER_TILE = $02
 PLAYER_TILE = $16
 PLAYER_TILE_BOTTOM = $1a
+
 SPEED_LOW_RIGHT    = $60
 SPEED_HIGH_RIGHT   = $01
 SPEED_SCREEN_RIGHT = $00
@@ -34,12 +35,20 @@ SPEED_LOW_LEFT     = $a0
 SPEED_HIGH_LEFT    = $fe
 SPEED_SCREEN_LEFT  = $ff
 
+BOUNCE_LOW_RIGHT    = $c0
+BOUNCE_HIGH_RIGHT   = $00
+BOUNCE_SCREEN_RIGHT = $00
+BOUNCE_LOW_LEFT     = $40
+BOUNCE_HIGH_LEFT    = $ff
+BOUNCE_SCREEN_LEFT  = $ff
+
 START_V = $a8
 START_H = $10
 
 PLAYER_STATE_STANDING = 0
 PLAYER_STATE_DUCKING  = 1
 PLAYER_STATE_IN_AIR   = 2
+PLAYER_STATE_HURT     = 4
 PLAYER_STATE_WALKING  = 8
 
 ;DrawPicture   values + $00
@@ -91,11 +100,37 @@ Next:
   bcs IsOnGround
 NotOnGround:
   mov is_on_ground, #$ff
-  jmp AfterGroundMovement
+  jmp Next
 IsOnGround:
   sta player_v
   mov is_on_ground, #$00
   mov player_gravity, #$00
+Next:
+.endscope
+  ; Check if injured.
+.scope CheckInjured
+  lda player_injury
+  beq Next
+  dec player_injury
+  mov player_state, #PLAYER_STATE_HURT
+  mov player_animate, #0
+  bit is_on_ground
+  bpl Return
+  bit player_dir
+  bpl MoveLeft
+MoveRight:
+  lda #BOUNCE_LOW_RIGHT
+  ldx #BOUNCE_HIGH_RIGHT
+  ldy #BOUNCE_SCREEN_RIGHT
+  beq InjuredMovement
+MoveLeft:
+  lda #BOUNCE_LOW_LEFT
+  ldx #BOUNCE_HIGH_LEFT
+  ldy #BOUNCE_SCREEN_LEFT
+InjuredMovement:
+  jsr MovePlayerSideways
+Return:
+  rts
 Next:
 .endscope
   ; Check if down is being pressed. If so, duck.
@@ -129,7 +164,7 @@ Jump:
 Next:
 .endscope
 
-AfterGroundMovement:
+GroundMovement:
   ; Check if B is being pressed. If so, throw a swatter.
 .scope HandleThrow
   lda buttons_press
@@ -360,8 +395,9 @@ player_animation_id:
 ; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT
 .byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 .byte 0, 0
@@ -379,8 +415,9 @@ swatter_animation_id:
 ; PLAYER_STATE_IN_AIR, TODO
 .byte PICTURE_ID_SWATTER_DOWN_RIGHT, PICTURE_ID_SWATTER_DOWN_LEFT
 .byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 .byte 0, 0
@@ -398,8 +435,9 @@ swatter_animation_h:
 ; PLAYER_STATE_IN_AIR
 .byte $ff, $01
 .byte $fa, $06
+; PLAYER_STATE_HURT
+.byte $f3, $0e
 ; padding
-.byte   0, 0
 .byte   0, 0
 .byte   0, 0
 .byte   0, 0
@@ -417,8 +455,9 @@ swatter_animation_v:
 ; PLAYER_STATE_IN_AIR
 .byte $12, $12
 .byte $f7, $f7
+; PLAYER_STATE_HURT
+.byte   8, 8
 ; padding
-.byte   0, 0
 .byte   0, 0
 .byte   0, 0
 .byte   0, 0

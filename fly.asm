@@ -17,6 +17,7 @@ COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
 
 .importzp player_screen, player_h, player_owns_swatter
+.importzp player_injury, player_gravity, player_gravity_low
 .importzp camera_h, camera_screen
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
@@ -214,6 +215,18 @@ Collision:
   jsr ExplodeTheFly
   jmp Return
 Break:
+.endscope
+
+.scope CollisionWithPlayer
+  jsr ObjectCollisionWithPlayer
+  bcc Next
+DidCollide:
+  jsr ExplodeTheFly
+  mov player_injury, #30
+  mov player_gravity, #$fe
+  mov player_gravity_low, #$00
+  jmp Return
+Next:
 .endscope
 
   ; Draw position.

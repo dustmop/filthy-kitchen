@@ -220,6 +220,10 @@ MovementDone:
   lda object_screen,x
   sbc player_screen
   sta delta_screen
+  ; Check that screen and h have the same sign bit.
+  eor delta_h
+  and #$80
+  bne Failure
 
   ; Maybe collide with player.
   ldy player_collision_idx

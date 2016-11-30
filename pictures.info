@@ -41,5 +41,9 @@ player_fall_right  @ 144,64 + 4,0
 player_fall_head_left  @ 148,152
 player_fall_left   @ 148,96
 
+player_hurt_right @ 184,16
+player_hurt_left  @ 184,48
+
 player_sprite_data:
 .flush
+
