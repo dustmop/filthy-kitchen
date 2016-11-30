@@ -18,7 +18,7 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
-.importzp player_animate, player_injury
+.importzp player_animate, player_injury, player_iframe
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
@@ -371,6 +371,19 @@ Next:
   pla
   tay
 
+.scope CheckVisibility
+  lda player_iframe
+  beq Visible
+  dec player_iframe
+  and #$0f
+  tax
+  lda flash_priority,x
+  bne Visible
+Hidden:
+  rts
+Visible:
+.endscope
+
   ; Player
   lda player_render_v
   sta draw_v
@@ -466,3 +479,9 @@ swatter_animation_v:
 .byte  16, 16
 .byte   9, 9
 .byte   4, 4
+
+flash_priority:
+.byte 0,1,1,0
+.byte 0,1,0,1
+.byte 1,0,1,0
+.byte 1,0,0,1

@@ -17,7 +17,7 @@ COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
 
 .importzp player_screen, player_h, player_owns_swatter
-.importzp player_injury, player_gravity, player_gravity_low
+.importzp player_injury, player_iframe, player_gravity, player_gravity_low
 .importzp camera_h, camera_screen
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
@@ -218,11 +218,14 @@ Break:
 .endscope
 
 .scope CollisionWithPlayer
+  lda player_iframe
+  bne Next
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
   jsr ExplodeTheFly
   mov player_injury, #30
+  mov player_iframe, #100
   mov player_gravity, #$fe
   mov player_gravity_low, #$00
   jmp Return

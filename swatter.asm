@@ -11,7 +11,7 @@
 .include ".b/pictures.h.asm"
 
 .importzp player_owns_swatter, player_collision_idx
-.importzp player_v, player_h, player_screen
+.importzp player_v, player_h, player_screen, player_iframe
 .importzp draw_screen
 .importzp camera_h, camera_screen
 
@@ -59,6 +59,9 @@ Next:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
+  ; If invincible, there are no consequences.
+  lda player_iframe
+  bne Next
   mov player_owns_swatter, #$ff
   jsr ComboSetToZero
   jsr ObjectFree
