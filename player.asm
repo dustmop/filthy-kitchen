@@ -373,12 +373,12 @@ player_animation_id:
 
 swatter_animation_id:
 ; PLAYER_STATE_STANDING
-.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+.byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT
 ; PLAYER_STATE_DUCKING
-.byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
+.byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT
 ; PLAYER_STATE_IN_AIR, TODO
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_DOWN_RIGHT, PICTURE_ID_SWATTER_DOWN_LEFT
+.byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP
 ; padding
 .byte 0, 0
 .byte 0, 0
@@ -392,38 +392,38 @@ swatter_animation_id:
 
 swatter_animation_h:
 ; PLAYER_STATE_STANDING
-.byte  5, $fb
+.byte   5, $fb
 ; PLAYER_STATE_DUCKING
-.byte 14, $f2
+.byte  14, $f2
 ; PLAYER_STATE_IN_AIR
-.byte $f4, $0c
-.byte $f4, $0c
+.byte $ff, $01
+.byte $fa, $06
 ; padding
-.byte  0, 0
-.byte  0, 0
-.byte  0, 0
-.byte  0, 0
+.byte   0, 0
+.byte   0, 0
+.byte   0, 0
+.byte   0, 0
 ; PLAYER_STATE_WALKING
-.byte  5, $fb
-.byte  1, $ff
-.byte  5, $fb
-.byte  6, $fa
+.byte   5, $fb
+.byte   1, $ff
+.byte   5, $fb
+.byte   6, $fa
 
 swatter_animation_v:
 ; PLAYER_STATE_STANDING
-.byte  9, 9
+.byte   9, 9
 ; PLAYER_STATE_DUCKING
-.byte 10, 10
+.byte  10, 10
 ; PLAYER_STATE_IN_AIR
-.byte  4, 4
-.byte $f8,$f8
+.byte $12, $12
+.byte $f7, $f7
 ; padding
-.byte  0, 0
-.byte  0, 0
-.byte  0, 0
-.byte  0, 0
+.byte   0, 0
+.byte   0, 0
+.byte   0, 0
+.byte   0, 0
 ; PLAYER_STATE_WALKING
-.byte  9, 9
-.byte 16, 16
-.byte  9, 9
-.byte  4, 4
+.byte   9, 9
+.byte  16, 16
+.byte   9, 9
+.byte   4, 4
