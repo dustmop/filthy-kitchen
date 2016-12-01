@@ -18,6 +18,7 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 
 .importzp player_screen, player_h, player_owns_swatter
 .importzp player_injury, player_iframe, player_gravity, player_gravity_low
+.importzp player_health_delta
 .importzp camera_h, camera_screen
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
@@ -228,6 +229,7 @@ DidCollide:
   mov player_iframe, #100
   mov player_gravity, #$fe
   mov player_gravity_low, #$00
+  dec player_health_delta
   jmp Return
 Next:
 .endscope

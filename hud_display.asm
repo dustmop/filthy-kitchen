@@ -14,6 +14,7 @@ SPRITE_0_TILE = $2b
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select
 
 .segment "CODE"
+
 .proc HudSplitAssign
   mov $200, #19
   mov $201, #SPRITE_0_TILE

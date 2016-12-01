@@ -15,6 +15,7 @@
 .include ".b/pictures.h.asm"
 
 .importzp camera_h, camera_screen
+.importzp player_health_delta
 .importzp have_spawned_food
 .importzp draw_screen
 .importzp values
@@ -26,6 +27,10 @@ food_kind = object_data_extend + $00
 
 FOOD_KIND_APPLE = 0
 FOOD_KIND_STEAK = 1
+
+
+LIFE_GAIN_APPLE = 2
+LIFE_GAIN_STEAK = 5
 
 
 .segment "CODE"
@@ -114,10 +119,16 @@ DidCollide:
   beq PointsApple
   bne PointsSteak
 PointsApple:
+  lda #LIFE_GAIN_APPLE
   ldy #POINTS_APPLE
-  skip2
+  jmp Okay
 PointsSteak:
+  lda #LIFE_GAIN_STEAK
   ldy #POINTS_STEAK
+Okay:
+  clc
+  adc player_health_delta
+  sta player_health_delta
   jsr PointsGainAndCreate
   jsr ObjectFree
   jmp Return

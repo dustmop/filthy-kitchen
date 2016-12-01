@@ -25,6 +25,8 @@ player_owns_swatter: .byte 0
 player_state: .byte 0
 player_collision_idx: .byte 0
 player_animate: .byte 0
+player_health: .byte 0
+player_health_delta: .byte 0
 player_injury: .byte 0
 player_iframe: .byte 0
 camera_h: .byte 0
@@ -72,7 +74,8 @@ have_spawned_food: .byte 0
 .exportzp player_v, player_h, player_h_low, player_screen, player_dir
 .exportzp player_gravity, player_gravity_low, player_render_v, player_render_h
 .exportzp player_owns_swatter, player_state, player_collision_idx
-.exportzp player_animate, player_injury, player_iframe
+.exportzp player_animate, player_health, player_health_delta
+.exportzp player_injury, player_iframe
 .exportzp camera_h, camera_screen
 .exportzp values, pointer
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action

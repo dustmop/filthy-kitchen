@@ -14,6 +14,7 @@
 .include "fly.h.asm"
 .include "food.h.asm"
 .include "random.h.asm"
+.include "health.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .import palette, graphics0, graphics1
@@ -71,6 +72,7 @@ Wait1:
 
   jsr HudDataFill
   jsr LevelDataFillEntireScreen
+  jsr HealthSetMax
 
   jsr RandomSeedInit
   jsr PlayerInit
@@ -131,6 +133,9 @@ GameplayLoop:
 
   DebugModeSetTint red
   jsr FlashEarnedCombo
+
+  DebugModeSetTint green
+  jsr HealthApplyDelta
 
   DebugModeSetTint 0
   jsr MaybeDebugToggle

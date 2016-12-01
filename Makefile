@@ -25,7 +25,8 @@ SRC = main.asm \
       food.asm \
       explode.asm \
       points.asm \
-      random.asm
+      random.asm \
+      health.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
