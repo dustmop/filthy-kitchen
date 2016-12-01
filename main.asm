@@ -17,6 +17,7 @@
 .include "health.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
+.importzp player_removed
 .import palette, graphics0, graphics1
 
 .export RESET, NMI
@@ -139,6 +140,12 @@ GameplayLoop:
 
   DebugModeSetTint 0
   jsr MaybeDebugToggle
+
+  lda player_removed
+  cmp #150
+  bne :+
+  jmp RESET
+:
 
   jmp GameplayLoop
 

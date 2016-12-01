@@ -44,6 +44,9 @@ player_fall_left   @ 148,96
 player_hurt_right @ 184,16
 player_hurt_left  @ 184,48
 
+player_dead_right @ 184,80
+player_dead_left  @ 184,112
+
 player_sprite_data:
 .flush
 
@@ -51,12 +54,12 @@ player_sprite_data:
 food_picture_data:
 
 .merge 2
-food_apple_inner @ 184,80
-food_apple_outer @ 184,97
+food_apple_inner @ 184,144
+food_apple_outer @ 184,161
 
 .merge 2
-food_steak_inner @ 184,128
-food_steak_outer @ 184,147
+food_steak_inner @ 184,192
+food_steak_outer @ 184,211
 
 food_sprite_data:
 .flush

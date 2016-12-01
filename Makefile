@@ -55,7 +55,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
-	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16
+	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16 \
+            --allow-overflow s
 
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/sprites.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \

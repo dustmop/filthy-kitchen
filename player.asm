@@ -18,7 +18,8 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
-.importzp player_animate, player_injury, player_iframe
+.importzp player_animate, player_injury, player_iframe, player_health
+.importzp player_removed
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
@@ -49,6 +50,7 @@ PLAYER_STATE_STANDING = 0
 PLAYER_STATE_DUCKING  = 1
 PLAYER_STATE_IN_AIR   = 2
 PLAYER_STATE_HURT     = 4
+PLAYER_STATE_DEAD     = 5
 PLAYER_STATE_WALKING  = 8
 
 ;DrawPicture   values + $00
@@ -75,6 +77,22 @@ tmp          = values + $08
 
 
 .proc PlayerUpdate
+  ; If removed
+.scope IfRemoved
+  lda player_removed
+  beq Next
+  inc player_removed
+  rts
+Next:
+.endscope
+  ; If dead
+.scope IfDead
+  lda player_health
+  bne Next
+  mov player_state, #PLAYER_STATE_DEAD
+  mov player_animate, #0
+Next:
+.endscope
   ; Apply gravity to v, for both jumping and falling.
 .scope Gravity
   lda player_gravity
@@ -89,8 +107,21 @@ tmp          = values + $08
   inc player_gravity
 Next:
 .endscope
+  ;
+.scope RemoveIfDeadAndOffscreen
+  lda player_health
+  bne Next
+  lda player_v
+  cmp #$f0
+  blt Next
+  mov player_removed, #1
+  rts
+Next:
+.endscope
   ; Check player against collision being below their feet.
 .scope CheckGround
+  lda player_health
+  beq NotOnGround
   bit player_gravity
   bmi NotOnGround
   lda player_screen
@@ -109,6 +140,8 @@ Next:
 .endscope
   ; Check if injured.
 .scope CheckInjured
+  lda player_health
+  beq MovePlayer
   lda player_injury
   beq Next
   dec player_injury
@@ -116,6 +149,7 @@ Next:
   mov player_animate, #0
   bit is_on_ground
   bpl Return
+MovePlayer:
   bit player_dir
   bpl MoveLeft
 MoveRight:
@@ -372,6 +406,8 @@ Next:
   tay
 
 .scope CheckVisibility
+  lda player_health
+  beq Visible
   lda player_iframe
   beq Visible
   dec player_iframe
@@ -410,8 +446,9 @@ player_animation_id:
 .byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT
 ; PLAYER_STATE_HURT
 .byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 ; PLAYER_STATE_WALKING
@@ -430,8 +467,9 @@ swatter_animation_id:
 .byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP
 ; PLAYER_STATE_HURT
 .byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; padding
-.byte 0, 0
 .byte 0, 0
 .byte 0, 0
 ; PLAYER_STATE_WALKING
@@ -450,8 +488,9 @@ swatter_animation_h:
 .byte $fa, $06
 ; PLAYER_STATE_HURT
 .byte $f3, $0e
+; PLAYER_STATE_DEAD
+.byte $f3, $0e
 ; padding
-.byte   0, 0
 .byte   0, 0
 .byte   0, 0
 ; PLAYER_STATE_WALKING
@@ -470,8 +509,9 @@ swatter_animation_v:
 .byte $f7, $f7
 ; PLAYER_STATE_HURT
 .byte   8, 8
+; PLAYER_STATE_DEAD
+.byte   8, 8
 ; padding
-.byte   0, 0
 .byte   0, 0
 .byte   0, 0
 ; PLAYER_STATE_WALKING
