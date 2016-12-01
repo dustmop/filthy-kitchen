@@ -1,5 +1,6 @@
 .segment "CODE"
 
+.export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
 .export DisableDisplay, TintApplyToPpuMask
@@ -14,6 +15,21 @@
 .include "include.sys.asm"
 
 .importzp pointer
+
+.proc ClearBothNametables
+  bit PPU_STATUS
+  ldx #8
+  ldy #0
+  mov PPU_ADDR, #$20
+  mov PPU_ADDR, #$00
+Loop:
+  sta PPU_DATA
+  iny
+  bne Loop
+  dex
+  bne Loop
+  rts
+.endproc
 
 .proc LoadGraphicsNt0
   lda #$20

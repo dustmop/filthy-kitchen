@@ -59,6 +59,8 @@ Wait1:
   bit PPU_STATUS
   bpl Wait1
 
+  jsr ClearBothNametables
+
   ; Load palette, which is defined in the prologue.
   ldx #<palette
   ldy #>palette
@@ -89,7 +91,7 @@ Wait1:
   sta ppu_ctrl_current
   sta PPU_CTRL
 
-ForeverLoop:
+GameplayLoop:
   jsr WaitNewFrame
 
   DebugModeWaitLoop 160
@@ -133,7 +135,7 @@ ForeverLoop:
   DebugModeSetTint 0
   jsr MaybeDebugToggle
 
-  jmp ForeverLoop
+  jmp GameplayLoop
 
 
 NMI:
