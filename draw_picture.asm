@@ -73,15 +73,21 @@ FrameDone:
   tay
   jsr SpriteSpaceAllocate
   ; V
-  lda (draw_sprite_pointer),y
+  lda draw_v
+  eor #$80
   clc
-  adc draw_v
+  adc (draw_sprite_pointer),y
+  eor #$80
+  bvs Clear
   sta sprite_v,x
   iny
   ; H
-  lda (draw_sprite_pointer),y
+  lda draw_h
+  eor #$80
   clc
-  adc draw_h
+  adc (draw_sprite_pointer),y
+  eor #$80
+  bvs Clear
   sta sprite_h,x
   iny
   ; tile
@@ -90,6 +96,12 @@ FrameDone:
   ; attr
   lda attribute
   sta sprite_attr,x
+  pla
+  tay
+  rts
+Clear:
+  lda #$ff
+  sta sprite_v,x
   pla
   tay
   rts
