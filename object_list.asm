@@ -227,6 +227,11 @@ MovementDone:
   lda object_screen,x
   sbc player_screen
   sta delta_screen
+  ; Check that screen is 0 or -1.
+  beq Okay
+  cmp #$ff
+  bne Failure
+Okay:
   ; Check that screen and h have the same sign bit.
   eor delta_h
   and #$80
@@ -331,7 +336,7 @@ Done:
 
 
 table_object_num_frames:
-.byte 8, 3, 3, 1
+.byte 8, 3, 3, 1, 8
 
 table_object_animate_limit:
-.byte 2, 3, 6, 1
+.byte 2, 3, 6, 1, 4

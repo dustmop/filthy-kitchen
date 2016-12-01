@@ -102,6 +102,28 @@ Failure:
 
 
 .proc FoodDispatch
+
+.scope CollisionWithPlayer
+  jsr ObjectCollisionWithPlayer
+  bcc Next
+DidCollide:
+  mov draw_v, {object_v,x}
+  mov draw_h, {object_h,x}
+  mov draw_screen, {object_screen,x}
+  lda food_kind,x
+  beq PointsApple
+  bne PointsSteak
+PointsApple:
+  ldy #POINTS_APPLE
+  skip2
+PointsSteak:
+  ldy #POINTS_STEAK
+  jsr PointsGainAndCreate
+  jsr ObjectFree
+  jmp Return
+Next:
+.endscope
+
   ; First part of food appears in the background of the later part.
   jsr SpriteSpaceSetLowPriority
 
@@ -113,7 +135,11 @@ Failure:
   lda object_screen,x
   sbc camera_screen
   sta draw_screen
-  mov draw_v, {object_v,x}
+  ldy object_frame,x
+  lda food_animate_v_offset,y
+  clc
+  adc object_v,x
+  sta draw_v
 
   ; Animation.
   ldy food_kind,x
@@ -125,6 +151,7 @@ Failure:
   ; Draw the sprites.
   jsr DrawPicture
 
+Return:
   rts
 .endproc
 
@@ -132,3 +159,15 @@ Failure:
 food_picture:
 .byte PICTURE_ID_FOOD_APPLE_OUTER
 .byte PICTURE_ID_FOOD_STEAK_OUTER
+
+food_animate_v_offset:
+.byte 0
+.byte 0
+.byte 1
+.byte 2
+.byte 3
+.byte 3
+.byte 2
+.byte 1
+
+

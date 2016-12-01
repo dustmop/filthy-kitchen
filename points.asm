@@ -1,11 +1,13 @@
-.export PointsDispatch
+.export PointsGainAndCreate, PointsDispatch
 .export points_digit_ones, points_digit_tens, points_digit_hundreds
+.export combo_points_low, combo_points_medium
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "score_combo.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp draw_h, draw_v, draw_screen
@@ -21,6 +23,58 @@ tens_place_tile = values + $09
 hundreds_place_tile = values + $0a
 
 .segment "CODE"
+
+
+.proc PointsGainAndCreate
+  jsr PointsCreate
+  lda combo_points_low,y
+  jsr ScoreAddLowNoRender
+  lda combo_points_medium,y
+  jsr ScoreAddMedium
+  rts
+.endproc
+
+
+.proc PointsCreate
+  txa
+  pha
+  tya
+  pha
+  jsr ObjectAllocate
+  bcs PopStack
+  mov {object_kind,x}, #(OBJECT_KIND_POINTS | OBJECT_IS_NEW)
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  mov {object_life,x}, #40
+  mov {object_step,x}, #0
+  mov {object_frame,x}, _
+  mov {points_digit_ones,x}, {ones_place,y}
+  mov {points_digit_tens,x}, {tens_place,y}
+  mov {points_digit_hundreds,x}, {hundreds_place,y}
+  jsr PointsDispatch
+PopStack:
+  pla
+  tay
+  pla
+  tax
+  rts
+.endproc
+
+
+combo_points_low:
+.byte 1, 1, 2, 4, 8, 16, 32, 64, 28, 56, 20, 50
+combo_points_medium:
+hundreds_place:
+.byte 0, 0, 0, 0, 0,  0,  0,  0,  1,  2,  0,  0
+tens_place:
+.byte 0, 0, 0, 0, 0,  1,  3,  6,  2,  5,  2,  5
+ones_place:
+.byte 1, 1, 2, 4, 8,  6,  2,  4,  8,  6,  0,  0
+
+
+POINTS_APPLE = 10
+POINTS_STEAK = 11
 
 
 .proc PointsDispatch
