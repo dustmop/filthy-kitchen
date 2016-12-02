@@ -55,11 +55,11 @@ food_picture_data:
 
 .merge 2
 food_apple_inner @ 184,144
-food_apple_outer @ 184,161
+food_apple_outer @ 184,169
 
 .merge 2
-food_steak_inner @ 184,192
-food_steak_outer @ 184,211
+food_steak_inner @ 184,190
+food_steak_outer @ 184,217
 
 food_sprite_data:
 .flush

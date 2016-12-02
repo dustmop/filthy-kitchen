@@ -54,6 +54,8 @@ draw_sprite_pointer: .word 0
 draw_picture_id: .byte 0
 draw_h: .byte 0
 draw_v: .byte 0
+draw_curr_h: .byte 0
+draw_curr_v: .byte 0
 draw_screen: .byte 0
 draw_palette: .byte 0
 random_value: .byte 0
@@ -88,6 +90,7 @@ have_spawned_food: .byte 0
 .exportzp level_max_camera_h, level_max_camera_screen
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
+.exportzp draw_curr_h, draw_curr_v
 .exportzp random_value, debug_mode, render_last
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium

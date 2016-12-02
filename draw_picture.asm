@@ -7,7 +7,12 @@
 
 .importzp draw_picture_pointer, draw_sprite_pointer
 .importzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
+.importzp draw_curr_h, draw_curr_v
 .importzp values
+
+
+DRAW_PICTURE_APPEND = $fe
+DRAW_PICTURE_DONE = $ff
 
 
 attribute = values + $00
@@ -22,24 +27,18 @@ attribute = values + $00
   lda draw_screen
   bne FrameDone
   ; In sight, draw it.
+  mov draw_curr_h, draw_h
+  mov draw_curr_v, draw_v
   ldy draw_picture_id
 FrameLoop:
   lda (draw_picture_pointer),y
-  cmp #$fd
-  blt DrawCommand
-MetaCommand:
-  cmp #$fd
-  beq ResetHoriz
-  cmp #$fe
-  beq IncPalette
-  cmp #$ff
+  cmp #DRAW_PICTURE_DONE
   beq FrameDone
-ResetHoriz:
-  lda draw_h
-  sec
-  sbc #$10
-  sta draw_h
-IncPalette:
+  cmp #DRAW_PICTURE_APPEND
+  bne DrawCommand
+MetaCommand:
+  mov draw_curr_h, draw_h
+  mov draw_curr_v, draw_v
   inc draw_palette
   bne Increment
 DrawCommand:
@@ -50,10 +49,10 @@ DrawCommand:
   ora draw_palette
   sta attribute
   jsr DrawSinglePicture
-  lda draw_h
+  lda draw_curr_h
   clc
   adc #8
-  sta draw_h
+  sta draw_curr_h
 Increment:
   iny
   bne FrameLoop
@@ -73,7 +72,7 @@ FrameDone:
   tay
   jsr SpriteSpaceAllocate
   ; V
-  lda draw_v
+  lda draw_curr_v
   eor #$80
   clc
   adc (draw_sprite_pointer),y
@@ -82,7 +81,7 @@ FrameDone:
   sta sprite_v,x
   iny
   ; H
-  lda draw_h
+  lda draw_curr_h
   eor #$80
   clc
   adc (draw_sprite_pointer),y

@@ -13,6 +13,10 @@ HORZ_FLIP = 0x40
 VERT_FLIP = 0x80
 SPIN_FLIP = 0xc0
 
+DRAW_PICTURE_APPEND = 0xfe
+DRAW_PICTURE_DONE = 0xff
+
+
 SIZE_ID_MULTIPLE = 3
 
 
@@ -289,13 +293,14 @@ def build_data(info_collection):
     palette = info.picture[0][2] & 0x03
     assert all([(e[2] & SPIN_FLIP) == flip_bits for e in info.picture])
     sprite_list = []
-    x_reset = 0
+    x_displace = 0
     for k, (y_pos, tile, attr, x_pos) in enumerate(info.picture):
       if attr & 0x03 != palette:
-        sprite_list.append(0xfe)
+        sprite_list.append(DRAW_PICTURE_APPEND)
         palette += 1
+        x_displace = 0
       y_offset = y_pos - info.origin_y - info.mod_y
-      x_offset = x_pos - info.origin_x - info.mod_x - k*8
+      x_offset = x_pos - info.origin_x - info.mod_x - x_displace
       key = (y_offset % 0x100, x_offset % 0x100, tile)
       if not key in sprite_data:
         sprite_data[key] = sprite_counter
@@ -307,7 +312,8 @@ def build_data(info_collection):
           (y_pos, tile, attr, x_pos),
           info.identifier))
       sprite_list.append(sprite_id | flip_bits)
-    sprite_list.append(0xff)
+      x_displace += 8
+    sprite_list.append(DRAW_PICTURE_DONE)
     info.sprite_list = sprite_list
     info.distance = sprite_distance
     sprite_distance += len(info.sprite_list)
@@ -335,8 +341,8 @@ def apply_merges(info_collection):
         merge_count -= 1
         if merge_count > 0:
           info.origin_x, info.origin_y, info.sprite_list = (None, None, None)
-          if accum[-1] == 0xff:
-            accum[-1] = 0xfd
+          if accum[-1] == DRAW_PICTURE_DONE:
+            accum[-1] = DRAW_PICTURE_APPEND
         else:
           info.sprite_list, accum, merge_count = (accum, [], None)
 
@@ -355,11 +361,13 @@ def produce_output(info_collection, built_sprite_data,
       if info.is_flush:
         sprite_data = built_sprite_data[built_idx]
         built_idx += 1
+        fout.write(';     y,  x, tile\n')
         items = sprite_data.items()
         items.sort(key=lambda x:x[1])
         keys = [k for k,v in items]
         for k in keys:
-          fout.write('.byte $%02x,$%02x,$%02x\n' % k)
+          id = sprite_data[k]
+          fout.write('.byte $%02x,$%02x,$%02x ;$%02x\n' % (k[0],k[1],k[2],id))
         fout.write('\n')
     if not info.sprite_list:
       continue
