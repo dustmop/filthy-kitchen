@@ -72,7 +72,7 @@ Next:
 .scope Accelerate
   ; Screen = $00 if swatter is to the right of the player.
   ; Screen = $ff if swatter is to the left of the player.
-  lda delta_screen
+  lda delta_dir
   beq ObjectToTheRight
 ObjectToTheLeft:
   ; If far enough away from player, accelerate at full rate.

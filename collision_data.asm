@@ -2,12 +2,12 @@
 
 collision_data_player:
 
-; h_offset, h_hitbox, v_offset, v_hitbox
+; h_offset, v_offset, h_hitbox, v_hitbox
 
 collision_data_player_standing:
-.byte 0,10,9,14
+.byte 0,8,6,12
 
 collision_data_player_ducking:
-.byte 1,14,16,10
+.byte 0,12,12,6
 
 

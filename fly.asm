@@ -164,7 +164,6 @@ Next:
   sbc player_h
   lda object_screen,x
   sbc player_screen
-  sta delta_screen
   eor #$80
   cmp #$81
   bge Despawn

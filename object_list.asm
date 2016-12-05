@@ -215,51 +215,79 @@ MovementDone:
 
 
 .proc ObjectCollisionWithPlayer
+  mov delta_dir, #0
+
+  ldy player_collision_idx
+  lda collision_data_player,y ; h_offset
+  sta delta_h
+  iny
+  lda collision_data_player,y ; v_offset
+  sta delta_v
+
+  ldy object_kind,x
   ; Calculate deltas from player.
+DeltaCalcV:
+  ; delta = abs(object - offset - player)
   lda object_v,x
   sec
+  sbc delta_v
+  sec
   sbc player_v
+  bpl AbsoluteV
+  eor #$ff
+  clc
+  adc #1
+  bvs RadialDeltaV
+AbsoluteV:
+  sec
+  sbc kind_bigger_v,y
+  bpl RadialDeltaV
+  lda #0
+RadialDeltaV:
   sta delta_v
+DeltaCalcH:
+  ; delta = abs(object - offset - player)
   lda object_h,x
+  sec
+  sbc delta_h
+  sec
+  sbc kind_offset_h,y
   sec
   sbc player_h
   sta delta_h
   lda object_screen,x
   sbc player_screen
-  sta delta_screen
   ; Check that screen is 0 or -1.
   beq Okay
   cmp #$ff
   bne Failure
+  ; To the left, change direction.
+  dec delta_dir
+  lda delta_h
+  eor #$ff
+  clc
+  adc #1
+  sta delta_h
+  bvs RadialDeltaH
 Okay:
-  ; Check that screen and h have the same sign bit.
-  eor delta_h
-  and #$80
-  bne Failure
+  lda delta_h
+  bmi RadialDeltaH
+  sec
+  sbc kind_bigger_h,y
+  bpl RadialDeltaH
+  lda #0
+RadialDeltaH:
+  sta delta_h
 
   ; Maybe collide with player.
   ldy player_collision_idx
-  lda delta_h
-  sec
-  sbc collision_data_player,y ; h_offset
-  bpl AbsoluteH
-  eor #$ff
-  clc
-  adc #1
-AbsoluteH:
   iny
+  iny
+  lda delta_h
   cmp collision_data_player,y ; h_hitbox
   bge Failure
+  iny
   lda delta_v
-  sec
-  iny
-  sbc collision_data_player,y ; v_offset
-  bpl AbsoluteV
-  eor #$ff
-  clc
-  adc #1
-AbsoluteV:
-  iny
   cmp collision_data_player,y ; v_hitbox
   bge Failure
 Success:
@@ -335,8 +363,22 @@ Done:
 
 
 
+;SWATTER, FLY, EXPLODE, POINTS, FOOD
+
 table_object_num_frames:
-.byte 8, 3, 3, 1, 8
+.byte   8,  3,  3,  1,  8
 
 table_object_animate_limit:
-.byte 2, 3, 6, 1, 4
+.byte   2,  3,  6,  1,  4
+
+kind_offset_h:
+.byte   0,  5,$80,$80,  3
+
+;kind_offset_v:
+;.byte   0,  9,$80,$80,  3
+
+kind_bigger_h:
+.byte   0,  0,$80,$80,  8
+
+kind_bigger_v:
+.byte   0,  0,$80,$80,  2

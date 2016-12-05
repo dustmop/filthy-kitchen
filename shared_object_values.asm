@@ -12,5 +12,5 @@ draw_frame    = values + $03
 lifetime      = values + $04
 
 flip_bits     = values + $05
-delta_screen  = values + $06
+delta_dir     = values + $06
 collide_dist  = values + $07
