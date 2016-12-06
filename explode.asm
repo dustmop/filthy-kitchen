@@ -40,6 +40,7 @@
   clc
   adc #7
   sta draw_h
+  bcs Return
 
   ; Draw the explode, right side.
   jsr SpriteSpaceAllocate

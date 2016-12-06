@@ -25,6 +25,7 @@ SRC = main.asm \
       food.asm \
       explode.asm \
       points.asm \
+      dirt.asm \
       random.asm \
       health.asm
 
@@ -111,3 +112,4 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 filthy-kitchen.nes: $(OBJ) link.cfg
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
 	python convertln.py filthy-kitchen.ln > filthy-kitchen.nes.0.nl
+	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.1.nl
