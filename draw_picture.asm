@@ -16,6 +16,7 @@ DRAW_PICTURE_DONE = $ff
 
 
 attribute = values + $00
+skip_row = values + $01
 
 
 .segment "CODE"
@@ -24,6 +25,7 @@ attribute = values + $00
 .proc DrawPicture
   txa
   pha
+  mov skip_row, #0
   lda draw_screen
   bne FrameDone
   ; In sight, draw it.
@@ -37,22 +39,27 @@ FrameLoop:
   cmp #DRAW_PICTURE_APPEND
   bne DrawCommand
 MetaCommand:
+  mov skip_row, #0
   mov draw_curr_h, draw_h
   mov draw_curr_v, draw_v
   inc draw_palette
   bne Increment
 DrawCommand:
+  bit skip_row
+  bmi Increment
   and #$3f
   sta draw_picture_id
   lda (draw_picture_pointer),y
   and #$c0
   ora draw_palette
   sta attribute
-  jsr DrawSinglePicture
+  jsr DrawSingleSprite
   lda draw_curr_h
   clc
   adc #8
   sta draw_curr_h
+  bcc Increment
+  mov skip_row, #$ff
 Increment:
   iny
   bne FrameLoop
@@ -63,7 +70,7 @@ FrameDone:
 .endproc
 
 
-.proc DrawSinglePicture
+.proc DrawSingleSprite
   tya
   pha
   lda draw_picture_id
