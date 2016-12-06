@@ -264,11 +264,15 @@ DeltaCalcH:
   ; To the left, change direction.
   dec delta_dir
   lda delta_h
+  bpl Overflow
   eor #$ff
   clc
   adc #1
   sta delta_h
   bvs RadialDeltaH
+  bvc Okay
+Overflow:
+  mov delta_h, #$ff
 Okay:
   lda delta_h
   bmi RadialDeltaH

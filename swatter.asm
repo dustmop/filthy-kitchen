@@ -77,8 +77,8 @@ Next:
 ObjectToTheLeft:
   ; If far enough away from player, accelerate at full rate.
   lda delta_h
-  cmp #$e0
-  blt FullRateFromLeft
+  cmp #$20
+  bge FullRateFromLeft
   ; If speed is already pointed to the right, accelerate at full rate.
   lda swatter_speed,x
   bpl FullRateFromLeft
