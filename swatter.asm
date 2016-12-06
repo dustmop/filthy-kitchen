@@ -19,6 +19,7 @@
 swatter_speed     = object_data_extend + $00
 swatter_speed_low = object_data_extend + $10
 swatter_v_low     = object_data_extend + $20
+.export swatter_speed, swatter_speed_low, swatter_v_low
 
 
 .proc SwatterDispatch

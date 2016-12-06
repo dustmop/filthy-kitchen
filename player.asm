@@ -23,6 +23,8 @@
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
+.import swatter_speed, swatter_speed_low, swatter_v_low
+
 .importzp values
 
 SWATTER_TILE = $02
@@ -215,6 +217,9 @@ GroundMovement:
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
   mov {object_screen,x}, player_screen
   mov {object_life,x}, #$ff
+  mov {swatter_speed,x}, #$0
+  mov {swatter_speed_low,x}, _
+  mov {swatter_v_low,x}, _
   ; Spawn to the left or right of player.
   bit player_dir
   bpl SpawnToTheRight
