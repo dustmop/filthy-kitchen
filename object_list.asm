@@ -225,6 +225,7 @@ MovementDone:
   sta delta_v
 
   ldy object_kind,x
+  bmi Failure
   ; Calculate deltas from player.
 DeltaCalcV:
   ; delta = abs(object - offset - player)

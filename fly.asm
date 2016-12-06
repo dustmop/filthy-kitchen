@@ -172,6 +172,7 @@ Next:
   jmp Next
 Despawn:
   jsr ObjectFree
+  jmp Return
 Next:
 .endscope
 
