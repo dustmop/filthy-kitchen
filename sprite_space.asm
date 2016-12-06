@@ -4,6 +4,7 @@
 .export SpriteSpaceEraseAll
 .export SpriteSpaceEnsure
 .export SpriteSpaceSetLowPriority
+.export SpriteSpaceRelax
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -47,9 +48,7 @@ SPRITE_SPACE_NEXT   = $5c
 Okay:
   sta sprite_space_index
   sta sprite_space_avail
-  mov sprite_space_force, #$00
-  mov sprite_space_force2, _
-  mov sprite_space_force3, _
+  jsr SpriteSpaceRelax
   rts
 .endproc
 
@@ -82,6 +81,14 @@ Return:
   mov sprite_space_force3, sprite_space_force2
   mov sprite_space_force2, sprite_space_force
   stx sprite_space_force
+  rts
+.endproc
+
+
+.proc SpriteSpaceRelax
+  mov sprite_space_force, #$00
+  mov sprite_space_force2, _
+  mov sprite_space_force3, _
   rts
 .endproc
 

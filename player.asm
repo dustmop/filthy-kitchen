@@ -399,6 +399,8 @@ Return:
   sta draw_v
 
   jsr DrawPicture
+
+  jsr SpriteSpaceRelax
 Next:
 .endscope
 

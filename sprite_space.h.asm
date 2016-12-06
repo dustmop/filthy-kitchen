@@ -4,3 +4,4 @@
 .import SpriteSpaceEraseAll
 .import SpriteSpaceEnsure
 .import SpriteSpaceSetLowPriority
+.import SpriteSpaceRelax

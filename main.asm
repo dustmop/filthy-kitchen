@@ -102,6 +102,9 @@ GameplayLoop:
   DebugModeSetTint red
   jsr ReadController
 
+  DebugModeSetTint blue
+  jsr SpriteSpaceNext
+
   DebugModeSetTint green
   jsr RandomEntropy
 
