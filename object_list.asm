@@ -17,6 +17,7 @@
 .include "points.h.asm"
 .include "food.h.asm"
 .include "dirt.h.asm"
+.include "utensils.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -46,6 +47,7 @@ OBJECT_KIND_EXPLODE    = $02
 OBJECT_KIND_POINTS     = $03
 OBJECT_KIND_FOOD       = $04
 OBJECT_KIND_DIRTY_SINK = $05
+OBJECT_KIND_UTENSILS   = $06
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -168,6 +170,8 @@ Next:
   beq DispatchFood
   cmp #OBJECT_KIND_DIRTY_SINK
   beq DispatchDirt
+  cmp #OBJECT_KIND_UTENSILS
+  beq DispatchUtensils
   bne DispatchDone
 DispatchSwatter:
   jsr SwatterDispatch
@@ -186,6 +190,9 @@ DispatchFood:
   jmp DispatchDone
 DispatchDirt:
   jsr DirtDispatch
+  jmp DispatchDone
+DispatchUtensils:
+  jsr UtensilsDispatch
 DispatchDone:
   pla
   tax
@@ -378,19 +385,19 @@ Done:
 ;SWATTER, FLY, EXPLODE, POINTS, FOOD
 
 table_object_num_frames:
-.byte   8,  3,  3,  1,  8, 1
+.byte   8,  3,  3,  1,  8, 1, 1
 
 table_object_animate_limit:
-.byte   2,  3,  6,  1,  4, 1
+.byte   2,  3,  6,  1,  4, 1, 1
 
 kind_offset_h:
-.byte   0,  5,$80,$80,  3, 0
+.byte   0,  5,$80,$80,  3, 0, 0
 
 ;kind_offset_v:
 ;.byte   0,  9,$80,$80,  3
 
 kind_bigger_h:
-.byte   0,  0,$80,$80,  8, 0
+.byte   0,  0,$80,$80,  8, 0, 0
 
 kind_bigger_v:
-.byte   0,  0,$80,$80,  2, 0
+.byte   0,  0,$80,$80,  2, 0, 0

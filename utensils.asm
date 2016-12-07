@@ -1,5 +1,5 @@
-.export DirtMaybeCreate
-.export DirtDispatch
+.export UtensilsMaybeCreate
+.export UtensilsDispatch
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -10,8 +10,9 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp have_spawned_dirt
+.importzp have_spawned_utensils
 .importzp draw_screen, draw_h, draw_v
+.importzp player_v
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta
 .importzp values
@@ -19,19 +20,19 @@
 .import object_data_extend
 
 
-DIRTY_SINK_TILE_LEFT = $81
-DIRTY_SINK_TILE_RIGHT = $83
+UTENSILS_TILE_LEFT = $85
+UTENSILS_TILE_RIGHT = $87
 
 
 .segment "CODE"
 
 
-.proc DirtMaybeCreate
-MaybeSpawnApple:
+.proc UtensilsMaybeCreate
+MaybeSpawnUtensils:
   lda camera_h
-  cmp #$c0
+  cmp #$f0
   blt Return
-SpawnDirtySink:
+SpawnUtensils:
   lda #0
   jsr CreateOnce
 Return:
@@ -40,31 +41,44 @@ Return:
 
 
 .proc CreateOnce
-  cmp have_spawned_dirt
+  cmp have_spawned_utensils
   bne Return
 
   cmp #0
-  beq SpawnDirtySink
+  beq DoSpawn
   bne Return
 
-SpawnDirtySink:
-  jsr SpawnDirt
+DoSpawn:
+  jsr SpawnUtensils
   bcc Return
-  inc have_spawned_dirt
+  inc have_spawned_utensils
+
+  lda player_v
+  cmp #$60
+  bge SpawnLowerLevel
+
+SpawnHigherLevel:
+  mov {object_v,x}, #$58
+  jmp Okay
+
+SpawnLowerLevel:
+  mov {object_v,x}, #$a8
+
+Okay:
   mov {object_screen,x}, #$01
-  mov {object_h,x}, #$c7
-  mov {object_v,x}, #$6e
+  mov {object_h,x}, #$f7
+
 
 Return:
   rts
 .endproc
 
 
-.proc SpawnDirt
+.proc SpawnUtensils
   jsr ObjectAllocate
   bcs Failure
   jsr ObjectConstruct
-  mov {object_kind,x}, #OBJECT_KIND_DIRTY_SINK
+  mov {object_kind,x}, #OBJECT_KIND_UTENSILS
   mov {object_life,x}, #$ff
 Success:
   sec
@@ -75,7 +89,19 @@ Failure:
 .endproc
 
 
-.proc DirtDispatch
+.proc UtensilsDispatch
+
+  lda object_h,x
+  sec
+  sbc #2
+  sta object_h,x
+  lda object_screen,x
+  sbc #0
+  sta object_screen,x
+  bpl Okay
+  jsr ObjectFree
+  jmp Return
+Okay:
 
 .scope CollisionWithPlayer
   lda player_iframe
@@ -103,14 +129,14 @@ Next:
   sta draw_screen
   bne Return
 
-  ; Draw the dirty sink, left side.
+  ; Draw the utensils, left side.
   jsr SpriteSpaceAllocate
   lda draw_v
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
   ldy draw_frame
-  lda #DIRTY_SINK_TILE_LEFT
+  lda #UTENSILS_TILE_LEFT
   sta sprite_tile,x
   lda #$03
   sta sprite_attr,x
@@ -121,13 +147,13 @@ Next:
   sta draw_h
   bcs Return
 
-  ; Draw the dirty sink, right side.
+  ; Draw the utensils, right side.
   jsr SpriteSpaceAllocate
   lda draw_v
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
-  lda #DIRTY_SINK_TILE_RIGHT
+  lda #UTENSILS_TILE_RIGHT
   sta sprite_tile,x
   lda #$03
   sta sprite_attr,x

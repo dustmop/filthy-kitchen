@@ -14,6 +14,7 @@
 .include "fly.h.asm"
 .include "food.h.asm"
 .include "dirt.h.asm"
+.include "utensils.h.asm"
 .include "random.h.asm"
 .include "health.h.asm"
 
@@ -129,9 +130,8 @@ GameplayLoop:
 
   DebugModeSetTint green_blue
   jsr FoodMaybeCreate
-
-  DebugModeSetTint red_green
   jsr DirtMaybeCreate
+  jsr UtensilsMaybeCreate
 
   DebugModeSetTint green
   jsr ObjectListUpdate

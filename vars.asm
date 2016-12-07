@@ -70,6 +70,7 @@ earned_combo_medium: .byte 0
 earned_combo_count: .byte 0
 have_spawned_food: .byte 0
 have_spawned_dirt: .byte 0
+have_spawned_utensils: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -96,7 +97,7 @@ have_spawned_dirt: .byte 0
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
-.exportzp have_spawned_food, have_spawned_dirt
+.exportzp have_spawned_food, have_spawned_dirt, have_spawned_utensils
 
 collision_map = $500
 

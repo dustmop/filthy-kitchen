@@ -26,6 +26,7 @@ SRC = main.asm \
       explode.asm \
       points.asm \
       dirt.asm \
+      utensils.asm \
       random.asm \
       health.asm
 

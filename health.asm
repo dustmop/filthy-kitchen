@@ -8,7 +8,7 @@
 .importzp player_health, player_health_delta
 
 HEALTH_FILL_TILE  = $a7
-HEALTH_EMPTY_TILE = $b8
+HEALTH_EMPTY_TILE = $a8
 
 HEALTH_MAX = 5
 
