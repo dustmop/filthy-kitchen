@@ -93,7 +93,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
                    .b/bg_collision.dat
 	python build_level_data.py -n .b/kitchen.nametable%d.dat \
             -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
-            -o .b/level_data%s.dat
+            -o .b/level_data%s.dat -t .b/level_data.txt
 
 .b/resource.chr.dat .b/resource.palette.dat: \
             .b/sprites.chr.dat .b/kitchen.chr.dat

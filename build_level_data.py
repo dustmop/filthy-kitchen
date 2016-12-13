@@ -39,6 +39,8 @@ class LevelDataBuilder(object):
     self.collision = []
 
   def add_nametable(self, nametable):
+    # Nametable has 8 chunks across.
+    # Each chunk has 4 tiles across, and 30 tiles down.
     for chunk_x in xrange(8):
       nt_column = []
       for tile_x in xrange(4):
@@ -46,23 +48,27 @@ class LevelDataBuilder(object):
         for y in xrange(30):
           nt_column.append(ord(nametable[y*0x20 + x]))
         nt_column += [0] * 2
+      # Each element is 128 bytes.
       self.nt_column.append(nt_column)
 
   def add_attribute(self, attribute):
+    # Attributes has 8 chunks across.
     for x in xrange(8):
       attr_column = []
       for y in xrange(8):
         byte = attribute[y*8 + x]
         attr_column.append(ord(byte))
+      # Each element is 8 bytes.
       self.attribute.append(attr_column)
 
   def add_collision(self, collision):
     num = len(collision) / 16
     for i in xrange(num):
       bytes = collision[i*16:i*16 + 16]
+      # Each element is 16 bytes.
       self.collision.append(bytes)
 
-  def create(self, output_tmpl):
+  def create(self, output_tmpl, output_text):
     assert len(self.nt_column) == len(self.attribute) == len(self.collision)
     self.cache = {}
     self.struct_idx = 0
@@ -96,6 +102,22 @@ class LevelDataBuilder(object):
     fp = open(fill_template(output_tmpl, '_collision'), 'w')
     fp.write(bytearray(self.struct_collision))
     fp.close()
+    fp = open(output_text, 'w')
+    fp.write('level_data:\n')
+    self.write_slices(fp, self.level_data, 8)
+    fp.write('level_data_nt_column:\n')
+    self.write_slices(fp, self.struct_nt_column, 128)
+    fp.write('level_data_attribute:\n')
+    self.write_slices(fp, self.struct_attribute, 8)
+    fp.write('level_data_collision:\n')
+    self.write_slices(fp, [ord(n) for n in self.struct_collision], 16)
+    fp.close()
+
+  def write_slices(self, fp, data, size):
+    for i in xrange(len(data) / size):
+      slice = data[i*size:i*size + size]
+      fp.write('%s\n' % ','.join('%02x' % d for d in slice))
+    fp.write('\n')
 
 
 def get_bytes(template, i):
@@ -116,7 +138,8 @@ def pad_hud_on_top(data):
   return bytes(data)
 
 
-def process(nametable_tmpl, attribute_tmpl, collision_file, output_tmpl):
+def process(nametable_tmpl, attribute_tmpl, collision_file,
+            output_tmpl, output_text):
   builder = LevelDataBuilder()
   i = 0
   while True:
@@ -131,7 +154,7 @@ def process(nametable_tmpl, attribute_tmpl, collision_file, output_tmpl):
   bytes = fp.read()
   fp.close()
   builder.add_collision(bytes)
-  builder.create(output_tmpl)
+  builder.create(output_tmpl, output_text)
 
 
 def run():
@@ -140,9 +163,10 @@ def run():
   parser.add_argument('-a', dest='attribute_tmpl')
   parser.add_argument('-c', dest='collision_file')
   parser.add_argument('-o', dest='output_tmpl')
+  parser.add_argument('-t', dest='output_text')
   args = parser.parse_args()
   process(args.nametable_tmpl, args.attribute_tmpl, args.collision_file,
-          args.output_tmpl)
+          args.output_tmpl, args.output_text)
 
 
 if __name__ == '__main__':
