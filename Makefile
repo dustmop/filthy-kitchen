@@ -37,7 +37,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python lint_objects.py $<
 	ca65 -o $@ $< -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource.palette.dat
+.b/prologue.o: prologue.asm .b/resource.chr.dat .b/bg_pal.dat .b/sprite_pal.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
 .b/draw_picture.o: draw_picture.asm .b/pictures.asm
@@ -72,14 +72,22 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr digits.png -o .b/digits.o -b 0f
 
+.b/bg_pal.o .b/bg_pal.dat: bg_pal.png
+	makechr --makepal bg_pal.png -o .b/bg_pal.o
+	makechr --makepal bg_pal.png -o .b/bg_pal.dat
+
+.b/sprite_pal.o .b/sprite_pal.dat: sprite_pal.png
+	makechr --makepal sprite_pal.png -o .b/sprite_pal.o
+	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
+
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
-            merge_chr_nt.py entire-level.png .b/hud.o .b/digits.o
+            merge_chr_nt.py entire-level.png .b/hud.o .b/digits.o .b/bg_pal.o
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
-	makechr .b/screen00.png -o .b/screen00.o -b 0f
-	makechr .b/screen01.png -o .b/screen01.o -b 0f
-	makechr .b/screen02.png -o .b/screen02.o -b 0f
-	makechr .b/screen03.png -o .b/screen03.o -b 0f
+	makechr .b/screen00.png -o .b/screen00.o -b 0f -p .b/bg_pal.o
+	makechr .b/screen01.png -o .b/screen01.o -b 0f -p .b/bg_pal.o
+	makechr .b/screen02.png -o .b/screen02.o -b 0f -p .b/bg_pal.o
+	makechr .b/screen03.png -o .b/screen03.o -b 0f -p .b/bg_pal.o
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
             .b/screen02.o .b/screen03.o .b/hud.o \
             -d .b/digits.o \

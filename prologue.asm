@@ -23,10 +23,8 @@ MAPPER_NUMBER = 0
 .export palette
 
 palette:
-;.incbin ".b/resource.palette.dat"
-.byte $0f,$21,$18,$10,$0f,$30,$10,$00,$0f,$27,$10,$0f,$0f,$0f,$0f,$0f
-.byte $0f,$26,$0f,$16,$0f,$37,$30,$0c,$0f,$3b,$1c,$0c,$0f,$39,$0a,$00
-;.byte $0f,$34,$0f,$16,$0f,$37,$30,$0c,$0f,$3b,$1c,$0c,$0f,$39,$0a,$00
+.incbin ".b/bg_pal.dat"
+.incbin ".b/sprite_pal.dat"
 
 
 .segment "VECTORS"
