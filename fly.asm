@@ -234,9 +234,27 @@ DidCollide:
 Next:
 .endscope
 
+.scope Swivel
+  ldy #0
+  sty draw_v
+  sty draw_h
+  lda fly_step,x
+  lsr a
+  and #$07
+  tay
+  mov draw_v, {fly_swivel_v,y}
+  mov draw_h, {fly_swivel_h,y}
+Next:
+.endscope
+
   ; Draw position.
-  mov draw_v, {object_v,x}
-  lda object_h,x
+  lda draw_v
+  clc
+  adc object_v,x
+  sta draw_v
+  lda draw_h
+  clc
+  adc object_h,x
   sec
   sbc camera_h
   sta draw_h
@@ -262,6 +280,12 @@ Return:
   tax
   rts
 .endproc
+
+
+fly_swivel_h:
+.byte $00,$ff,$00,$01
+fly_swivel_v:
+.byte $00,$00,$00,$00,$ff,$00,$01,$00
 
 
 .proc GainPointsDueToFlyHitByAndSwatter
