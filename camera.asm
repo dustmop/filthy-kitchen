@@ -22,6 +22,7 @@ orig_scroll_action = values + $01
 level_bit          = values + $02
 tmp                = values + $03
 lookahead          = values + $04
+action_num         = values + $05
 
 
 .segment "CODE"
@@ -38,7 +39,9 @@ lookahead          = values + $04
 
 .proc CameraUpdate
   mov orig_h, camera_h
+  ; Action is determined by bits 1..3 of the camera position.
   and #$0e
+  lsr a
   sta orig_scroll_action
 
   ; Determine camera position based upon where the player is.
@@ -53,6 +56,7 @@ ZeroOffset:
   mov camera_screen, _
   jmp GotOffset
 CalcOffset:
+  ; Set camera position so it is looking at the player.
   lda player_h
   sec
   sbc #$80
@@ -61,6 +65,7 @@ CalcOffset:
   sbc #0
   sta camera_screen
 
+  ; Check for the end of the camera's view.
   cmp level_max_camera_screen
   blt GotOffset
   beq :+
@@ -92,6 +97,7 @@ GotMoving:
   ; Low bits of camera position determine the scroll action.
   lda camera_h
   and #$0e
+  lsr a
   ; If the same as last frame, do nothing.
   cmp orig_scroll_action
   beq Next
@@ -99,7 +105,7 @@ GotMoving:
   cmp #SCROLL_ACTION_LIMIT
   bge Next
   ; Found an action that needs to be performed.
-  sta NMI_SCROLL_action
+  sta action_num
 
   ; High bit of the level position.
   mov level_bit, #0
@@ -122,12 +128,14 @@ GotMoving:
   adc lookahead
   sta NMI_SCROLL_target
 
-  ; Target is only applicable to a position in the nametable. The level position
-  ; can be larger than that. OR the level bit and lookup the strip id.
+  ; Get the strip_id.
   clc
   adc level_bit
+  tax
+  ldy action_num
+  sty NMI_SCROLL_action
   jsr LevelDataGetStripId
-  sta NMI_SCROLL_strip_id
+  stx NMI_SCROLL_strip_id
 
 Next:
 .endscope

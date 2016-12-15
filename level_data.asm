@@ -33,9 +33,27 @@ debug_13_strip_id = $413
 .segment "CODE"
 
 
+; input X: Distance into the level data.
+; input Y: Action kind, 1..4 for nt, 5 for attr, 6 for collision
+; output X: Strip id
 .proc LevelDataGetStripId
-  tax
+chunk_id = strip_id
+  ; Get chunk_id.
   lda level_data,x
+  ; chunk_id * 8
+  .repeat 3
+  asl a
+  .endrepeat
+  sta chunk_id
+  tya
+  sec
+  sbc #1
+  clc
+  adc chunk_id
+  tax
+  ; Get strip id.
+  lda level_chunks,x
+  tax
   rts
 .endproc
 
@@ -44,7 +62,7 @@ debug_13_strip_id = $413
   jsr PrepareRenderVertical
   ldx #0
 Loop:
-  jsr FillFullStrip
+  jsr FillFullChunk
   inx
   cpx #FILL_LOOKAHEAD
   bne Loop
@@ -72,8 +90,7 @@ Loop:
 UpdateNametable:
   ;
   sec
-  sbc #2
-  lsr a
+  sbc #1
   sta offset
   sta debug_11_offset
   ;
@@ -83,7 +100,7 @@ UpdateNametable:
   sta debug_13_strip_id
   ;
   jsr PrepareRenderVertical
-  jsr RenderNametableSingleSubstrip
+  jsr RenderNametableSingleStrip
   jmp Acknowledge
 UpdateAttribute:
   mov target, NMI_SCROLL_target
@@ -108,29 +125,70 @@ Return:
 .endproc
 
 
-.proc FillFullStrip
-  stx target
-  mov strip_id, {level_data,x}
+.proc FillFullChunk
   txa
   pha
-  jsr RenderNametableStrip
+
+  stx target
+
+  mov offset, #0
+
+  lda level_data,x
+  .repeat 3
+  asl a
+  .endrepeat
+  tax
+  lda level_chunks,x
+  sta strip_id
+  jsr RenderNametableSingleStrip
+  inc offset
+  inx
+  lda level_chunks,x
+  sta strip_id
+  jsr RenderNametableSingleStrip
+  inc offset
+  inx
+  lda level_chunks,x
+  sta strip_id
+  jsr RenderNametableSingleStrip
+  inc offset
+  inx
+  lda level_chunks,x
+  sta strip_id
+  jsr RenderNametableSingleStrip
+  inc offset
+  inx
+  lda level_chunks,x
+  sta strip_id
   jsr RenderAttribute
+  inx
+  lda level_chunks,x
+  sta strip_id
   jsr FillCollision
+
   pla
   tax
+
   rts
 .endproc
 
 
-.proc RenderNametableStrip
-  ; Offset of the sub-strip to render, of which there are 4.
+; target
+.proc RenderNametableChunk
+  txa
+  pha
+
+  ; Offset of the strip to render, of which there are 4.
   mov offset, #0
 Loop:
-  jsr RenderNametableSingleSubstrip
+  jsr RenderNametableSingleStrip
   inc offset
   lda offset
   cmp #4
   bne Loop
+
+  pla
+  tax
   rts
 .endproc
 
@@ -139,18 +197,18 @@ Loop:
 ;   offset   - Offset within the strip, 0..3
 ;   target   - Which strip in the nametable to render, 0..15
 ;   strip_id - Strip id to get level data from.
-.proc RenderNametableSingleSubstrip
+; Clobbers Y
+.proc RenderNametableSingleStrip
+  txa
+  pha
+
   mov high_byte, #0
-  ; Set up pointer to nametable data.
-  ; ((strip_id * 4) + offset) * (30[length] + 2[pad])
+  ; Set up pointer to nametable data, strip_id * 24 + level_nt_column
   lda strip_id
-  .repeat 2
   asl a
-  rol high_byte
-  .endrepeat
   clc
-  adc offset
-  .repeat 5
+  adc strip_id
+  .repeat 3
   asl a
   rol high_byte
   .endrepeat
@@ -169,8 +227,7 @@ Loop:
   adc #$20
   sta PPU_ADDR
 
-  ; Y is the position in the strip, starting at the top.
-  ldy #6
+  ; Select address of the nametable at the top of the strip.
   lda target
   and #$07
   asl a
@@ -179,8 +236,9 @@ Loop:
   adc offset
   adc #$c0
   sta PPU_ADDR
-  ; Render a sub-strip, 30 elements.
-  ldx #($1e - 6)
+  ; Render the strip, 24 elements.
+  ldy #0
+  ldx #24
 RenderLoop:
   lda (pointer),y
   sta PPU_DATA
@@ -189,11 +247,19 @@ RenderLoop:
   bne RenderLoop
 
 Return:
+  pla
+  tax
   rts
 .endproc
 
 
+; target
+; strip_id
+; Clobbers Y
 .proc RenderAttribute
+  txa
+  pha
+
   ; Select which nametable to render attributes to, $23c0 or $27c0.
   lda target
   and #$08
@@ -223,7 +289,7 @@ Return:
   clc
   adc #$c8
   tax
-  ; Start at the top of the attributes, render 8 bytes.
+  ; Start at the top of the attributes, render 7 bytes.
   ldy #1
 Loop:
 
@@ -244,11 +310,18 @@ Loop:
   cpy #$07
   bne Loop
 
+  pla
+  tax
   rts
 .endproc
 
 
+; target
+; strip_id
+; Clobbers Y
 .proc FillCollision
+  txa
+  pha
   ; Set up pointer to collision data. Treat high_byte:strip_id as 16-bit value.
   ; Units are 15[bytes] + 1[pad] = 16.
   mov high_byte, #0
@@ -280,6 +353,8 @@ Loop:
   cpy #$0f
   bne Loop
 
+  pla
+  tax
   rts
 .endproc
 
@@ -287,6 +362,9 @@ Loop:
 
 level_data:
 .incbin ".b/level_data.dat"
+
+level_chunks:
+.incbin ".b/level_data_chunks.dat"
 
 level_nt_column:
 .incbin ".b/level_data_nt_column.dat"

@@ -1,4 +1,5 @@
 import argparse
+import collections
 import os
 
 
@@ -32,24 +33,32 @@ def fill_template(template, param):
     return template.replace('%s', '%s' % param)
 
 
-class LevelDataBuilder(object):
+def read_file(filename):
+  fp = open(filename, 'rb')
+  bytes = fp.read()
+  fp.close()
+  return bytes
+
+
+class WorldCollection(object):
+  """Collect data from binary files"""
   def __init__(self):
     self.nt_column = []
     self.attribute = []
     self.collision = []
+    self.size = None
 
   def add_nametable(self, nametable):
     # Nametable has 8 chunks across.
     # Each chunk has 4 tiles across, and 30 tiles down.
     for chunk_x in xrange(8):
-      nt_column = []
       for tile_x in xrange(4):
+        nt_column = []
         x = chunk_x*4 + tile_x
-        for y in xrange(30):
+        for y in xrange(6,30):
           nt_column.append(ord(nametable[y*0x20 + x]))
-        nt_column += [0] * 2
-      # Each element is 128 bytes.
-      self.nt_column.append(nt_column)
+        # Each element is 24 bytes.
+        self.nt_column.append(nt_column)
 
   def add_attribute(self, attribute):
     # Attributes has 8 chunks across.
@@ -64,54 +73,94 @@ class LevelDataBuilder(object):
   def add_collision(self, collision):
     num = len(collision) / 16
     for i in xrange(num):
-      bytes = collision[i*16:i*16 + 16]
+      bytes = [ord(d) for d in collision[i*16:i*16 + 16]]
       # Each element is 16 bytes.
       self.collision.append(bytes)
 
-  def create(self, output_tmpl, output_text):
-    assert len(self.nt_column) == len(self.attribute) == len(self.collision)
-    self.cache = {}
-    self.struct_idx = 0
-    self.level_data = []
-    self.struct_nt_column = []
-    self.struct_attribute = []
-    self.struct_collision = []
-    num = len(self.nt_column)
-    for k in xrange(num):
-      key = str(bytearray(self.nt_column[k]) + bytearray(self.attribute[k]) +
-                bytearray(self.collision[k]))
-      if key in self.cache:
-        id = self.cache[key]
-      else:
-        id = self.struct_idx
-        self.struct_idx += 1
-        self.struct_nt_column += self.nt_column[k]
-        self.struct_attribute += self.attribute[k]
-        self.struct_collision += self.collision[k]
-        self.cache[key] = id
+  def done(self):
+    assert (len(self.nt_column) == (len(self.attribute)*4) ==
+            (len(self.collision)*4))
+    self.size = len(self.attribute)
+
+
+class LevelDataBuilder(object):
+  """Store structured data from world collection"""
+
+  def create(self, collect):
+    self.init()
+    for k in xrange(collect.size):
+      nt0 = self.store_nt(collect.nt_column[k*4+0])
+      nt1 = self.store_nt(collect.nt_column[k*4+1])
+      nt2 = self.store_nt(collect.nt_column[k*4+2])
+      nt3 = self.store_nt(collect.nt_column[k*4+3])
+      attr = self.store_attr(collect.attribute[k])
+      col = self.store_collision(collect.collision[k])
+      id = self.store_chunk(nt0, nt1, nt2, nt3,
+                            attr, col)
       self.level_data.append(id)
+
+  def init(self):
+    self.level_data = []
+    self.nt_column = collections.OrderedDict()
+    self.attribute = collections.OrderedDict()
+    self.collision = collections.OrderedDict()
+    self.chunks = collections.OrderedDict()
+
+  def store_nt(self, data):
+    return self._intern(self.nt_column, data)
+
+  def store_attr(self, data):
+    return self._intern(self.attribute, data)
+
+  def store_collision(self, data):
+    return self._intern(self.collision, data)
+
+  def store_chunk(self, nt0, nt1, nt2, nt3, attr, col):
+    data = [nt0, nt1, nt2, nt3, attr, col, 0xff, 0xff]
+    return self._intern(self.chunks, data)
+
+  def _intern(self, storage, data):
+    key = bytes(bytearray(data))
+    if not key in storage:
+      storage[key] = len(storage)
+    return storage[key]
+
+  def save_bin(self, output_tmpl):
     fp = open(fill_template(output_tmpl, ''), 'w')
     fp.write(bytearray(self.level_data))
     fp.close()
+    fp = open(fill_template(output_tmpl, '_chunks'), 'w')
+    fp.write(self.storage_bytes(self.chunks))
+    fp.close()
     fp = open(fill_template(output_tmpl, '_nt_column'), 'w')
-    fp.write(bytearray(self.struct_nt_column))
+    fp.write(self.storage_bytes(self.nt_column))
     fp.close()
     fp = open(fill_template(output_tmpl, '_attribute'), 'w')
-    fp.write(bytearray(self.struct_attribute))
+    fp.write(self.storage_bytes(self.attribute))
     fp.close()
     fp = open(fill_template(output_tmpl, '_collision'), 'w')
-    fp.write(bytearray(self.struct_collision))
+    fp.write(self.storage_bytes(self.collision))
     fp.close()
-    fp = open(output_text, 'w')
+
+  def save_text(self, output_file):
+    fp = open(output_file, 'w')
     fp.write('level_data:\n')
     self.write_slices(fp, self.level_data, 8)
+    fp.write('level_data_chunk:\n')
+    self.write_slices(fp, self.storage_bytes(self.chunks), 8)
     fp.write('level_data_nt_column:\n')
-    self.write_slices(fp, self.struct_nt_column, 128)
+    self.write_slices(fp, self.storage_bytes(self.nt_column), 24)
     fp.write('level_data_attribute:\n')
-    self.write_slices(fp, self.struct_attribute, 8)
+    self.write_slices(fp, self.storage_bytes(self.attribute), 8)
     fp.write('level_data_collision:\n')
-    self.write_slices(fp, [ord(n) for n in self.struct_collision], 16)
+    self.write_slices(fp, self.storage_bytes(self.collision), 16)
     fp.close()
+
+  def storage_bytes(self, storage):
+    accum = []
+    for data in storage.keys():
+      accum += data
+    return bytearray(accum)
 
   def write_slices(self, fp, data, size):
     for i in xrange(len(data) / size):
@@ -140,21 +189,22 @@ def pad_hud_on_top(data):
 
 def process(nametable_tmpl, attribute_tmpl, collision_file,
             output_tmpl, output_text):
-  builder = LevelDataBuilder()
+  world = WorldCollection()
   i = 0
   while True:
     nametable = get_bytes(nametable_tmpl, i)
     if not nametable:
       break
-    builder.add_nametable(nametable)
+    world.add_nametable(nametable)
     attribute = get_bytes(attribute_tmpl, i)
-    builder.add_attribute(pad_hud_on_top(attribute))
+    world.add_attribute(pad_hud_on_top(attribute))
     i += 1
-  fp = open(collision_file, 'rb')
-  bytes = fp.read()
-  fp.close()
-  builder.add_collision(bytes)
-  builder.create(output_tmpl, output_text)
+  world.add_collision(read_file(collision_file))
+  world.done()
+  builder = LevelDataBuilder()
+  builder.create(world)
+  builder.save_bin(output_tmpl)
+  builder.save_text(output_text)
 
 
 def run():
