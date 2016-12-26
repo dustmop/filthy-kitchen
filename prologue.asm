@@ -1,10 +1,10 @@
 .segment "INESHDR"
 
-MAPPER_NUMBER = 0
+MAPPER_NUMBER = 4
 
 
 .byte "NES", $1a
-.byte $02 ; prg * $4000
+.byte $04 ; prg * $4000
 .byte $00 ; chr-ram
 .byte ((MAPPER_NUMBER & $0f) << 4) | $01
 .byte (MAPPER_NUMBER & $f0) | $00
@@ -36,9 +36,25 @@ palette:
 .word 0
 
 
-.segment "CHRDATA"
+.segment "CHRDATA0"
 
 .export chr_data
 
 chr_data:
 .incbin ".b/resource.chr.dat"
+
+.segment "CHRDATA1"
+
+.byte $01
+
+.segment "CHRDATA2"
+
+.byte $02
+
+.segment "CHRDATA3"
+
+.byte $03
+
+.segment "CHRDATA4"
+
+.byte $04

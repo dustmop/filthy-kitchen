@@ -1,6 +1,7 @@
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
+.include "general_mapper.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
 .include "camera.h.asm"
@@ -24,7 +25,7 @@
 
 .export RESET, NMI
 
-.segment "CODE"
+.segment "BOOT"
 
 RESET:
   sei
@@ -62,6 +63,10 @@ ClearMemory:
 Wait1:
   bit PPU_STATUS
   bpl Wait1
+
+  jsr GeneralMapperInit
+  lda #0
+  jsr GeneralMapperPrgBank8000
 
   jsr ClearBothNametables
 

@@ -8,6 +8,7 @@ SRC = main.asm \
       read_controller.asm \
       prologue.asm \
       vars.asm \
+      general_mmc3.asm \
       player.asm \
       detect_collision.asm \
       camera.asm \
