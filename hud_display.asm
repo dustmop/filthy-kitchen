@@ -11,7 +11,7 @@
 
 SPRITE_0_TILE = $2b
 
-.importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select
+.importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
 
 .segment "CODE"
 
@@ -58,20 +58,32 @@ HUD_HEART_H = $5b
   mov sprite_attr+$10, #1
   mov sprite_h   +$10, #$10
 
-  mov sprite_v   +$14, #$11
-  mov sprite_tile+$14, #HUD_HEART_TILE
-  mov sprite_attr+$14, #0
-  mov sprite_h   +$14, #(HUD_HEART_H + 0)
+  lda lives
+  beq Done
+  cmp #1
+  beq LifeNumber1
+  cmp #2
+  beq LifeNumber2
 
+LifeNumber3:
+  mov sprite_v   +$1c, #$11
+  mov sprite_tile+$1c, #HUD_HEART_TILE
+  mov sprite_attr+$1c, #0
+  mov sprite_h   +$1c, #(HUD_HEART_H + 26)
+
+LifeNumber2:
   mov sprite_v   +$18, #$11
   mov sprite_tile+$18, #HUD_HEART_TILE
   mov sprite_attr+$18, #0
   mov sprite_h   +$18, #(HUD_HEART_H + 13)
 
-  mov sprite_v   +$1c, #$11
-  mov sprite_tile+$1c, #HUD_HEART_TILE
-  mov sprite_attr+$1c, #0
-  mov sprite_h   +$1c, #(HUD_HEART_H + 26)
+LifeNumber1:
+  mov sprite_v   +$14, #$11
+  mov sprite_tile+$14, #HUD_HEART_TILE
+  mov sprite_attr+$14, #0
+  mov sprite_h   +$14, #(HUD_HEART_H + 0)
+
+Done:
   rts
 .endproc
 

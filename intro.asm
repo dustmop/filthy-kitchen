@@ -1,12 +1,13 @@
 .export IntroTitle
 
+.include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "general_mapper.h.asm"
 .include "read_controller.h.asm"
 .include "gameplay.h.asm"
 
-.importzp ppu_ctrl_current, buttons_press
+.importzp ppu_ctrl_current, buttons_press, lives
 .import title_palette
 .import title_graphics
 
@@ -37,5 +38,6 @@ IntroLoop:
 
   jsr WaitNewFrame
   jsr DisableDisplayAndNmi
+  mov lives, #3
   jmp GameplayMain
 .endproc

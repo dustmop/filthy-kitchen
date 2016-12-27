@@ -21,7 +21,7 @@
 .include "health.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
-.importzp player_removed
+.importzp player_removed, lives
 .import gameplay_palette, graphics0, graphics1
 
 
@@ -118,6 +118,9 @@ GameplayLoop:
   lda player_removed
   cmp #150
   bne :+
+  dec lives
+  ; TODO
+  ;bmi GameOver
   jsr DisableDisplayAndNmi
   jmp GameplayMain
 :

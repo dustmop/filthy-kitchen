@@ -86,6 +86,7 @@ combo_medium: .byte 0
 earned_combo_low: .byte 0
 earned_combo_medium: .byte 0
 earned_combo_count: .byte 0
+lives: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -113,6 +114,7 @@ earned_combo_count: .byte 0
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
 .exportzp have_spawned_food, have_spawned_dirt, have_spawned_utensils
+.exportzp lives
 .exportzp player_state_begin, player_state_end
 .exportzp level_state_begin, level_state_end
 
