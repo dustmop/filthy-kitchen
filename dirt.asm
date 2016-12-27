@@ -19,8 +19,8 @@
 .import object_data_extend
 
 
-DIRTY_SINK_TILE_LEFT = $81
-DIRTY_SINK_TILE_RIGHT = $83
+DIRTY_SINK_TILE_LEFT = $7f
+DIRTY_SINK_TILE_RIGHT = $81
 
 
 .segment "CODE"
