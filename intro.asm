@@ -27,7 +27,7 @@
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
-  jsr EnableDisplayAndNmi
+  jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
 IntroLoop:
   jsr WaitNewFrame

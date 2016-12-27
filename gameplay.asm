@@ -52,11 +52,7 @@ GameplayMain:
 
   jsr HudSplitAssign
 
-  ; Turn on the nmi, then wait for the next frame before enabling the display.
-  ; This prevents a partially rendered frame from appearing at start-up.
-  jsr EnableNmi
-  jsr WaitNewFrame
-  jsr EnableDisplayAndNmi
+  jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
   lda ppu_ctrl_current
   ora #PPU_CTRL_SPRITE_8x16

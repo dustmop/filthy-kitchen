@@ -2,7 +2,8 @@
 
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
-.export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
+.export EnableNmi, WaitNewFrame, EnableDisplay
+.export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
 .export PrepareRenderVertical, PrepareRenderHorizontal
 .export LoadChrRam
@@ -112,14 +113,19 @@ Loop:
   rts
 .endproc
 
-.proc EnableDisplayAndNmi
-  lda #(PPU_CTRL_NMI_ENABLE | PPU_CTRL_SPRITE_1000)
-  sta PPU_CTRL
-  sta ppu_ctrl_current
-  lda #(PPU_MASK_SHOW_SPRITES | PPU_MASK_SHOW_BG | PPU_MASK_NOCLIP_SPRITES | PPU_MASK_NOCLIP_BG)
+; Turn on the nmi, then wait for the next frame before enabling the display.
+; This prevents a partially rendered frame from appearing at start-up.
+.proc EnableNmiThenWaitNewFrameThenEnableDisplay
+  jsr EnableNmi
+  jsr WaitNewFrame
+  fallt EnableDisplay
+.endproc
+
+.proc EnableDisplay
+  lda ppu_mask_current
+  ora #(PPU_MASK_SHOW_SPRITES | PPU_MASK_SHOW_BG | PPU_MASK_NOCLIP_SPRITES | PPU_MASK_NOCLIP_BG)
   sta PPU_MASK
   sta ppu_mask_current
-  cli
   rts
 .endproc
 
@@ -137,14 +143,6 @@ WaitLoop:
   bit main_yield
   bpl WaitLoop
   mov main_yield, #0
-  rts
-.endproc
-
-.proc EnableDisplay
-  lda ppu_mask_current
-  ora #(PPU_MASK_SHOW_SPRITES | PPU_MASK_SHOW_BG)
-  sta PPU_MASK
-  sta ppu_mask_current
   rts
 .endproc
 
