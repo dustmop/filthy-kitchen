@@ -3,7 +3,7 @@
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export EnableDisplayAndNmi, EnableDisplay, EnableNmi, WaitNewFrame
-.export DisableDisplay, TintApplyToPpuMask
+.export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
 .export PrepareRenderVertical, PrepareRenderHorizontal
 .export LoadChrRam
 
@@ -153,6 +153,17 @@ WaitLoop:
   and #($ff & ~PPU_MASK_SHOW_SPRITES & ~PPU_MASK_SHOW_BG)
   sta PPU_MASK
   sta ppu_mask_current
+  rts
+.endproc
+
+.proc DisableDisplayAndNmi
+  lda #0
+  sta PPU_MASK
+  sta ppu_mask_current
+  lda ppu_ctrl_current
+  and #($ff & ~PPU_CTRL_NMI_ENABLE)
+  sta PPU_CTRL
+  sta ppu_ctrl_current
   rts
 .endproc
 

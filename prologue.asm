@@ -20,11 +20,18 @@ MAPPER_NUMBER = 4
 
 .segment "CODE"
 
-.export palette
+.export gameplay_palette, title_palette
+.export title_graphics
 
-palette:
+gameplay_palette:
 .incbin ".b/bg_pal.dat"
 .incbin ".b/sprite_pal.dat"
+
+title_palette:
+.incbin ".b/title.palette.dat"
+
+title_graphics:
+.incbin ".b/title.graphics.dat"
 
 
 .segment "VECTORS"
@@ -37,15 +44,14 @@ palette:
 
 
 .segment "CHRDATA0"
-
 .export chr_data
-
 chr_data:
 .incbin ".b/resource.chr.dat"
 
 .segment "CHRDATA1"
-
-.byte $01
+.export title_chr_data
+title_chr_data:
+.incbin ".b/title.chr.dat"
 
 .segment "CHRDATA2"
 

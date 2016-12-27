@@ -3,12 +3,14 @@ default: filthy-kitchen.nes
 clean:
 	rm -rf .b/
 
-SRC = main.asm \
-      gfx.asm \
+SRC = gfx.asm \
       read_controller.asm \
       prologue.asm \
       vars.asm \
       general_mmc3.asm \
+      boot.asm \
+      intro.asm \
+      gameplay.asm \
       player.asm \
       detect_collision.asm \
       camera.asm \
@@ -38,7 +40,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python lint_objects.py $<
 	ca65 -o $@ $< -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat .b/bg_pal.dat .b/sprite_pal.dat
+.b/prologue.o: prologue.asm .b/resource.chr.dat .b/title.chr.dat \
+            .b/bg_pal.dat .b/sprite_pal.dat \
+            .b/title.palette.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
 .b/draw_picture.o: draw_picture.asm .b/pictures.asm
@@ -64,6 +68,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/sprites.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
             -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
+
+.b/title.o .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: title.png
+	mkdir -p .b/
+	makechr title.png -o .b/title.%s.dat
+	cat .b/title.nametable.dat .b/title.attribute.dat > \
+            .b/title.graphics.dat
 
 .b/hud.o: hud.png
 	mkdir -p .b/
@@ -123,3 +133,5 @@ filthy-kitchen.nes: $(OBJ) link.cfg
 	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
 	python convertln.py filthy-kitchen.ln > filthy-kitchen.nes.0.nl
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.1.nl
+	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.2.nl
+	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.3.nl
