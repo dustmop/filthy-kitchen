@@ -4,3 +4,4 @@
 .import ComboAddLow
 .import ComboSetToZero
 .import FlashEarnedCombo
+.import RenderScore

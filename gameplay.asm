@@ -40,6 +40,9 @@ GameplayMain:
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
+  jsr PlayerClearData
+  jsr LevelClearData
+
   jsr HudDataFill
   jsr LevelDataFillEntireScreen
   jsr HealthSetMax
@@ -51,6 +54,7 @@ GameplayMain:
   jsr SpriteSpaceInit
 
   jsr HudSplitAssign
+  jsr RenderScore
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 

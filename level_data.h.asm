@@ -1,1 +1,2 @@
+.import LevelClearData
 .import LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll

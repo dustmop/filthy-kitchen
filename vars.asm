@@ -1,17 +1,42 @@
 .segment "ZEROPAGE" : zeropage
 
+; sys
 main_yield: .byte 0
 ppu_ctrl_current: .byte 0
 ppu_mask_current: .byte 0
 debug_mode: .byte 0
 render_last: .byte 0
+pointer: .word 0
+values: .word 0,0,0,0,0,0,0,0
+
+; nmi
+NMI_SCROLL_target: .byte 0
+NMI_SCROLL_strip_id: .byte 0
+NMI_SCROLL_action: .byte 0
+NMI_pointer: .word 0
+NMI_values: .word 0,0,0,0
+
+; level
+level_state_begin:
 bg_x_scroll: .byte 0
 bg_y_scroll: .byte 0
 bg_nt_select: .byte 0
 buttons: .byte 0
 buttons_last: .byte 0
 buttons_press: .byte 0
-pointer: .word 0
+camera_h: .byte 0
+camera_screen: .byte 0
+have_spawned_food: .byte 0
+have_spawned_dirt: .byte 0
+have_spawned_utensils: .byte 0
+level_max_h: .byte 0
+level_max_screen: .byte 0
+level_max_camera_h: .byte 0
+level_max_camera_screen: .byte 0
+level_state_end:
+
+; player state
+player_state_begin:
 player_v: .byte 0
 player_h: .byte 0
 player_h_low: .byte 0
@@ -30,14 +55,9 @@ player_health_delta: .byte 0
 player_injury: .byte 0
 player_iframe: .byte 0
 player_removed: .byte 0
-camera_h: .byte 0
-camera_screen: .byte 0
-values: .word 0,0,0,0,0,0,0,0
-NMI_SCROLL_target: .byte 0
-NMI_SCROLL_strip_id: .byte 0
-NMI_SCROLL_action: .byte 0
-NMI_pointer: .word 0
-NMI_values: .word 0,0,0,0
+player_state_end:
+
+; engine
 object_list_head: .byte 0
 object_list_tail: .byte 0
 sprite_space_index: .byte 0
@@ -45,10 +65,6 @@ sprite_space_avail: .byte 0
 sprite_space_force: .byte 0
 sprite_space_force2: .byte 0
 sprite_space_force3: .byte 0
-level_max_h: .byte 0
-level_max_screen: .byte 0
-level_max_camera_h: .byte 0
-level_max_camera_screen: .byte 0
 draw_picture_pointer: .word 0
 draw_sprite_pointer: .word 0
 draw_picture_id: .byte 0
@@ -61,6 +77,8 @@ draw_palette: .byte 0
 random_value: .byte 0
 spawn_count: .byte 0
 color: .byte 0
+
+; progress
 score_low: .byte 0
 score_medium: .byte 0
 combo_low: .byte 0
@@ -68,9 +86,6 @@ combo_medium: .byte 0
 earned_combo_low: .byte 0
 earned_combo_medium: .byte 0
 earned_combo_count: .byte 0
-have_spawned_food: .byte 0
-have_spawned_dirt: .byte 0
-have_spawned_utensils: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -98,6 +113,8 @@ have_spawned_utensils: .byte 0
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
 .exportzp have_spawned_food, have_spawned_dirt, have_spawned_utensils
+.exportzp player_state_begin, player_state_end
+.exportzp level_state_begin, level_state_end
 
 collision_map = $500
 

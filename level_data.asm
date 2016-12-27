@@ -1,3 +1,4 @@
+.export LevelClearData
 .export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
 
 .include "include.branch-macros.asm"
@@ -10,6 +11,7 @@
 .importzp NMI_pointer
 .importzp NMI_values
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
+.importzp level_state_begin, level_state_end
 .import collision_map
 
 FILL_LOOKAHEAD = 9
@@ -31,6 +33,18 @@ debug_13_strip_id = $413
 
 
 .segment "CODE"
+
+
+.proc LevelClearData
+  lda #0
+  ldx #0
+ClearLoop:
+  sta level_state_begin,x
+  inx
+  cpx #(level_state_end - level_state_begin)
+  bne ClearLoop
+  rts
+.endproc
 
 
 ; input X: Distance into the level data.

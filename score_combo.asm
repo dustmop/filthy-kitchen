@@ -4,6 +4,7 @@
 .export ComboAddLow
 .export ComboSetToZero
 .export FlashEarnedCombo
+.export RenderScore
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"

@@ -1,3 +1,4 @@
+.export PlayerClearData
 .export PlayerInit
 .export PlayerUpdate
 .export PlayerDraw
@@ -23,6 +24,7 @@
 .importzp buttons, buttons_press
 .importzp level_max_h, level_max_screen
 .importzp draw_screen
+.importzp player_state_begin, player_state_end
 .import swatter_speed, swatter_speed_low, swatter_v_low
 
 .importzp values
@@ -65,9 +67,22 @@ tmp          = values + $08
 .segment "CODE"
 
 
+.proc PlayerClearData
+  lda #0
+  ldx #0
+ClearLoop:
+  sta player_state_begin,x
+  inx
+  cpx #(player_state_end - player_state_begin)
+  bne ClearLoop
+  rts
+.endproc
+
+
 .proc PlayerInit
   mov player_v, #START_V
   mov player_h, #START_H
+  mov player_screen, #0
   mov player_dir, #$00
   mov player_gravity, _
   mov player_owns_swatter, #$ff
