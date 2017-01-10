@@ -29,6 +29,8 @@ gameplay_palette:
 
 title_palette:
 .incbin ".b/title.palette.dat"
+; TODO: Title's sprites palette.
+.incbin ".b/title.palette.dat"
 
 title_graphics:
 .incbin ".b/title.graphics.dat"

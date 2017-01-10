@@ -69,15 +69,25 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_pictures.py -i pictures.info -p pictures.png \
             -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
 
-.b/title.o .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: title.png
+.b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: \
+            merge_chr_nt.py title.png .b/alpha.o .b/digits.o
 	mkdir -p .b/
-	makechr title.png -o .b/title.%s.dat
+	makechr title.png -o .b/title.o
+	python merge_chr_nt.py .b/title.o \
+            -A .b/alpha.o \
+            -D .b/digits.o \
+            -c .b/title.chr.dat -p .b/title.palette.dat \
+            -n .b/title.nametable.dat -a .b/title.attribute.dat
 	cat .b/title.nametable.dat .b/title.attribute.dat > \
             .b/title.graphics.dat
 
 .b/hud.o: hud.png
 	mkdir -p .b/
 	makechr hud.png -o .b/hud.o -b 0f
+
+.b/alpha.o: alpha.png
+	mkdir -p .b/
+	makechr alpha.png -o .b/alpha.o -b 0f
 
 .b/digits.o: digits.png
 	mkdir -p .b/
@@ -92,7 +102,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
 
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
-            merge_chr_nt.py entire-level.png .b/hud.o .b/digits.o .b/bg_pal.o
+            merge_chr_nt.py entire-level.png .b/hud.o .b/alpha.o .b/digits.o \
+            .b/bg_pal.o
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
 	makechr .b/screen00.png -o .b/screen00.o -b 0f -p .b/bg_pal.o
@@ -101,7 +112,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr .b/screen03.png -o .b/screen03.o -b 0f -p .b/bg_pal.o
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
             .b/screen02.o .b/screen03.o .b/hud.o \
-            -d .b/digits.o \
+            -A .b/alpha.o \
+            -D .b/digits.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
 	mv .b/kitchen.attribute04.dat .b/hud.attribute.dat

@@ -92,23 +92,29 @@ def perform_merge(left_chr_page, right_chr_page, nametable):
   return nametable
 
 
-def insert_pad(data, position, num):
+def insert_pad(data, padding):
   make = bytearray([0] * len(data))
   for n, b in enumerate(data):
-    if b >= position:
-      make[n] = b + num
-    else:
-      make[n] = b
+    i = b
+    for p, k in padding:
+      if i >= p:
+        i += k
+    make[n] = i
   return make
 
 
-def merge_objects(collect, digit_obj, out_chr_name, out_palette_name,
+def merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
                   out_nt_tmpl, out_attr_tmpl):
+  padding = []
+  if digit_obj:
+    padding.append([0x30, 10])
+  if alpha_obj:
+    padding.append([0x41, 26])
   obj = collect[0]
   chr_bin = get_bytes(obj, 'chr')
   nametable = get_bytes(obj, 'nametable', expand=True)
   attribute = get_bytes(obj, 'attribute', expand=True)
-  save_output(fill_template(out_nt_tmpl, 0), insert_pad(nametable, 0x30, 10))
+  save_output(fill_template(out_nt_tmpl, 0), insert_pad(nametable, padding))
   save_output(fill_template(out_attr_tmpl, 0), attribute)
   palette = get_bytes(obj, 'palette', expand=True)
   save_output(out_palette_name, palette)
@@ -121,10 +127,13 @@ def merge_objects(collect, digit_obj, out_chr_name, out_palette_name,
     attribute = get_bytes(obj, 'attribute', expand=True)
     right_chr_page = chr_data.SortableChrPage.from_binary(str(chr_bin))
     perform_merge(combined_chr_page, right_chr_page, nametable)
-    save_output(fill_template(out_nt_tmpl, i), insert_pad(nametable, 0x30, 10))
+    save_output(fill_template(out_nt_tmpl, i), insert_pad(nametable, padding))
     save_output(fill_template(out_attr_tmpl, i), attribute)
   data = combined_chr_page.to_bytes()
-  data = data[0:0x300] + get_bytes(digit_obj, 'chr')[:0xa0] + data[0x300:]
+  if digit_obj:
+    data = data[:0x300] + get_bytes(digit_obj, 'chr')[:0xa0] + data[0x300:]
+  if alpha_obj:
+    data = data[:0x410] + get_bytes(alpha_obj, 'chr')[:0x1a0] + data[0x410:]
   data = data + bytearray([0] * (0x2000 - len(data)))
   save_output(out_chr_name, data)
 
@@ -158,6 +167,8 @@ def downgrade_to_deprecated_proto(obj):
 
 
 def parse_object_file(filename):
+  if filename is None:
+    return None
   fp = open(filename, 'rb')
   content = fp.read()
   fp.close()
@@ -169,14 +180,15 @@ def parse_object_file(filename):
   return obj
 
 
-def process(input_files, digits_input_file, out_chr_name, out_palette_name,
-            out_nt_tmpl, out_attr_tmpl):
+def process(input_files, alpha_input_file, digits_input_file, out_chr_name,
+            out_palette_name, out_nt_tmpl, out_attr_tmpl):
   collect = []
   for f in input_files:
     obj = parse_object_file(f)
     collect.append(obj)
+  alpha_obj = parse_object_file(alpha_input_file)
   digit_obj = parse_object_file(digits_input_file)
-  merge_objects(collect, digit_obj, out_chr_name, out_palette_name,
+  merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
                 out_nt_tmpl, out_attr_tmpl)
 
 
@@ -187,9 +199,10 @@ def run():
   parser.add_argument('-p', dest='palette')
   parser.add_argument('-n', dest='nametable')
   parser.add_argument('-a', dest='attribute')
-  parser.add_argument('-d', dest='digits')
+  parser.add_argument('-A', dest='alpha')
+  parser.add_argument('-D', dest='digits')
   args = parser.parse_args()
-  process(args.input, args.digits, args.chr, args.palette,
+  process(args.input, args.alpha, args.digits, args.chr, args.palette,
           args.nametable, args.attribute)
 
 
