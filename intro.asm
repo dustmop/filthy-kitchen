@@ -1,5 +1,6 @@
 .export IntroTitle
 
+.include "include.controller.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
@@ -34,6 +35,7 @@ IntroLoop:
   jsr WaitNewFrame
   jsr ReadController
   lda buttons_press
+  and #BUTTON_START
   beq IntroLoop
 
   jsr WaitNewFrame
