@@ -31,7 +31,8 @@ SRC = gfx.asm \
       dirt.asm \
       utensils.asm \
       random.asm \
-      health.asm
+      health.asm \
+      msg_catalog.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
@@ -60,6 +61,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/fly.o: fly.asm .b/trig.h.asm
 	ca65 -o .b/fly.o fly.asm -g
 
+.b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
+	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
+
 .b/sprites.chr.dat: sprites.png
 	mkdir -p .b/
 	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16 \
@@ -69,29 +73,37 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_pictures.py -i pictures.info -p pictures.png \
             -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
 
+.b/title_nomsg.png .b/title_msg.asm: extract_msg.py title.png alpha.png digit.png
+	python extract_msg.py title.png -A alpha.png -D digit.png \
+            -o .b/title_nomsg.png -b 0078fc -m .b/title_msg.asm
+
+.b/hud_nomsg.png .b/hud_msg.asm: extract_msg.py hud.png alpha.png digit.png
+	python extract_msg.py hud.png -A alpha.png -D digit.png \
+            -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
+
 .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: \
-            merge_chr_nt.py title.png .b/alpha.o .b/digits.o
+            merge_chr_nt.py .b/title_nomsg.png .b/alpha.o .b/digit.o
 	mkdir -p .b/
-	makechr title.png -o .b/title.o
+	makechr .b/title_nomsg.png -o .b/title.o
 	python merge_chr_nt.py .b/title.o \
             -A .b/alpha.o \
-            -D .b/digits.o \
+            -D .b/digit.o \
             -c .b/title.chr.dat -p .b/title.palette.dat \
             -n .b/title.nametable.dat -a .b/title.attribute.dat
 	cat .b/title.nametable.dat .b/title.attribute.dat > \
             .b/title.graphics.dat
 
-.b/hud.o: hud.png
+.b/hud.o: .b/hud_nomsg.png
 	mkdir -p .b/
-	makechr hud.png -o .b/hud.o -b 0f
+	makechr .b/hud_nomsg.png -o .b/hud.o -b 0f
 
 .b/alpha.o: alpha.png
 	mkdir -p .b/
 	makechr alpha.png -o .b/alpha.o -b 0f
 
-.b/digits.o: digits.png
+.b/digit.o: digit.png
 	mkdir -p .b/
-	makechr digits.png -o .b/digits.o -b 0f
+	makechr digit.png -o .b/digit.o -b 0f
 
 .b/bg_pal.o .b/bg_pal.dat: bg_pal.png
 	makechr --makepal bg_pal.png -o .b/bg_pal.o
@@ -102,7 +114,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
 
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
-            merge_chr_nt.py entire-level.png .b/hud.o .b/alpha.o .b/digits.o \
+            merge_chr_nt.py entire-level.png .b/hud.o .b/alpha.o .b/digit.o \
             .b/bg_pal.o
 	mkdir -p .b/
 	python split_level.py entire-level.png -o .b/screen%d.png
@@ -113,7 +125,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
             .b/screen02.o .b/screen03.o .b/hud.o \
             -A .b/alpha.o \
-            -D .b/digits.o \
+            -D .b/digit.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
 	mv .b/kitchen.attribute04.dat .b/hud.attribute.dat

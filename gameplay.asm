@@ -19,6 +19,7 @@
 .include "utensils.h.asm"
 .include "random.h.asm"
 .include "health.h.asm"
+.include "msg_catalog.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed, lives
@@ -44,6 +45,19 @@ GameplayMain:
   jsr LevelClearData
 
   jsr HudDataFill
+  ldx #MSG_HEALTH
+  jsr MsgRender
+  ldx #MSG_LIVES
+  jsr MsgRender
+  ldx #MSG_SCORE
+  jsr MsgRender
+  ldx #MSG_COMBO
+  jsr MsgRender
+  ldx #MSG_ZERO_SCORE
+  jsr MsgRender
+  ldx #MSG_ZERO_COMBO
+  jsr MsgRender
+
   jsr LevelDataFillEntireScreen
   jsr HealthSetMax
 
