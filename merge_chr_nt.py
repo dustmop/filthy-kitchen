@@ -30,10 +30,10 @@ def kind_to_role(kind):
 
 def get_bytes(obj, kind, expand=False):
   role = kind_to_role(kind)
-  for comp in obj.data.components:
-    if comp.role == role:
-      index = comp.binary_index
-  binary = obj.data.binaries[index]
+  for packet in obj.body.packets:
+    if packet.role == role:
+      binary = packet.binary
+      break
   data = binary.bin
   if expand:
     if binary.pre_pad:
@@ -138,34 +138,6 @@ def merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
   save_output(out_chr_name, data)
 
 
-
-def downgrade_to_deprecated_proto(obj):
-  # Future version
-  if not obj.HasField('body'):
-    return
-  body = obj.body
-  # Deprecated version
-  data = obj.data
-  data_settings = data.settings
-  data_settings.bg_color = body.settings.bg_color
-  # Each packet
-  for i,packet in enumerate(body.packets):
-    binary = data.binaries.add()
-    binary.CopyFrom(packet.binary)
-    component = data.components.add()
-    component.role = packet.role
-    component.binary_index = i
-    if packet.name:
-      component.name = packet.name
-    metadata = packet.metadata
-    if metadata.HasField('chr_metadata'):
-      data_settings.chr_metadata.add().CopyFrom(metadata.chr_metadata)
-    if metadata.HasField('palette_metadata'):
-      data_settings.palette_metadata.add().CopyFrom(metadata.palette_metadata)
-  # Clean-up
-  obj.ClearField('body')
-
-
 def parse_object_file(filename):
   if filename is None:
     return None
@@ -176,7 +148,6 @@ def parse_object_file(filename):
     raise RuntimeError('Could not parse file: %s' % f)
   obj = valiant.ObjectFile()
   obj.ParseFromString(content)
-  downgrade_to_deprecated_proto(obj)
   return obj
 
 
