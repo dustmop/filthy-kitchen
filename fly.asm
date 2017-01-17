@@ -23,6 +23,9 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
 .importzp combo_low
+.importzp values
+adjust_v = values + 0
+adjust_h = values + 1
 
 .import object_data_extend
 fly_direction = object_data_extend + $00
@@ -241,19 +244,17 @@ Next:
   lsr a
   and #$07
   tay
-  mov draw_v, {fly_swivel_v,y}
-  mov draw_h, {fly_swivel_h,y}
+  mov adjust_v, {fly_swivel_v,y}
+  mov adjust_h, {fly_swivel_h,y}
 Next:
 .endscope
 
   ; Draw position.
-  lda draw_v
+  lda object_v,x
   clc
-  adc object_v,x
+  adc adjust_v
   sta draw_v
-  lda draw_h
-  clc
-  adc object_h,x
+  lda object_h,x
   sec
   sbc camera_h
   sta draw_h
@@ -261,6 +262,14 @@ Next:
   sbc camera_screen
   sta draw_screen
   bne Return
+
+  lda draw_h
+  eor #$80
+  clc
+  adc adjust_h
+  eor #$80
+  sta draw_h
+  bvs Return
 
   ; Draw the fly.
   jsr SpriteSpaceAllocate
