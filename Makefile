@@ -137,10 +137,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	rm .b/kitchen.nametable04.dat
 
 .b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
-                   .b/bg_meta.dat
+                   .b/bg_collision.dat
 	python build_level_data.py -n .b/kitchen.nametable%d.dat \
-            -a .b/kitchen.attribute%d.dat -m .b/bg_meta.dat \
-            -o .b/level_data%s.dat -t .b/level_data.txt
+            -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
+            -s .b/bg_spawn.dat -o .b/level_data%s.dat -t .b/level_data.txt
 
 .b/resource.chr.dat .b/resource.palette.dat: \
             .b/chars.chr.dat .b/kitchen.chr.dat
@@ -149,8 +149,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/bg_meta.dat: build_collision.py bg_meta.png
-	python build_collision.py bg_meta.png -o .b/bg_meta.dat
+.b/bg_collision.dat .b/bg_spawn.dat: build_collision_spawn.py bg_meta.png
+	python build_collision_spawn.py bg_meta.png \
+            -c .b/bg_collision.dat -s .b/bg_spawn.dat
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

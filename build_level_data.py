@@ -46,6 +46,7 @@ class WorldCollection(object):
     self.nt_column = []
     self.attribute = []
     self.collision = []
+    self.spawn = {}
     self.size = None
 
   def add_nametable(self, nametable):
@@ -77,6 +78,18 @@ class WorldCollection(object):
       # Each element is 16 bytes.
       self.collision.append(bytes)
 
+  def add_spawn(self, spawn):
+    k = 0
+    while ord(spawn[k]) != 0xff:
+      y = ord(spawn[k])
+      x = ord(spawn[k+1])
+      w = ord(spawn[k+2])
+      id = ord(spawn[k+3])
+      offset = x / 0x20 + (w * 8)
+      # Each element is 4 bytes.
+      self.spawn[offset] = [y, x, w, id]
+      k += 4
+
   def done(self):
     assert (len(self.nt_column) == (len(self.attribute)*4) ==
             (len(self.collision)*4))
@@ -95,8 +108,9 @@ class LevelDataBuilder(object):
       nt3 = self.store_nt(collect.nt_column[k*4+3])
       attr = self.store_attr(collect.attribute[k])
       col = self.store_collision(collect.collision[k])
+      spawn = self.store_spawn(collect.spawn.get(k))
       id = self.store_chunk(nt0, nt1, nt2, nt3,
-                            attr, col)
+                            attr, col, spawn)
       self.level_data.append(id)
 
   def init(self):
@@ -104,6 +118,7 @@ class LevelDataBuilder(object):
     self.nt_column = collections.OrderedDict()
     self.attribute = collections.OrderedDict()
     self.collision = collections.OrderedDict()
+    self.spawn = collections.OrderedDict()
     self.chunks = collections.OrderedDict()
 
   def store_nt(self, data):
@@ -115,8 +130,13 @@ class LevelDataBuilder(object):
   def store_collision(self, data):
     return self._intern(self.collision, data)
 
-  def store_chunk(self, nt0, nt1, nt2, nt3, attr, col):
-    data = [nt0, nt1, nt2, nt3, attr, col, 0xff, 0xff]
+  def store_spawn(self, data):
+    if not data:
+      return 0xff
+    return self._intern(self.spawn, data)
+
+  def store_chunk(self, nt0, nt1, nt2, nt3, attr, col, spawn):
+    data = [nt0, nt1, nt2, nt3, attr, col, spawn, 0xff]
     return self._intern(self.chunks, data)
 
   def _intern(self, storage, data):
@@ -141,6 +161,9 @@ class LevelDataBuilder(object):
     fp = open(fill_template(output_tmpl, '_collision'), 'w')
     fp.write(self.storage_bytes(self.collision))
     fp.close()
+    fp = open(fill_template(output_tmpl, '_spawn'), 'w')
+    fp.write(self.storage_bytes(self.spawn))
+    fp.close()
 
   def save_text(self, output_file):
     fp = open(output_file, 'w')
@@ -154,6 +177,8 @@ class LevelDataBuilder(object):
     self.write_slices(fp, self.storage_bytes(self.attribute), 8)
     fp.write('level_data_collision:\n')
     self.write_slices(fp, self.storage_bytes(self.collision), 16)
+    fp.write('level_spawn:\n')
+    self.write_slices(fp, self.storage_bytes(self.spawn), 4)
     fp.close()
 
   def storage_bytes(self, storage):
@@ -187,7 +212,7 @@ def pad_hud_on_top(data):
   return bytes(data)
 
 
-def process(nametable_tmpl, attribute_tmpl, meta_file,
+def process(nametable_tmpl, attribute_tmpl, collision_file, spawn_file,
             output_tmpl, output_text):
   world = WorldCollection()
   i = 0
@@ -199,7 +224,8 @@ def process(nametable_tmpl, attribute_tmpl, meta_file,
     attribute = get_bytes(attribute_tmpl, i)
     world.add_attribute(pad_hud_on_top(attribute))
     i += 1
-  world.add_collision(read_file(meta_file))
+  world.add_collision(read_file(collision_file))
+  world.add_spawn(read_file(spawn_file))
   world.done()
   builder = LevelDataBuilder()
   builder.create(world)
@@ -211,12 +237,13 @@ def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('-n', dest='nametable_tmpl')
   parser.add_argument('-a', dest='attribute_tmpl')
-  parser.add_argument('-m', dest='meta_file')
+  parser.add_argument('-c', dest='collision_file')
+  parser.add_argument('-s', dest='spawn_file')
   parser.add_argument('-o', dest='output_tmpl')
   parser.add_argument('-t', dest='output_text')
   args = parser.parse_args()
-  process(args.nametable_tmpl, args.attribute_tmpl, args.meta_file,
-          args.output_tmpl, args.output_text)
+  process(args.nametable_tmpl, args.attribute_tmpl, args.collision_file,
+          args.spawn_file, args.output_tmpl, args.output_text)
 
 
 if __name__ == '__main__':
