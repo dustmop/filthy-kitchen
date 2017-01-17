@@ -30,6 +30,7 @@ SRC = gfx.asm \
       points.asm \
       dirt.asm \
       utensils.asm \
+      broom.asm \
       random.asm \
       health.asm \
       msg_catalog.asm

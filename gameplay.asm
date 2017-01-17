@@ -17,6 +17,7 @@
 .include "food.h.asm"
 .include "dirt.h.asm"
 .include "utensils.h.asm"
+.include "broom.h.asm"
 .include "random.h.asm"
 .include "health.h.asm"
 .include "msg_catalog.h.asm"
@@ -113,6 +114,7 @@ GameplayLoop:
   jsr FoodMaybeCreate
   jsr DirtMaybeCreate
   jsr UtensilsMaybeCreate
+  jsr BroomMaybeCreate
 
   DebugModeSetTint green
   jsr ObjectListUpdate
