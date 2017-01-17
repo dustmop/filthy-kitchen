@@ -12,7 +12,8 @@ def has_x_index(text):
 
 def should_ignore(text):
   words = ['.import', '.export', '.include', '.byte', ' = ',
-           'object_list_head', 'object_list_tail', '!no_lint',
+           'object_list_head', 'object_list_tail', 'objects_only_draw',
+           '!no_lint',
            'swatter_animation_sequence',
            'swatter_picture_data', 'swatter_sprite_data']
   for w in words:

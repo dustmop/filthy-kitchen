@@ -25,6 +25,7 @@
 
 .importzp object_list_head, object_list_tail, camera_h
 .importzp player_v, player_h, player_screen, player_collision_idx
+.importzp objects_only_draw
 .importzp values
 
 .export object_data
@@ -106,7 +107,7 @@ Loop:
   cmp #OBJECT_IS_NEW
   bge Increment
 Body:
-  jsr ObjectDispatch
+  jsr ObjectExecute
   ; Step forward lifetime
   lda object_life,x
   cmp #$ff
@@ -138,7 +139,7 @@ ClearDecrement:
 .endproc
 
 
-.proc ObjectDispatch
+.proc ObjectExecute
   lda object_kind,x
   tay
   ; Retrieve info for the object.
@@ -157,53 +158,45 @@ ClearDecrement:
   mov {object_frame,x}, #0
 Next:
   mov draw_frame, {object_frame,x}
-  ; Movement, based upon kind
+  lda objects_only_draw
+  bne OnlyDraw
+Execute:
   txa
   pha
   tya
-  beq DispatchSwatter
-  cmp #OBJECT_KIND_FLY
-  beq DispatchFly
-  cmp #OBJECT_KIND_EXPLODE
-  beq DispatchExplode
-  cmp #OBJECT_KIND_POINTS
-  beq DispatchPoints
-  cmp #OBJECT_KIND_FOOD
-  beq DispatchFood
-  cmp #OBJECT_KIND_BROOM
-  beq DispatchBroom
-  cmp #OBJECT_KIND_DIRTY_SINK
-  beq DispatchDirt
-  cmp #OBJECT_KIND_UTENSILS
-  beq DispatchUtensils
-  bne DispatchDone
-DispatchSwatter:
-  jsr SwatterDispatch
-  jmp DispatchDone
-DispatchFly:
-  jsr FlyDispatch
-  jmp DispatchDone
-DispatchExplode:
-  jsr ExplodeDispatch
-  jmp DispatchDone
-DispatchPoints:
-  jsr PointsDispatch
-  jmp DispatchDone
-DispatchFood:
-  jsr FoodDispatch
-  jmp DispatchDone
-DispatchBroom:
-  jsr BroomDispatch
-  jmp DispatchDone
-DispatchDirt:
-  jsr DirtDispatch
-  jmp DispatchDone
-DispatchUtensils:
-  jsr UtensilsDispatch
-DispatchDone:
+  asl a
+  tay
+  jsr ObjectExecuteFromTable
   pla
   tax
 Return:
+  rts
+OnlyDraw:
+  txa
+  pha
+  tya
+  cmp #OBJECT_KIND_FLY
+  beq OnlyDrawFly
+  cmp #OBJECT_KIND_BROOM
+  beq OnlyDrawBroom
+  bne OnlyDrawDone
+OnlyDrawFly:
+  jsr FlyDraw
+  jmp OnlyDrawDone
+OnlyDrawBroom:
+  jsr BroomDraw
+OnlyDrawDone:
+  pla
+  tax
+  rts
+.endproc
+
+
+.proc ObjectExecuteFromTable
+  lda execute_table+1,y
+  pha
+  lda execute_table+0,y
+  pha
   rts
 .endproc
 
@@ -418,3 +411,13 @@ kind_bigger_h:
 
 kind_bigger_v:
 .byte   0,  0,     $80,    $80,    2,     0,        0, 24
+
+execute_table:
+.word SwatterExecute-1
+.word FlyExecute-1
+.word ExplodeExecute-1
+.word PointsExecute-1
+.word FoodExecute-1
+.word DirtExecute-1
+.word UtensilsExecute-1
+.word BroomExecute-1

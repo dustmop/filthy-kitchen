@@ -34,7 +34,8 @@ SRC = gfx.asm \
       broom.asm \
       random.asm \
       health.asm \
-      msg_catalog.asm
+      msg_catalog.asm \
+      flash.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 

@@ -1,4 +1,4 @@
-.export PointsGainAndCreate, PointsDispatch
+.export PointsGainAndCreate, PointsExecute
 .export points_digit_ones, points_digit_tens, points_digit_hundreds
 .export combo_points_low, combo_points_medium
 
@@ -52,7 +52,7 @@ hundreds_place_tile = values + $0a
   mov {points_digit_ones,x}, {ones_place,y}
   mov {points_digit_tens,x}, {tens_place,y}
   mov {points_digit_hundreds,x}, {hundreds_place,y}
-  jsr PointsDispatch
+  jsr PointsExecute
 PopStack:
   pla
   tay
@@ -77,7 +77,7 @@ POINTS_APPLE = 10
 POINTS_STEAK = 11
 
 
-.proc PointsDispatch
+.proc PointsExecute
   txa
   pha
 
@@ -139,7 +139,7 @@ Return:
 .endproc
 
 
-PointsDispatch_Return = PointsDispatch::Return
+PointsExecute_Return = PointsExecute::Return
 
 
 .proc DrawSingleDigit
@@ -161,9 +161,9 @@ PointsDispatch_Return = PointsDispatch::Return
 StopDrawing:
   pla
   pla
-  lda #>(PointsDispatch_Return - 1)
+  lda #>(PointsExecute_Return - 1)
   pha
-  lda #<(PointsDispatch_Return - 1)
+  lda #<(PointsExecute_Return - 1)
   pha
   rts
 .endproc

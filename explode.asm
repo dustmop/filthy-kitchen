@@ -1,4 +1,4 @@
-.export ExplodeDispatch
+.export ExplodeExecute
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -12,7 +12,7 @@
 
 .segment "CODE"
 
-.proc ExplodeDispatch
+.proc ExplodeExecute
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x

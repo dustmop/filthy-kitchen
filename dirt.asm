@@ -1,4 +1,4 @@
-.export DirtDispatch
+.export DirtExecute
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -9,7 +9,6 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp have_spawned_dirt
 .importzp draw_screen, draw_h, draw_v
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta
@@ -25,7 +24,7 @@ DIRTY_SINK_TILE_RIGHT = $7f
 .segment "CODE"
 
 
-.proc DirtDispatch
+.proc DirtExecute
 
 .scope CollisionWithPlayer
   lda player_iframe

@@ -25,6 +25,7 @@
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed, lives
+.importzp level_complete, objects_only_draw
 .import gameplay_palette, graphics0, graphics1
 
 
@@ -103,6 +104,13 @@ GameplayLoop:
   DebugModeSetTint 0
   jsr HudSplitWait
 
+  lda level_complete
+  beq HandleEngine
+  mov objects_only_draw, #1
+  bne EngineReady
+
+HandleEngine:
+
   DebugModeSetTint red_green
   jsr FlyListUpdate
 
@@ -114,6 +122,8 @@ GameplayLoop:
 
   DebugModeSetTint green_blue
   jsr SpawnOffscreenUpdate
+
+EngineReady:
 
   DebugModeSetTint green
   jsr ObjectListUpdate

@@ -14,6 +14,7 @@
 .include "draw_picture.h.asm"
 .include "collision_data.h.asm"
 .include "swatter.h.asm"
+.include "flash.h.asm"
 .include ".b/pictures.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
@@ -540,9 +541,3 @@ swatter_animation_v:
 .byte  16, 16
 .byte   9, 9
 .byte   4, 4
-
-flash_priority:
-.byte 0,1,1,0
-.byte 0,1,0,1
-.byte 1,0,1,0
-.byte 1,0,0,1

@@ -1,5 +1,5 @@
 .export FoodConstructor
-.export FoodDispatch
+.export FoodExecute
 
 .export food_kind
 
@@ -16,7 +16,6 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp have_spawned_food
 .importzp draw_screen
 .importzp values
 which_food = values + $08
@@ -43,7 +42,7 @@ LIFE_GAIN_STEAK = 5
 .endproc
 
 
-.proc FoodDispatch
+.proc FoodExecute
 
 .scope CollisionWithPlayer
   jsr ObjectCollisionWithPlayer

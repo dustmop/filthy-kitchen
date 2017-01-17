@@ -1,5 +1,6 @@
 .export FlyListUpdate
-.export FlyDispatch
+.export FlyExecute
+.export FlyDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -80,9 +81,7 @@ MAX_WORD = $10000
 FLY_MIN_V = $30
 FLY_MAX_V = $b0
 
-.proc FlyDispatch
-  txa
-  pha
+.proc FlyExecute
 
 .scope Movement
   ldy fly_direction,x
@@ -236,6 +235,8 @@ DidCollide:
 Next:
 .endscope
 
+Draw:
+
 .scope Swivel
   ldy #0
   sty draw_v
@@ -284,10 +285,11 @@ Next:
   sta sprite_attr,x
 
 Return:
-  pla
-  tax
   rts
 .endproc
+
+
+FlyDraw = FlyExecute::Draw
 
 
 fly_swivel_h:
@@ -334,7 +336,7 @@ HaveCombo:
   mov {object_step,x}, #0
   mov {object_frame,x}, _
   mov draw_frame, #0
-  jsr ExplodeDispatch
+  jsr ExplodeExecute
 Return:
   rts
 .endproc

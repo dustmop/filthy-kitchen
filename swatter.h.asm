@@ -1,4 +1,4 @@
-.import SwatterDispatch
+.import SwatterExecute
 
 .import swatter_speed
 .import swatter_speed_low

@@ -1,4 +1,5 @@
-.export BroomDispatch
+.export BroomExecute
+.export BroomDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -7,12 +8,14 @@
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
 .include "draw_picture.h.asm"
+.include "flash.h.asm"
 .include ".b/pictures.h.asm"
 
 .importzp camera_h, camera_screen
-.importzp have_spawned_broom
+.importzp level_complete
 .importzp draw_screen
 .importzp values
+.import flash_priority
 
 .import object_data_extend
 
@@ -20,18 +23,32 @@
 .segment "CODE"
 
 
-.proc BroomDispatch
+.proc BroomExecute
 
 .scope CollisionWithPlayer
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
-  ; TODO: Finish the level.
-  jsr ObjectFree
+  mov level_complete, #1
   jmp Return
 Next:
 .endscope
 
+Draw:
+  lda level_complete
+  beq Ready
+  mov {object_frame,x}, #0
+  inc level_complete
+  lda level_complete
+  bne :+
+  mov level_complete, #1
+:
+  and #$0f
+  tay
+  lda flash_priority,y
+  beq Return
+
+Ready:
   ; Draw position.
   lda object_h,x
   sec
@@ -58,6 +75,9 @@ Next:
 Return:
   rts
 .endproc
+
+
+BroomDraw = BroomExecute::Draw
 
 
 broom_animate_v_offset:

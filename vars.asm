@@ -31,6 +31,7 @@ level_max_h: .byte 0
 level_max_screen: .byte 0
 level_max_camera_h: .byte 0
 level_max_camera_screen: .byte 0
+level_complete: .byte 0
 level_state_end:
 
 ; player state
@@ -58,6 +59,7 @@ player_state_end:
 ; engine
 object_list_head: .byte 0
 object_list_tail: .byte 0
+objects_only_draw: .byte 0
 sprite_space_index: .byte 0
 sprite_space_avail: .byte 0
 sprite_space_force: .byte 0
@@ -100,6 +102,7 @@ lives: .byte 0
 .exportzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .exportzp NMI_values, NMI_pointer
 .exportzp object_list_head, object_list_tail
+.exportzp objects_only_draw
 .exportzp sprite_space_index, sprite_space_avail
 .exportzp sprite_space_force, sprite_space_force2, sprite_space_force3
 .exportzp level_max_h, level_max_screen
@@ -115,6 +118,7 @@ lives: .byte 0
 .exportzp lives
 .exportzp player_state_begin, player_state_end
 .exportzp level_state_begin, level_state_end
+.exportzp level_complete
 
 collision_map = $500
 

@@ -1,4 +1,4 @@
-.export SwatterDispatch
+.export SwatterExecute
 .export swatter_speed
 
 .include "include.branch-macros.asm"
@@ -22,7 +22,7 @@ swatter_v_low     = object_data_extend + $20
 .export swatter_speed, swatter_speed_low, swatter_v_low
 
 
-.proc SwatterDispatch
+.proc SwatterExecute
 
   mov delta_h, {swatter_speed,x}
   mov delta_v, #0

@@ -1,5 +1,5 @@
 .export UtensilsConstructor
-.export UtensilsDispatch
+.export UtensilsExecute
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -10,7 +10,6 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp have_spawned_utensils
 .importzp draw_screen, draw_h, draw_v
 .importzp player_v
 .importzp player_injury, player_iframe, player_gravity
@@ -40,7 +39,7 @@ SpawnLowerLevel:
 .endproc
 
 
-.proc UtensilsDispatch
+.proc UtensilsExecute
 
   lda object_h,x
   sec
