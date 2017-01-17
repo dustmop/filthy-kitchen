@@ -214,10 +214,10 @@ def pad_hud_on_top(data):
   return bytes(data)
 
 
-def process(nametable_tmpl, attribute_tmpl, collision_file, spawn_file,
-            output_tmpl, output_text):
+def process(init_count, nametable_tmpl, attribute_tmpl, collision_file,
+            spawn_file, output_tmpl, output_text):
   world = WorldCollection()
-  i = 0
+  i = int(init_count)
   while True:
     nametable = get_bytes(nametable_tmpl, i)
     if not nametable:
@@ -237,6 +237,7 @@ def process(nametable_tmpl, attribute_tmpl, collision_file, spawn_file,
 
 def run():
   parser = argparse.ArgumentParser()
+  parser.add_argument('-i', dest='init_count')
   parser.add_argument('-n', dest='nametable_tmpl')
   parser.add_argument('-a', dest='attribute_tmpl')
   parser.add_argument('-c', dest='collision_file')
@@ -244,8 +245,9 @@ def run():
   parser.add_argument('-o', dest='output_tmpl')
   parser.add_argument('-t', dest='output_text')
   args = parser.parse_args()
-  process(args.nametable_tmpl, args.attribute_tmpl, args.collision_file,
-          args.spawn_file, args.output_tmpl, args.output_text)
+  process(args.init_count, args.nametable_tmpl, args.attribute_tmpl,
+          args.collision_file, args.spawn_file,
+          args.output_tmpl, args.output_text)
 
 
 if __name__ == '__main__':

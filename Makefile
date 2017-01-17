@@ -128,20 +128,21 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr .b/screen01.png -o .b/screen01.o -b 0f -p .b/bg_pal.o
 	makechr .b/screen02.png -o .b/screen02.o -b 0f -p .b/bg_pal.o
 	makechr .b/screen03.png -o .b/screen03.o -b 0f -p .b/bg_pal.o
-	python merge_chr_nt.py .b/screen00.o .b/screen01.o \
-            .b/screen02.o .b/screen03.o .b/hud.o \
+	python merge_chr_nt.py .b/hud.o \
+            .b/screen00.o .b/screen01.o \
+            .b/screen02.o .b/screen03.o \
             -A .b/alpha.o \
             -D .b/digit.o \
             -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
             -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
-	mv .b/kitchen.attribute04.dat .b/hud.attribute.dat
-	head -c 192 .b/kitchen.nametable04.dat > .b/hud.nametable.dat
-	rm .b/kitchen.nametable04.dat
+	mv .b/kitchen.attribute00.dat .b/hud.attribute.dat
+	head -c 192 .b/kitchen.nametable00.dat > .b/hud.nametable.dat
+	rm .b/kitchen.nametable00.dat
 
-.b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
+.b/level_data.dat: build_level_data.py .b/kitchen.nametable01.dat \
                    .b/bg_collision.dat
 	python build_level_data.py -n .b/kitchen.nametable%d.dat \
-            -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
+            -i 1 -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
             -s .b/bg_spawn.dat -o .b/level_data%s.dat -t .b/level_data.txt
 
 .b/resource.chr.dat .b/resource.palette.dat: \
