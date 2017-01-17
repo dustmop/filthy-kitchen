@@ -1,4 +1,4 @@
-.export UtensilsMaybeCreate
+.export UtensilsConstructor
 .export UtensilsDispatch
 
 .include "include.branch-macros.asm"
@@ -27,64 +27,15 @@ UTENSILS_TILE_RIGHT = $83
 .segment "CODE"
 
 
-.proc UtensilsMaybeCreate
-MaybeSpawnUtensils:
-  lda camera_h
-  cmp #$f0
-  blt Return
-SpawnUtensils:
-  lda #0
-  jsr CreateOnce
-Return:
-  rts
-.endproc
-
-
-.proc CreateOnce
-  cmp have_spawned_utensils
-  bne Return
-
-  cmp #0
-  beq DoSpawn
-  bne Return
-
-DoSpawn:
-  jsr SpawnUtensils
-  bcc Return
-  inc have_spawned_utensils
-
+.proc UtensilsConstructor
   lda player_v
   cmp #$60
   bge SpawnLowerLevel
-
 SpawnHigherLevel:
   mov {object_v,x}, #$58
-  jmp Okay
-
+  rts
 SpawnLowerLevel:
   mov {object_v,x}, #$a8
-
-Okay:
-  mov {object_screen,x}, #$01
-  mov {object_h,x}, #$f7
-
-
-Return:
-  rts
-.endproc
-
-
-.proc SpawnUtensils
-  jsr ObjectAllocate
-  bcs Failure
-  jsr ObjectConstruct
-  mov {object_kind,x}, #OBJECT_KIND_UTENSILS
-  mov {object_life,x}, #$ff
-Success:
-  sec
-  rts
-Failure:
-  clc
   rts
 .endproc
 

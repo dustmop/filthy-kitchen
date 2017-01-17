@@ -162,7 +162,7 @@ class LevelDataBuilder(object):
     fp.write(self.storage_bytes(self.collision))
     fp.close()
     fp = open(fill_template(output_tmpl, '_spawn'), 'w')
-    fp.write(self.storage_bytes(self.spawn))
+    fp.write(self.storage_bytes(self.spawn, [0xff]))
     fp.close()
 
   def save_text(self, output_file):
@@ -178,13 +178,15 @@ class LevelDataBuilder(object):
     fp.write('level_data_collision:\n')
     self.write_slices(fp, self.storage_bytes(self.collision), 16)
     fp.write('level_spawn:\n')
-    self.write_slices(fp, self.storage_bytes(self.spawn), 4)
+    self.write_slices(fp, self.storage_bytes(self.spawn, [0xff]), 4)
     fp.close()
 
-  def storage_bytes(self, storage):
+  def storage_bytes(self, storage, suffix=None):
     accum = []
     for data in storage.keys():
       accum += data
+    if suffix:
+      accum += suffix
     return bytearray(accum)
 
   def write_slices(self, fp, data, size):

@@ -1,5 +1,6 @@
 .export LevelClearData
 .export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
+.export level_spawn
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -388,3 +389,6 @@ level_attribute:
 
 level_collision:
 .incbin ".b/level_data_collision.dat"
+
+level_spawn:
+.incbin ".b/level_data_spawn.dat"

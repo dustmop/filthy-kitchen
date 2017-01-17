@@ -19,6 +19,7 @@ SRC = gfx.asm \
       sprite_space.asm \
       draw_picture.asm \
       collision_data.asm \
+      spawn_offscreen.asm \
       debug_display.asm \
       render_action.asm \
       hud_display.asm \

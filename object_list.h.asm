@@ -3,7 +3,7 @@
 .import ObjectListCountAvail
 .import ObjectAllocate
 .import ObjectFree
-.import ObjectConstruct
+.import ObjectConstructor
 .import ObjectCollisionWithPlayer
 .import ObjectMovementApplyDelta
 

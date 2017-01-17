@@ -1,4 +1,3 @@
-.export DirtMaybeCreate
 .export DirtDispatch
 
 .include "include.branch-macros.asm"
@@ -24,55 +23,6 @@ DIRTY_SINK_TILE_RIGHT = $7f
 
 
 .segment "CODE"
-
-
-.proc DirtMaybeCreate
-MaybeSpawnApple:
-  lda camera_h
-  cmp #$c0
-  blt Return
-SpawnDirtySink:
-  lda #0
-  jsr CreateOnce
-Return:
-  rts
-.endproc
-
-
-.proc CreateOnce
-  cmp have_spawned_dirt
-  bne Return
-
-  cmp #0
-  beq SpawnDirtySink
-  bne Return
-
-SpawnDirtySink:
-  jsr SpawnDirt
-  bcc Return
-  inc have_spawned_dirt
-  mov {object_screen,x}, #$01
-  mov {object_h,x}, #$c7
-  mov {object_v,x}, #$6e
-
-Return:
-  rts
-.endproc
-
-
-.proc SpawnDirt
-  jsr ObjectAllocate
-  bcs Failure
-  jsr ObjectConstruct
-  mov {object_kind,x}, #OBJECT_KIND_DIRTY_SINK
-  mov {object_life,x}, #$ff
-Success:
-  sec
-  rts
-Failure:
-  clc
-  rts
-.endproc
 
 
 .proc DirtDispatch

@@ -26,10 +26,7 @@ buttons_last: .byte 0
 buttons_press: .byte 0
 camera_h: .byte 0
 camera_screen: .byte 0
-have_spawned_food: .byte 0
-have_spawned_dirt: .byte 0
-have_spawned_utensils: .byte 0
-have_spawned_broom: .byte 0
+spawn_index: .byte 0
 level_max_h: .byte 0
 level_max_screen: .byte 0
 level_max_camera_h: .byte 0
@@ -114,8 +111,7 @@ lives: .byte 0
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
-.exportzp have_spawned_food, have_spawned_dirt, have_spawned_utensils
-.exportzp have_spawned_broom
+.exportzp spawn_index
 .exportzp lives
 .exportzp player_state_begin, player_state_end
 .exportzp level_state_begin, level_state_end

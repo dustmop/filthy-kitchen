@@ -1,4 +1,3 @@
-.export BroomMaybeCreate
 .export BroomDispatch
 
 .include "include.branch-macros.asm"
@@ -19,45 +18,6 @@
 
 
 .segment "CODE"
-
-
-.proc BroomMaybeCreate
-  jsr CreateOnce
-Return:
-  rts
-.endproc
-
-
-.proc CreateOnce
-  lda have_spawned_broom
-  bne Return
-
-  jsr SpawnBroom
-  bcc Return
-  inc have_spawned_broom
-  mov {object_screen,x}, #$03
-  mov {object_h,x}, #$c0
-  mov {object_v,x}, #$60
-  jmp Return
-
-Return:
-  rts
-.endproc
-
-
-.proc SpawnBroom
-  jsr ObjectAllocate
-  bcs Failure
-  jsr ObjectConstruct
-  mov {object_kind,x}, #OBJECT_KIND_BROOM
-  mov {object_life,x}, #$ff
-Success:
-  sec
-  rts
-Failure:
-  clc
-  rts
-.endproc
 
 
 .proc BroomDispatch

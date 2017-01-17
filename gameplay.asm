@@ -12,6 +12,7 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "debug_display.h.asm"
+.include "spawn_offscreen.h.asm"
 .include "score_combo.h.asm"
 .include "fly.h.asm"
 .include "food.h.asm"
@@ -67,6 +68,7 @@ GameplayMain:
   jsr CameraInit
   jsr ObjectListInit
   jsr SpriteSpaceInit
+  jsr SpawnOffscreenInit
 
   jsr HudSplitAssign
   jsr RenderScore
@@ -111,10 +113,7 @@ GameplayLoop:
   jsr CameraUpdate
 
   DebugModeSetTint green_blue
-  jsr FoodMaybeCreate
-  jsr DirtMaybeCreate
-  jsr UtensilsMaybeCreate
-  jsr BroomMaybeCreate
+  jsr SpawnOffscreenUpdate
 
   DebugModeSetTint green
   jsr ObjectListUpdate

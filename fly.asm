@@ -46,9 +46,8 @@ fly_h_low     = object_data_extend + $30
 
   jsr ObjectAllocate
   bcs Return
-  jsr ObjectConstruct
+  jsr ObjectConstructor
   mov {object_kind,x}, #OBJECT_KIND_FLY
-  mov {object_life,x}, #$ff
   mov {fly_direction,x}, #$ff
   mov {fly_step,x}, #40
 

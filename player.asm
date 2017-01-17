@@ -228,10 +228,9 @@ GroundMovement:
   jsr ObjectAllocate
   bcs Next
   stx player_owns_swatter
-  jsr ObjectConstruct
+  jsr ObjectConstructor
   mov {object_kind,x}, #OBJECT_KIND_SWATTER
   mov {object_screen,x}, player_screen
-  mov {object_life,x}, #$ff
   mov {swatter_speed,x}, #$0
   mov {swatter_speed_low,x}, _
   mov {swatter_v_low,x}, _

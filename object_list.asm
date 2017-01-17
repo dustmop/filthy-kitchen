@@ -3,7 +3,7 @@
 .export ObjectListCountAvail
 .export ObjectAllocate
 .export ObjectFree
-.export ObjectConstruct
+.export ObjectConstructor
 .export ObjectCollisionWithPlayer
 .export ObjectMovementApplyDelta
 
@@ -352,10 +352,23 @@ Failure:
 .endproc
 
 
-.proc ObjectConstruct
+.proc ObjectConstructor
   lda #0
   sta object_frame,x
   sta object_step,x
+  lda #$ff
+  sta object_life,x
+  lda object_kind,x
+  cmp #OBJECT_KIND_FOOD
+  beq Food
+  cmp #OBJECT_KIND_UTENSILS
+  beq Utensils
+  rts
+Food:
+  jsr FoodConstructor
+  rts
+Utensils:
+  jsr UtensilsConstructor
   rts
 .endproc
 

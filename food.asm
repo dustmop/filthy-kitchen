@@ -1,4 +1,4 @@
-.export FoodMaybeCreate
+.export FoodConstructor
 .export FoodDispatch
 
 .export food_kind
@@ -36,72 +36,9 @@ LIFE_GAIN_STEAK = 5
 .segment "CODE"
 
 
-.proc FoodMaybeCreate
-MaybeSpawnApple:
-  lda camera_h
-  cmp #$80
-  blt MaybeSpawnSteak
-SpawnApple:
-  lda #0
-  jsr CreateOnce
-MaybeSpawnSteak:
-  lda camera_screen
-  cmp #$01
-  blt Return
-  lda camera_h
-  cmp #$c0
-  blt Return
-SpawnSteak:
-  lda #1
-  jsr CreateOnce
-Return:
-  rts
-.endproc
-
-
-.proc CreateOnce
-  cmp have_spawned_food
-  bne Return
-
-  cmp #0
-  beq SpawnApple
-  bne SpawnSteak
-
-SpawnApple:
-  jsr SpawnFood
-  bcc Return
-  inc have_spawned_food
-  mov {object_screen,x}, #$01
-  mov {object_h,x}, #$88
-  mov {object_v,x}, #$40
-  mov {food_kind,x}, #FOOD_KIND_APPLE
-  jmp Return
-
-SpawnSteak:
-  jsr SpawnFood
-  bcc Return
-  inc have_spawned_food
-  mov {object_screen,x}, #$02
-  mov {object_h,x}, #$c8
-  mov {object_v,x}, #$40
-  mov {food_kind,x}, #FOOD_KIND_STEAK
-
-Return:
-  rts
-.endproc
-
-
-.proc SpawnFood
-  jsr ObjectAllocate
-  bcs Failure
-  jsr ObjectConstruct
-  mov {object_kind,x}, #OBJECT_KIND_FOOD
-  mov {object_life,x}, #$ff
-Success:
-  sec
-  rts
-Failure:
-  clc
+.proc FoodConstructor
+  tya
+  sta food_kind,x
   rts
 .endproc
 
