@@ -16,10 +16,10 @@ SPRITE_0_TILE = $07
 .segment "CODE"
 
 .proc HudSplitAssign
-  mov $200, #49
+  mov $200, #$21
   mov $201, #SPRITE_0_TILE
-  mov $202, #$20
-  mov $203, #116
+  mov $202, #$60
+  mov $203, #$78
   rts
 .endproc
 

@@ -82,9 +82,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
 
 .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: \
-            merge_chr_nt.py .b/title_nomsg.png .b/alpha.o .b/digit.o
+            merge_chr_nt.py .b/title_nomsg.png .b/alpha.o .b/digit.o .b/title_pal.o
 	mkdir -p .b/
-	makechr .b/title_nomsg.png -o .b/title.o
+	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
 	python merge_chr_nt.py .b/title.o \
             -A .b/alpha.o \
             -D .b/digit.o \
@@ -112,6 +112,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/sprite_pal.o .b/sprite_pal.dat: sprite_pal.png
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
+
+.b/title_pal.o: title_pal.png
+	makechr --makepal title_pal.png -o .b/title_pal.o
 
 .b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
             merge_chr_nt.py entire-level.png .b/hud.o .b/alpha.o .b/digit.o \
