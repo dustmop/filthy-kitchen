@@ -45,7 +45,7 @@ fly_h_low     = object_data_extend + $30
   blt Return
 
   jsr ObjectAllocate
-  bcs Return
+  bcc Return
   jsr ObjectConstructor
   mov {object_kind,x}, #OBJECT_KIND_FLY
   mov {fly_direction,x}, #$ff
@@ -316,6 +316,7 @@ HaveCombo:
   sta draw_screen
   jsr ObjectFree
   jsr ObjectAllocate
+  bcc Return
   mov {object_kind,x}, #(OBJECT_KIND_EXPLODE | OBJECT_IS_NEW)
   mov {object_v,x}, draw_v
   mov {object_h,x}, draw_h
@@ -325,6 +326,7 @@ HaveCombo:
   mov {object_frame,x}, _
   mov draw_frame, #0
   jsr ExplodeDispatch
+Return:
   rts
 .endproc
 

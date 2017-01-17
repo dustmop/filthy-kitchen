@@ -41,7 +41,7 @@ hundreds_place_tile = values + $0a
   tya
   pha
   jsr ObjectAllocate
-  bcs PopStack
+  bcc PopStack
   mov {object_kind,x}, #(OBJECT_KIND_POINTS | OBJECT_IS_NEW)
   mov {object_v,x}, draw_v
   mov {object_h,x}, draw_h

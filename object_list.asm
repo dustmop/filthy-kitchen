@@ -338,16 +338,16 @@ Failure:
   ; Set allocated element's next to point to null.
   ; Somewhat unecessary, but nice for visual debugging.
   mov {object_next,x}, #$ff
-  bne Done
+  bne Success
 AssignEmptyList:
   ; Allocate the last element from the list.
   mov object_list_head, #$ff
   mov object_list_tail, _
-Done:
-  clc
+Success:
+  sec
   rts
 Failure:
-  sec
+  clc
   rts
 .endproc
 

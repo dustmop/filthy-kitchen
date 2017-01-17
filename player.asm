@@ -226,7 +226,7 @@ GroundMovement:
   bpl Next
   ; Success. Allocate and construct the object.
   jsr ObjectAllocate
-  bcs Next
+  bcc Next
   stx player_owns_swatter
   jsr ObjectConstructor
   mov {object_kind,x}, #OBJECT_KIND_SWATTER

@@ -52,7 +52,7 @@ spawn_data_id = level_spawn + 3
   bge Failure
   ;
   jsr ObjectAllocate
-  bcs Failure
+  bcc Failure
   lda spawn_data_id,y
   and #$0f
   sta object_kind,x
