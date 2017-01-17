@@ -20,8 +20,8 @@
 .import object_data_extend
 
 
-UTENSILS_TILE_LEFT = $83
-UTENSILS_TILE_RIGHT = $85
+UTENSILS_TILE_LEFT = $81
+UTENSILS_TILE_RIGHT = $83
 
 
 .segment "CODE"

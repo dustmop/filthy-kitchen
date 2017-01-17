@@ -187,7 +187,7 @@ def pad_hud_on_top(data):
   return bytes(data)
 
 
-def process(nametable_tmpl, attribute_tmpl, collision_file,
+def process(nametable_tmpl, attribute_tmpl, meta_file,
             output_tmpl, output_text):
   world = WorldCollection()
   i = 0
@@ -199,7 +199,7 @@ def process(nametable_tmpl, attribute_tmpl, collision_file,
     attribute = get_bytes(attribute_tmpl, i)
     world.add_attribute(pad_hud_on_top(attribute))
     i += 1
-  world.add_collision(read_file(collision_file))
+  world.add_collision(read_file(meta_file))
   world.done()
   builder = LevelDataBuilder()
   builder.create(world)
@@ -211,11 +211,11 @@ def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('-n', dest='nametable_tmpl')
   parser.add_argument('-a', dest='attribute_tmpl')
-  parser.add_argument('-c', dest='collision_file')
+  parser.add_argument('-m', dest='meta_file')
   parser.add_argument('-o', dest='output_tmpl')
   parser.add_argument('-t', dest='output_text')
   args = parser.parse_args()
-  process(args.nametable_tmpl, args.attribute_tmpl, args.collision_file,
+  process(args.nametable_tmpl, args.attribute_tmpl, args.meta_file,
           args.output_tmpl, args.output_text)
 
 

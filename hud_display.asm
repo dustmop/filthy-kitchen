@@ -9,14 +9,14 @@
 .include "include.sys.asm"
 .include "gfx.h.asm"
 
-SPRITE_0_TILE = $2b
+SPRITE_0_TILE = $07
 
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
 
 .segment "CODE"
 
 .proc HudSplitAssign
-  mov $200, #19
+  mov $200, #49
   mov $201, #SPRITE_0_TILE
   mov $202, #$20
   mov $203, #116
@@ -41,9 +41,9 @@ Wait1:
 .endproc
 
 
-HUD_FACE_LEFT_TILE = $3b
-HUD_FACE_RIGHT_TILE = $3d
-HUD_HEART_TILE = $2d
+HUD_FACE_LEFT_TILE = $39
+HUD_FACE_RIGHT_TILE = $3b
+HUD_HEART_TILE = $2b
 HUD_HEART_H = $5b
 
 

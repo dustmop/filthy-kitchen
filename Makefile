@@ -64,14 +64,14 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
 	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
 
-.b/sprites.chr.dat: sprites.png
+.b/chars.chr.dat: chars.png
 	mkdir -p .b/
-	makechr sprites.png -o .b/sprites.%s.dat -s -b 34=0f -t 8x16 \
+	makechr chars.png -o .b/chars.%s.dat -s -b 34=0f -t 8x16 \
             --allow-overflow s
 
-.b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/sprites.chr.dat build_pictures.py
+.b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
-            -c .b/sprites.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
+            -c .b/chars.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
 
 .b/title_nomsg.png .b/title_msg.asm: extract_msg.py title.png alpha.png digit.png
 	python extract_msg.py title.png -A alpha.png -D digit.png \
@@ -133,20 +133,20 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	rm .b/kitchen.nametable04.dat
 
 .b/level_data.dat: build_level_data.py .b/kitchen.nametable00.dat \
-                   .b/bg_collision.dat
+                   .b/bg_meta.dat
 	python build_level_data.py -n .b/kitchen.nametable%d.dat \
-            -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
+            -a .b/kitchen.attribute%d.dat -m .b/bg_meta.dat \
             -o .b/level_data%s.dat -t .b/level_data.txt
 
 .b/resource.chr.dat .b/resource.palette.dat: \
-            .b/sprites.chr.dat .b/kitchen.chr.dat
+            .b/chars.chr.dat .b/kitchen.chr.dat
 	head -c 4096 .b/kitchen.chr.dat > .b/resource.chr.dat
-	tail -c 4096 .b/sprites.chr.dat >> .b/resource.chr.dat
+	tail -c 4096 .b/chars.chr.dat >> .b/resource.chr.dat
 	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
-	tail -c 16 .b/sprites.palette.dat >> .b/resource.palette.dat
+	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/bg_collision.dat: build_collision.py bg_collision.png
-	python build_collision.py bg_collision.png -o .b/bg_collision.dat
+.b/bg_meta.dat: build_collision.py bg_meta.png
+	python build_collision.py bg_meta.png -o .b/bg_meta.dat
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/
