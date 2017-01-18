@@ -19,6 +19,7 @@
 .include "dirt.h.asm"
 .include "utensils.h.asm"
 .include "broom.h.asm"
+.include "gunk_drop.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -51,6 +52,7 @@ OBJECT_KIND_FOOD       = $04
 OBJECT_KIND_DIRTY_SINK = $05
 OBJECT_KIND_UTENSILS   = $06
 OBJECT_KIND_BROOM      = $07
+OBJECT_KIND_GUNK_DROP  = $08
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -356,12 +358,17 @@ Failure:
   beq Food
   cmp #OBJECT_KIND_UTENSILS
   beq Utensils
+  cmp #OBJECT_KIND_DIRTY_SINK
+  beq Dirt
   rts
 Food:
   jsr FoodConstructor
   rts
 Utensils:
   jsr UtensilsConstructor
+  rts
+Dirt:
+  jsr DirtConstructor
   rts
 .endproc
 
@@ -395,22 +402,22 @@ Done:
 
 
 
-;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM
+;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM, GUNK_DROP
 
 table_object_num_frames:
-.byte   8,  3,       3,      1,    8,     1,        1, 8
+.byte   8,  3,       3,      1,    8,     1,        1,     8,         1
 
 table_object_animate_limit:
-.byte   2,  3,       6,      1,    4,     1,        1, 4
+.byte   2,  3,       6,      1,    4,     1,        1,     4,         1
 
 kind_offset_h:
-.byte   0,  5,     $80,    $80,    3,     0,        0, 0
+.byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4
 
 kind_bigger_h:
-.byte   0,  0,     $80,    $80,    8,     0,        0, 12
+.byte   0,  0,     $80,    $80,    8,     0,        0,    12,         3
 
 kind_bigger_v:
-.byte   0,  0,     $80,    $80,    2,     0,        0, 24
+.byte   0,  0,     $80,    $80,    2,     0,        0,    24,         3
 
 execute_table:
 .word SwatterExecute-1
@@ -421,3 +428,4 @@ execute_table:
 .word DirtExecute-1
 .word UtensilsExecute-1
 .word BroomExecute-1
+.word GunkDropExecute-1
