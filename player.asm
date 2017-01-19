@@ -23,7 +23,7 @@
 .importzp player_animate, player_injury, player_iframe, player_health
 .importzp player_removed
 .importzp buttons, buttons_press
-.importzp level_max_h, level_max_screen
+.importzp level_max_screen
 .importzp draw_screen
 .importzp player_state_begin, player_state_end
 .import swatter_speed, swatter_speed_low, swatter_v_low
@@ -50,6 +50,8 @@ BOUNCE_SCREEN_LEFT  = $ff
 
 START_V = $a8
 START_H = $10
+
+LEVEL_MAX_H = $ef
 
 PLAYER_STATE_STANDING = 0
 PLAYER_STATE_DUCKING  = 1
@@ -87,9 +89,6 @@ ClearLoop:
   mov player_dir, #$00
   mov player_gravity, _
   mov player_owns_swatter, #$ff
-  ; Level data
-  mov level_max_screen, #3
-  mov level_max_h, #$ef
   rts
 .endproc
 
@@ -359,12 +358,12 @@ Next:
   cmp level_max_screen
   blt Return
   lda player_h
-  cmp level_max_h
+  cmp #LEVEL_MAX_H
   blt Return
 Overflow:
   lda level_max_screen
   sta player_screen
-  lda level_max_h
+  lda #LEVEL_MAX_H
   sta player_h
   rts
 Underflow:

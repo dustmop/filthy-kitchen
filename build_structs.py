@@ -101,6 +101,7 @@ class LevelDataBuilder(object):
 
   def create(self, collect):
     self.init()
+    self.last_screen = (collect.size / 8) - 1
     for k in xrange(collect.size):
       nt0 = self.store_nt(collect.nt_column[k*4+0])
       nt1 = self.store_nt(collect.nt_column[k*4+1])
@@ -169,6 +170,9 @@ class LevelDataBuilder(object):
     if not level:
       raise RuntimeError('Need level, got %s' % level)
     fp = open(output_file, 'w')
+    fp.write('level%s_last_screen:\n' % level)
+    fp.write('.byte %d\n' % (self.last_screen,))
+    fp.write('\n')
     fp.write('level%s_data:\n' % level)
     self.write_slices(fp, self.level_data, 8)
     fp.write('level%s_chunk:\n' % level)

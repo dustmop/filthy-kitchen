@@ -15,6 +15,7 @@
 .importzp level_state_begin, level_state_end
 .importzp level_data_pointer, level_chunk_pointer
 .importzp level_table_of_contents_pointer, level_spawn_pointer
+.importzp level_max_screen
 .import collision_map
 
 FILL_LOOKAHEAD = 9
@@ -61,6 +62,7 @@ ClearLoop:
   MovWord level_chunk_pointer, level9_chunk
   MovWord level_spawn_pointer, level9_spawn
   MovWord level_table_of_contents_pointer, level9_table_of_contents
+  mov level_max_screen, level9_last_screen
   rts
 .endproc
 

@@ -9,8 +9,7 @@
 .importzp camera_h, camera_screen, player_h, player_v
 .importzp player_screen, player_render_h, player_render_v
 .importzp bg_x_scroll, bg_nt_select
-.importzp level_max_camera_screen
-.importzp level_max_camera_h
+.importzp level_max_screen
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .importzp values
 
@@ -31,8 +30,6 @@ action_num         = values + $05
 .proc CameraInit
   mov camera_h, #0
   mov camera_screen, _
-  mov level_max_camera_screen, #3
-  mov level_max_camera_h, #0
   rts
 .endproc
 
@@ -66,17 +63,11 @@ CalcOffset:
   sta camera_screen
 
   ; Check for the end of the camera's view.
-  cmp level_max_camera_screen
-  blt GotOffset
-  beq :+
-  bge Overflow
-:
-  lda camera_h
-  cmp level_max_camera_h
+  cmp level_max_screen
   blt GotOffset
 Overflow:
-  mov camera_h, level_max_camera_h
-  mov camera_screen, level_max_camera_screen
+  mov camera_h, #0
+  mov camera_screen, level_max_screen
 
 GotOffset:
 
