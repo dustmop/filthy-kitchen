@@ -131,11 +131,11 @@ GotMoving:
   ; Get the strip_id.
   clc
   adc level_bit
-  tax
-  ldy action_num
-  sty NMI_SCROLL_action
+  tay
+  ldx action_num
+  stx NMI_SCROLL_action
   jsr LevelDataGetStripId
-  stx NMI_SCROLL_strip_id
+  sty NMI_SCROLL_strip_id
 
 Next:
 .endscope

@@ -1,6 +1,6 @@
 .export LevelClearData
+.export LevelLoadInit
 .export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
-.export level_spawn
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -13,6 +13,8 @@
 .importzp NMI_values
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .importzp level_state_begin, level_state_end
+.importzp level_data_pointer, level_chunk_pointer
+.importzp level_strip_table_pointer, level_spawn_pointer
 .import collision_map
 
 FILL_LOOKAHEAD = 9
@@ -36,6 +38,7 @@ debug_13_strip_id = $413
 .segment "CODE"
 
 
+;LevelClearData
 .proc LevelClearData
   lda #0
   ldx #0
@@ -48,60 +51,72 @@ ClearLoop:
 .endproc
 
 
-; input X: Distance into the level data.
-; input Y: Action kind, 1..4 for nt, 5 for attr, 6 for collision
-; output X: Strip id
+;LevelLoadInit
+.proc LevelLoadInit
+  MovWord level_data_pointer, level1_data
+  MovWord level_chunk_pointer, level1_chunk
+  MovWord level_spawn_pointer, level1_spawn
+  rts
+.endproc
+
+
+;LevelDataGetStripid
+; input Y: Distance into the level data.
+; input X: Action kind, 1..4 for nt, 5 for attr, 6 for collision
+; output Y: Strip id
 .proc LevelDataGetStripId
 chunk_id = strip_id
   ; Get chunk_id.
-  lda level_data,x
+  lda (level_data_pointer),y
   ; chunk_id * 8
   .repeat 3
   asl a
   .endrepeat
   sta chunk_id
-  tya
+  txa
   sec
   sbc #1
   clc
   adc chunk_id
-  tax
+  tay
   ; Get strip id.
-  lda level_chunks,x
-  tax
+  lda (level_chunk_pointer),y
+  tay
   rts
 .endproc
 
 
+;LevelDataFillEntireScreen
+; Clobbers Y
 .proc LevelDataFillEntireScreen
   jsr PrepareRenderVertical
-  ldx #0
+  ldy #0
 Loop:
   jsr FillFullChunk
-  inx
-  cpx #FILL_LOOKAHEAD
+  iny
+  cpy #FILL_LOOKAHEAD
   bne Loop
   rts
 .endproc
 
 
+;LevelDataUpdateScroll
 .proc LevelDataUpdateScroll
-
+  ; If no action, exit.
   lda NMI_SCROLL_action
   beq Return
-
+  ; Render strips vertically (probably).
   jsr PrepareRenderVertical
-
+  ; debug-only
   lda NMI_SCROLL_action
   sta debug_10_action
-
+  ; Dispatch type of action.
   cmp #SCROLL_ACTION_ATTR
   beq UpdateAttribute
   cmp #SCROLL_ACTION_COLLISION
   beq UpdateCollision
   cmp #SCROLL_ACTION_LIMIT
   bge Acknowledge
-
 UpdateNametable:
   ;
   sec
@@ -140,57 +155,62 @@ Return:
 .endproc
 
 
+;FillFullChunk
+; Input Y: Distance into level data
 .proc FillFullChunk
-  txa
+  ; push y
+  tya
   pha
 
-  stx target
+  sty target
 
   mov offset, #0
 
-  lda level_data,x
+  lda (level_data_pointer),y
   .repeat 3
   asl a
   .endrepeat
-  tax
-  lda level_chunks,x
+  tay
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr RenderNametableSingleStrip
   inc offset
-  inx
-  lda level_chunks,x
+  iny
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr RenderNametableSingleStrip
   inc offset
-  inx
-  lda level_chunks,x
+  iny
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr RenderNametableSingleStrip
   inc offset
-  inx
-  lda level_chunks,x
+  iny
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr RenderNametableSingleStrip
   inc offset
-  inx
-  lda level_chunks,x
+  iny
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr RenderAttribute
-  inx
-  lda level_chunks,x
+  iny
+  lda (level_chunk_pointer),y
   sta strip_id
   jsr FillCollision
 
+  ; pop y
   pla
-  tax
+  tay
 
   rts
 .endproc
 
 
 ; target
+; Input Y...
 .proc RenderNametableChunk
-  txa
+  tya
   pha
 
   ; Offset of the strip to render, of which there are 4.
@@ -203,7 +223,7 @@ Loop:
   bne Loop
 
   pla
-  tax
+  tay
   rts
 .endproc
 
@@ -212,11 +232,14 @@ Loop:
 ;   offset   - Offset within the strip, 0..3
 ;   target   - Which strip in the nametable to render, 0..15
 ;   strip_id - Strip id to get level data from.
-; Clobbers Y
+; Preserves Y
 .proc RenderNametableSingleStrip
-  txa
+  tya
   pha
+  ; Get base nametable.
+  ;TODO
 
+  ;
   mov high_byte, #0
   ; Set up pointer to nametable data, strip_id * 24 + level_nt_column
   lda strip_id
@@ -228,10 +251,10 @@ Loop:
   rol high_byte
   .endrepeat
   clc
-  adc #<level_nt_column
+  adc #<level1_nt_column
   sta pointer+0
   lda high_byte
-  adc #>level_nt_column
+  adc #>level1_nt_column
   sta pointer+1
 
   ; Select which nametable to render to, $2000 or $2400.
@@ -263,16 +286,16 @@ RenderLoop:
 
 Return:
   pla
-  tax
+  tay
   rts
 .endproc
 
 
 ; target
 ; strip_id
-; Clobbers Y
+; Preserves Y
 .proc RenderAttribute
-  txa
+  tya
   pha
 
   ; Select which nametable to render attributes to, $23c0 or $27c0.
@@ -292,10 +315,10 @@ Return:
   rol high_byte
   .endrepeat
   clc
-  adc #<level_attribute
+  adc #<level1_attribute
   sta pointer+0
   lda high_byte
-  adc #>level_attribute
+  adc #>level1_attribute
   sta pointer+1
 
   ; Starting position within this nametable.
@@ -326,7 +349,7 @@ Loop:
   bne Loop
 
   pla
-  tax
+  tay
   rts
 .endproc
 
@@ -335,7 +358,7 @@ Loop:
 ; strip_id
 ; Clobbers Y
 .proc FillCollision
-  txa
+  tya
   pha
   ; Set up pointer to collision data. Treat high_byte:strip_id as 16-bit value.
   ; Units are 15[bytes] + 1[pad] = 16.
@@ -346,10 +369,10 @@ Loop:
   rol high_byte
   .endrepeat
   clc
-  adc #<level_collision
+  adc #<level1_collision
   sta pointer+0
   lda high_byte
-  adc #>level_collision
+  adc #>level1_collision
   sta pointer+1
 
   ; Poke into memory vertically.
@@ -369,26 +392,26 @@ Loop:
   bne Loop
 
   pla
-  tax
+  tay
   rts
 .endproc
 
 
 
-level_data:
+level1_data:
 .incbin ".b/level_data.dat"
 
-level_chunks:
+level1_chunk:
 .incbin ".b/level_data_chunks.dat"
 
-level_nt_column:
+level1_nt_column:
 .incbin ".b/level_data_nt_column.dat"
 
-level_attribute:
+level1_attribute:
 .incbin ".b/level_data_attribute.dat"
 
-level_collision:
+level1_collision:
 .incbin ".b/level_data_collision.dat"
 
-level_spawn:
+level1_spawn:
 .incbin ".b/level_data_spawn.dat"

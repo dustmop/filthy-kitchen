@@ -61,6 +61,7 @@ GameplayMain:
   ldx #MSG_ZERO_COMBO
   jsr MsgRender
 
+  jsr LevelLoadInit
   jsr LevelDataFillEntireScreen
   jsr HealthSetMax
 
