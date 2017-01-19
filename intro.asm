@@ -12,6 +12,7 @@
 
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
+.importzp which_level
 .import title_palette
 .import title_graphics
 
@@ -45,11 +46,21 @@ inner = values + 5
 IntroLoop:
   jsr WaitNewFrame
   jsr ReadController
+  ; Start to exit normally.
   lda buttons_press
   and #BUTTON_START
+  bne TransitionOut
+  ; Select to exit fast to level 9 - debug feature.
+  lda buttons_press
+  and #BUTTON_SELECT
+  bne TransitionFast
   beq IntroLoop
 
-ExitIntroScreen:
+TransitionFast:
+  mov which_level, #9
+  jmp ExitIntroScreen
+
+TransitionOut:
   mov outer, #12
 
 OuterLoop:
@@ -64,7 +75,7 @@ OuterLoop:
   bne OuterLoop
   jsr WaitNewFrame
 
-Exit:
+ExitIntroScreen:
   jsr DisableDisplayAndNmi
   mov lives, #3
   jmp GameplayMain

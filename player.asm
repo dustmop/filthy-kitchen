@@ -379,6 +379,16 @@ Return:
   mov draw_attr, #0
   mov draw_screen, _
 
+.scope Background
+  lda player_screen
+  bne Next
+  lda player_h
+  cmp #$e0
+  blt Next
+  mov draw_attr, #$20
+Next:
+.endscope
+
   mov tmp, player_dir
   lda player_animate
   .repeat 3
@@ -400,7 +410,7 @@ Return:
   ldx #$04
   jsr SpriteSpaceEnsure
 
-  mov draw_palette, #0
+  mov draw_palette, draw_attr
   MovWord draw_picture_pointer, swatter_picture_data
   MovWord draw_sprite_pointer, swatter_sprite_data
 
@@ -448,7 +458,9 @@ Visible:
   sta draw_h
   lda player_animation_id,y
   sta draw_picture_id
-  mov draw_palette, #1
+  lda draw_attr
+  ora #$1
+  sta draw_palette
   MovWord draw_picture_pointer, player_picture_data
   MovWord draw_sprite_pointer, player_sprite_data
   jsr DrawPicture

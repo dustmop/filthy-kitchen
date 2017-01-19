@@ -59,7 +59,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/hud_display.o: hud_display.asm .b/hud.nametable.dat
 	ca65 -o .b/hud_display.o hud_display.asm -g
 
-.b/level_data.o: level_data.asm .b/level9_data.asm
+.b/level_data.o: level_data.asm .b/level1_data.asm .b/level9_data.asm
 	ca65 -o .b/level_data.o level_data.asm -g
 
 .b/fly.o: fly.asm .b/trig.h.asm
@@ -120,7 +120,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/title_pal.o: title_pal.png
 	makechr --makepal title_pal.png -o .b/title_pal.o
 
-.b/level9_data.asm .b/level9.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
+
+.b/level1_data.asm .b/level1.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
+            build_level.py bg1.png meta1.png .b/bg_pal.o .b/hud.o .b/alpha.o .b/digit.o
+	python build_level.py -b bg1.png -m meta1.png -l 1 -p .b/bg_pal.o -i .b/hud.o -A .b/alpha.o -D .b/digit.o -o .b/level1_data.asm -c .b/level1.chr.dat -x .b/hud.%s.dat
+
+.b/level9_data.asm .b/level9.chr.dat:\
             build_level.py bg9.png meta9.png .b/bg_pal.o .b/hud.o .b/alpha.o .b/digit.o
 	python build_level.py -b bg9.png -m meta9.png -l 9 -p .b/bg_pal.o -i .b/hud.o -A .b/alpha.o -D .b/digit.o -o .b/level9_data.asm -c .b/level9.chr.dat -x .b/hud.%s.dat
 

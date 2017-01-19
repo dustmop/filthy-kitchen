@@ -88,6 +88,7 @@ earned_combo_low: .byte 0
 earned_combo_medium: .byte 0
 earned_combo_count: .byte 0
 lives: .byte 0
+which_level: .byte 0
 
 
 .exportzp main_yield, ppu_ctrl_current, ppu_mask_current
@@ -121,6 +122,7 @@ lives: .byte 0
 .exportzp level_data_pointer, level_chunk_pointer
 .exportzp level_table_of_contents_pointer, level_spawn_pointer
 .exportzp level_complete
+.exportzp which_level
 
 collision_map = $500
 

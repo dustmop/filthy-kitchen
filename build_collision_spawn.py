@@ -4,7 +4,7 @@ import pixel_font_ocr
 import sys
 
 
-SPAWN_ID = 3
+SPAWN_ID = 4
 
 
 def convert_color(p):
@@ -15,6 +15,8 @@ def convert_color(p):
     return 1
   elif p == (0x69, 0xd8, 0xfd):
     return 2
+  elif p == (0xfd, 0x55, 0xfd):
+    return 3
   elif p == (0x69, 0xe1, 0x69) or p == (0xd3, 0xe1, 0xd3):
     return SPAWN_ID
   else:

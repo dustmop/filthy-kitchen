@@ -16,6 +16,7 @@
 .importzp level_data_pointer, level_chunk_pointer
 .importzp level_table_of_contents_pointer, level_spawn_pointer
 .importzp level_max_screen
+.importzp which_level
 .import collision_map
 
 FILL_LOOKAHEAD = 9
@@ -58,6 +59,19 @@ ClearLoop:
 
 ;LevelLoadInit
 .proc LevelLoadInit
+  lda which_level
+  cmp #9
+  beq Load9
+
+Load1:
+  MovWord level_data_pointer, level1_data
+  MovWord level_chunk_pointer, level1_chunk
+  MovWord level_spawn_pointer, level1_spawn
+  MovWord level_table_of_contents_pointer, level1_table_of_contents
+  mov level_max_screen, level1_last_screen
+  rts
+
+Load9:
   MovWord level_data_pointer, level9_data
   MovWord level_chunk_pointer, level9_chunk
   MovWord level_spawn_pointer, level9_spawn
@@ -423,5 +437,7 @@ Loop:
   rts
 .endproc
 
+
+.include ".b/level1_data.asm"
 
 .include ".b/level9_data.asm"

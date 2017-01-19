@@ -38,6 +38,7 @@ fly_h_low     = object_data_extend + $30
 .segment "CODE"
 
 .proc FlyListUpdate
+  rts
   inc spawn_count
   lda spawn_count
   cmp #100
