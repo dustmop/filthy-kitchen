@@ -165,19 +165,26 @@ class LevelDataBuilder(object):
     fp.write(self.storage_bytes(self.spawn, [0xff]))
     fp.close()
 
-  def save_text(self, output_file):
+  def save_text(self, level, output_file):
+    if not level:
+      raise RuntimeError('Need level, got %s' % level)
     fp = open(output_file, 'w')
-    fp.write('level_data:\n')
+    fp.write('level%s_data:\n' % level)
     self.write_slices(fp, self.level_data, 8)
-    fp.write('level_data_chunk:\n')
+    fp.write('level%s_chunk:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.chunks), 8)
-    fp.write('level_data_nt_column:\n')
+    fp.write('level%s_table_of_contents:\n' % level)
+    fp.write('.word level%s_nt_column\n' % level)
+    fp.write('.word level%s_attribute\n' % level)
+    fp.write('.word level%s_collision\n' % level)
+    fp.write('\n')
+    fp.write('level%s_nt_column:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.nt_column), 24)
-    fp.write('level_data_attribute:\n')
+    fp.write('level%s_attribute:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.attribute), 8)
-    fp.write('level_data_collision:\n')
+    fp.write('level%s_collision:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.collision), 16)
-    fp.write('level_spawn:\n')
+    fp.write('level%s_spawn:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.spawn, [0xff]), 4)
     fp.close()
 
@@ -192,7 +199,7 @@ class LevelDataBuilder(object):
   def write_slices(self, fp, data, size):
     for i in xrange(len(data) / size):
       slice = data[i*size:i*size + size]
-      fp.write('%s\n' % ','.join('%02x' % d for d in slice))
+      fp.write('.byte %s\n' % ','.join('$%02x' % d for d in slice))
     fp.write('\n')
 
 
@@ -215,7 +222,7 @@ def pad_hud_on_top(data):
 
 
 def process(init_count, nametable_tmpl, attribute_tmpl, collision_file,
-            spawn_file, output_tmpl, output_text):
+            spawn_file, output_tmpl, output_level, output_text):
   world = WorldCollection()
   i = int(init_count)
   while True:
@@ -231,8 +238,10 @@ def process(init_count, nametable_tmpl, attribute_tmpl, collision_file,
   world.done()
   builder = LevelDataBuilder()
   builder.create(world)
-  builder.save_bin(output_tmpl)
-  builder.save_text(output_text)
+  if output_tmpl:
+    builder.save_bin(output_tmpl)
+  if output_text:
+    builder.save_text(output_level, output_text)
 
 
 def run():
@@ -243,11 +252,12 @@ def run():
   parser.add_argument('-c', dest='collision_file')
   parser.add_argument('-s', dest='spawn_file')
   parser.add_argument('-o', dest='output_tmpl')
+  parser.add_argument('-l', dest='output_level')
   parser.add_argument('-t', dest='output_text')
   args = parser.parse_args()
   process(args.init_count, args.nametable_tmpl, args.attribute_tmpl,
           args.collision_file, args.spawn_file,
-          args.output_tmpl, args.output_text)
+          args.output_tmpl, args.output_level, args.output_text)
 
 
 if __name__ == '__main__':

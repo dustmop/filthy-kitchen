@@ -14,7 +14,7 @@
 .importzp NMI_SCROLL_target, NMI_SCROLL_strip_id, NMI_SCROLL_action
 .importzp level_state_begin, level_state_end
 .importzp level_data_pointer, level_chunk_pointer
-.importzp level_strip_table_pointer, level_spawn_pointer
+.importzp level_table_of_contents_pointer, level_spawn_pointer
 .import collision_map
 
 FILL_LOOKAHEAD = 9
@@ -57,10 +57,10 @@ ClearLoop:
 
 ;LevelLoadInit
 .proc LevelLoadInit
-  MovWord level_data_pointer, level1_data
-  MovWord level_chunk_pointer, level1_chunk
-  MovWord level_spawn_pointer, level1_spawn
-  MovWord level_strip_table_pointer, level1_strip_table
+  MovWord level_data_pointer, level9_data
+  MovWord level_chunk_pointer, level9_chunk
+  MovWord level_spawn_pointer, level9_spawn
+  MovWord level_table_of_contents_pointer, level9_table_of_contents
   rts
 .endproc
 
@@ -243,10 +243,10 @@ Loop:
   pha
   ; Get base pointer to nametable data.
   ldy #STRIP_TABLE_NT_COLUMN ; 0
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+0
   iny
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+1
   ;
   mov high_byte, #0
@@ -309,10 +309,10 @@ Return:
 
   ; Get base pointer to attribute data.
   ldy #STRIP_TABLE_ATTRIBUTE ; 2
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+0
   iny
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+1
 
   ; Select which nametable to render attributes to, $23c0 or $27c0.
@@ -379,10 +379,10 @@ Loop:
   pha
   ; Get base pointer to collision data.
   ldy #STRIP_TABLE_COLLISION ; 4
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+0
   iny
-  lda (level_strip_table_pointer),y
+  lda (level_table_of_contents_pointer),y
   sta pointer+1
 
   ; Set up pointer to collision data. Treat high_byte:strip_id as 16-bit value.
@@ -422,26 +422,4 @@ Loop:
 .endproc
 
 
-
-level1_data:
-.incbin ".b/level_data.dat"
-
-level1_chunk:
-.incbin ".b/level_data_chunks.dat"
-
-level1_strip_table:
-.word level1_nt_column
-.word level1_attribute
-.word level1_collision
-
-level1_nt_column:
-.incbin ".b/level_data_nt_column.dat"
-
-level1_attribute:
-.incbin ".b/level_data_attribute.dat"
-
-level1_collision:
-.incbin ".b/level_data_collision.dat"
-
-level1_spawn:
-.incbin ".b/level_data_spawn.dat"
+.include ".b/level9_data.asm"

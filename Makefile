@@ -59,7 +59,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/hud_display.o: hud_display.asm .b/hud.nametable.dat
 	ca65 -o .b/hud_display.o hud_display.asm -g
 
-.b/level_data.o: level_data.asm .b/level_data.dat
+.b/level_data.o: level_data.asm .b/level9_data.asm
 	ca65 -o .b/level_data.o level_data.asm -g
 
 .b/fly.o: fly.asm .b/trig.h.asm
@@ -120,42 +120,16 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/title_pal.o: title_pal.png
 	makechr --makepal title_pal.png -o .b/title_pal.o
 
-.b/kitchen.chr.dat .b/kitchen.nametable00.dat .b/hud.nametable.dat: \
-            merge_chr_nt.py entire-level.png .b/hud.o .b/alpha.o .b/digit.o \
-            .b/bg_pal.o
-	mkdir -p .b/
-	python split_level.py entire-level.png -o .b/screen%d.png
-	makechr .b/screen00.png -o .b/screen00.o -b 0f -p .b/bg_pal.o
-	makechr .b/screen01.png -o .b/screen01.o -b 0f -p .b/bg_pal.o
-	makechr .b/screen02.png -o .b/screen02.o -b 0f -p .b/bg_pal.o
-	makechr .b/screen03.png -o .b/screen03.o -b 0f -p .b/bg_pal.o
-	python merge_chr_nt.py .b/hud.o \
-            .b/screen00.o .b/screen01.o \
-            .b/screen02.o .b/screen03.o \
-            -A .b/alpha.o \
-            -D .b/digit.o \
-            -c .b/kitchen.chr.dat -p .b/kitchen.palette.dat \
-            -n .b/kitchen.nametable%d.dat -a .b/kitchen.attribute%d.dat
-	mv .b/kitchen.attribute00.dat .b/hud.attribute.dat
-	head -c 192 .b/kitchen.nametable00.dat > .b/hud.nametable.dat
-	rm .b/kitchen.nametable00.dat
-
-.b/level_data.dat: build_level_data.py .b/kitchen.nametable01.dat \
-                   .b/bg_collision.dat
-	python build_level_data.py -n .b/kitchen.nametable%d.dat \
-            -i 1 -a .b/kitchen.attribute%d.dat -c .b/bg_collision.dat \
-            -s .b/bg_spawn.dat -o .b/level_data%s.dat -t .b/level_data.txt
+.b/level9_data.asm .b/level9.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
+            build_level.py bg9.png meta9.png .b/bg_pal.o .b/hud.o .b/alpha.o .b/digit.o
+	python build_level.py -b bg9.png -m meta9.png -l 9 -p .b/bg_pal.o -i .b/hud.o -A .b/alpha.o -D .b/digit.o -o .b/level9_data.asm -c .b/level9.chr.dat -x .b/hud.%s.dat
 
 .b/resource.chr.dat .b/resource.palette.dat: \
-            .b/chars.chr.dat .b/kitchen.chr.dat
-	head -c 4096 .b/kitchen.chr.dat > .b/resource.chr.dat
+            .b/chars.chr.dat .b/level9.chr.dat .b/bg_pal.dat
+	head -c 4096 .b/level9.chr.dat > .b/resource.chr.dat
 	tail -c 4096 .b/chars.chr.dat >> .b/resource.chr.dat
-	head -c 16 .b/kitchen.palette.dat > .b/resource.palette.dat
+	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
-
-.b/bg_collision.dat .b/bg_spawn.dat: build_collision_spawn.py bg_meta.png
-	python build_collision_spawn.py bg_meta.png \
-            -c .b/bg_collision.dat -s .b/bg_spawn.dat
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

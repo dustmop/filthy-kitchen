@@ -34,7 +34,7 @@ level_max_camera_screen: .byte 0
 level_complete: .byte 0
 level_data_pointer: .word 0
 level_chunk_pointer: .word 0
-level_strip_table_pointer: .word 0
+level_table_of_contents_pointer: .word 0
 level_spawn_pointer: .word 0
 level_state_end:
 
@@ -123,7 +123,7 @@ lives: .byte 0
 .exportzp player_state_begin, player_state_end
 .exportzp level_state_begin, level_state_end
 .exportzp level_data_pointer, level_chunk_pointer
-.exportzp level_strip_table_pointer, level_spawn_pointer
+.exportzp level_table_of_contents_pointer, level_spawn_pointer
 .exportzp level_complete
 
 collision_map = $500

@@ -117,7 +117,8 @@ def merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
   save_output(fill_template(out_nt_tmpl, 0), insert_pad(nametable, padding))
   save_output(fill_template(out_attr_tmpl, 0), attribute)
   palette = get_bytes(obj, 'palette', expand=True)
-  save_output(out_palette_name, palette)
+  if out_palette_name:
+    save_output(out_palette_name, palette)
   combined_chr_page = chr_data.SortableChrPage.from_binary(str(chr_bin))
   for i,obj in enumerate(collect):
     if i == 0:
@@ -135,7 +136,8 @@ def merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
   if alpha_obj:
     data = data[:0x410] + get_bytes(alpha_obj, 'chr')[:0x1a0] + data[0x410:]
   data = data + bytearray([0] * (0x2000 - len(data)))
-  save_output(out_chr_name, data)
+  if out_chr_name:
+    save_output(out_chr_name, data)
 
 
 def parse_object_file(filename):
@@ -155,8 +157,9 @@ def process(input_files, alpha_input_file, digits_input_file, out_chr_name,
             out_palette_name, out_nt_tmpl, out_attr_tmpl):
   collect = []
   for f in input_files:
-    obj = parse_object_file(f)
-    collect.append(obj)
+    if not '%d' in f:
+      obj = parse_object_file(f)
+      collect.append(obj)
   alpha_obj = parse_object_file(alpha_input_file)
   digit_obj = parse_object_file(digits_input_file)
   merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
