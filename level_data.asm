@@ -19,6 +19,10 @@
 
 FILL_LOOKAHEAD = 9
 
+STRIP_TABLE_NT_COLUMN = 0
+STRIP_TABLE_ATTRIBUTE = 2
+STRIP_TABLE_COLLISION = 4
+
 pointer = NMI_pointer
 values = NMI_values
 
@@ -56,6 +60,7 @@ ClearLoop:
   MovWord level_data_pointer, level1_data
   MovWord level_chunk_pointer, level1_chunk
   MovWord level_spawn_pointer, level1_spawn
+  MovWord level_strip_table_pointer, level1_strip_table
   rts
 .endproc
 
@@ -236,9 +241,13 @@ Loop:
 .proc RenderNametableSingleStrip
   tya
   pha
-  ; Get base nametable.
-  ;TODO
-
+  ; Get base pointer to nametable data.
+  ldy #STRIP_TABLE_NT_COLUMN ; 0
+  lda (level_strip_table_pointer),y
+  sta pointer+0
+  iny
+  lda (level_strip_table_pointer),y
+  sta pointer+1
   ;
   mov high_byte, #0
   ; Set up pointer to nametable data, strip_id * 24 + level_nt_column
@@ -251,10 +260,10 @@ Loop:
   rol high_byte
   .endrepeat
   clc
-  adc #<level1_nt_column
+  adc pointer+0
   sta pointer+0
   lda high_byte
-  adc #>level1_nt_column
+  adc pointer+1
   sta pointer+1
 
   ; Select which nametable to render to, $2000 or $2400.
@@ -298,6 +307,14 @@ Return:
   tya
   pha
 
+  ; Get base pointer to attribute data.
+  ldy #STRIP_TABLE_ATTRIBUTE ; 2
+  lda (level_strip_table_pointer),y
+  sta pointer+0
+  iny
+  lda (level_strip_table_pointer),y
+  sta pointer+1
+
   ; Select which nametable to render attributes to, $23c0 or $27c0.
   lda target
   and #$08
@@ -315,10 +332,10 @@ Return:
   rol high_byte
   .endrepeat
   clc
-  adc #<level1_attribute
+  adc pointer+0
   sta pointer+0
   lda high_byte
-  adc #>level1_attribute
+  adc pointer+1
   sta pointer+1
 
   ; Starting position within this nametable.
@@ -360,6 +377,14 @@ Loop:
 .proc FillCollision
   tya
   pha
+  ; Get base pointer to collision data.
+  ldy #STRIP_TABLE_COLLISION ; 4
+  lda (level_strip_table_pointer),y
+  sta pointer+0
+  iny
+  lda (level_strip_table_pointer),y
+  sta pointer+1
+
   ; Set up pointer to collision data. Treat high_byte:strip_id as 16-bit value.
   ; Units are 15[bytes] + 1[pad] = 16.
   mov high_byte, #0
@@ -369,10 +394,10 @@ Loop:
   rol high_byte
   .endrepeat
   clc
-  adc #<level1_collision
+  adc pointer+0
   sta pointer+0
   lda high_byte
-  adc #>level1_collision
+  adc pointer+1
   sta pointer+1
 
   ; Poke into memory vertically.
@@ -403,6 +428,11 @@ level1_data:
 
 level1_chunk:
 .incbin ".b/level_data_chunks.dat"
+
+level1_strip_table:
+.word level1_nt_column
+.word level1_attribute
+.word level1_collision
 
 level1_nt_column:
 .incbin ".b/level_data_nt_column.dat"
