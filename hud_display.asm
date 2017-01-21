@@ -19,7 +19,7 @@ SPRITE_0_TILE = $07
   mov $200, #$21
   mov $201, #SPRITE_0_TILE
   mov $202, #$60
-  mov $203, #$78
+  mov $203, #$76
   rts
 .endproc
 
@@ -69,13 +69,13 @@ LifeNumber3:
   mov sprite_v   +$1c, #$11
   mov sprite_tile+$1c, #HUD_HEART_TILE
   mov sprite_attr+$1c, #0
-  mov sprite_h   +$1c, #(HUD_HEART_H + 26)
+  mov sprite_h   +$1c, #(HUD_HEART_H + 24)
 
 LifeNumber2:
   mov sprite_v   +$18, #$11
   mov sprite_tile+$18, #HUD_HEART_TILE
   mov sprite_attr+$18, #0
-  mov sprite_h   +$18, #(HUD_HEART_H + 13)
+  mov sprite_h   +$18, #(HUD_HEART_H + 12)
 
 LifeNumber1:
   mov sprite_v   +$14, #$11
