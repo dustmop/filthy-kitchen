@@ -24,6 +24,7 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp spawn_count
 .importzp draw_h, draw_v, draw_screen
 .importzp combo_low
+.importzp level_has_infinite_flies
 .importzp values
 adjust_v = values + 0
 adjust_h = values + 1
@@ -38,7 +39,11 @@ fly_h_low     = object_data_extend + $30
 .segment "CODE"
 
 .proc FlyListUpdate
+  bit level_has_infinite_flies
+  bmi SpawnFlies
   rts
+SpawnFlies:
+
   inc spawn_count
   lda spawn_count
   cmp #100

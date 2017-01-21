@@ -15,7 +15,8 @@
 .importzp level_state_begin, level_state_end
 .importzp level_data_pointer, level_chunk_pointer
 .importzp level_table_of_contents_pointer, level_spawn_pointer
-.importzp level_max_screen
+.importzp level_max_screen, level_has_entrance_door, level_has_infinite_flies
+.importzp level_player_start_v
 .importzp which_level
 .import collision_map
 
@@ -69,6 +70,9 @@ Load1:
   MovWord level_spawn_pointer, level1_spawn
   MovWord level_table_of_contents_pointer, level1_table_of_contents
   mov level_max_screen, level1_last_screen
+  mov level_has_entrance_door, level1_meta+0
+  mov level_has_infinite_flies, level1_meta+1
+  mov level_player_start_v, level1_meta+2
   rts
 
 Load9:
@@ -77,6 +81,9 @@ Load9:
   MovWord level_spawn_pointer, level9_spawn
   MovWord level_table_of_contents_pointer, level9_table_of_contents
   mov level_max_screen, level9_last_screen
+  mov level_has_entrance_door, level9_meta+0
+  mov level_has_infinite_flies, level9_meta+1
+  mov level_player_start_v, level9_meta+2
   rts
 .endproc
 
@@ -438,6 +445,12 @@ Loop:
 .endproc
 
 
+level1_meta:
+.byte $80, 0
+.byte $b8
 .include ".b/level1_data.asm"
 
+level9_meta:
+.byte 0, $80
+.byte $a8
 .include ".b/level9_data.asm"

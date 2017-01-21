@@ -26,6 +26,7 @@
 .importzp level_max_screen
 .importzp draw_screen
 .importzp player_state_begin, player_state_end
+.importzp level_player_start_v, level_has_entrance_door
 .import swatter_speed, swatter_speed_low, swatter_v_low
 
 .importzp values
@@ -48,7 +49,6 @@ BOUNCE_LOW_LEFT     = $40
 BOUNCE_HIGH_LEFT    = $ff
 BOUNCE_SCREEN_LEFT  = $ff
 
-START_V = $a8
 START_H = $10
 
 LEVEL_MAX_H = $ef
@@ -83,7 +83,7 @@ ClearLoop:
 
 
 .proc PlayerInit
-  mov player_v, #START_V
+  mov player_v, level_player_start_v
   mov player_h, #START_H
   mov player_screen, #0
   mov player_dir, #$00
@@ -380,6 +380,8 @@ Return:
   mov draw_screen, _
 
 .scope Background
+  bit level_has_entrance_door
+  bpl Next
   lda player_screen
   bne Next
   lda player_h

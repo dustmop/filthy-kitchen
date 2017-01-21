@@ -28,6 +28,9 @@ camera_h: .byte 0
 camera_screen: .byte 0
 spawn_index: .byte 0
 level_max_screen: .byte 0
+level_has_entrance_door: .byte 0
+level_has_infinite_flies: .byte 0
+level_player_start_v: .byte 0
 level_complete: .byte 0
 level_data_pointer: .word 0
 level_chunk_pointer: .word 0
@@ -107,7 +110,8 @@ which_level: .byte 0
 .exportzp objects_only_draw
 .exportzp sprite_space_index, sprite_space_avail
 .exportzp sprite_space_force, sprite_space_force2, sprite_space_force3
-.exportzp level_max_screen
+.exportzp level_max_screen, level_has_entrance_door, level_has_infinite_flies
+.exportzp level_player_start_v
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
 .exportzp draw_curr_h, draw_curr_v
