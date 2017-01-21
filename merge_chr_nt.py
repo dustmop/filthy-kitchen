@@ -43,6 +43,22 @@ def get_bytes(obj, kind, expand=False):
   return bytearray(data)
 
 
+def read_chr_file(filename):
+  fp = open(filename, 'r')
+  content = fp.read()
+  fp.close()
+  empty_tile = bytearray([0]*16)
+  i = len(content)
+  while True:
+    if i - 16 <= 0:
+      break
+    if content[i-16:i] == empty_tile:
+      i -= 16
+    else:
+      break
+  return bytearray(content[0:i])
+
+
 def build_xlat(left_chr_page, right_chr_page):
   # Build translator so we can update the new nametable.
   i = j = 0
@@ -99,30 +115,38 @@ def insert_pad(data, padding):
     for p, k in padding:
       if i >= p:
         i += k
-    make[n] = i
+    try:
+      make[n] = i
+    except:
+      sys.stderr.write('Error setting %s <- %s\n' % (n, i))
   return make
 
 
-def merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
-                  out_nt_tmpl, out_attr_tmpl):
+def merge_objects(input_files, alpha_obj, digit_obj, out_chr_name,
+                  out_palette_name, out_nt_tmpl, out_attr_tmpl):
   padding = []
   if digit_obj:
     padding.append([0x30, 10])
   if alpha_obj:
     padding.append([0x41, 26])
-  obj = collect[0]
-  chr_bin = get_bytes(obj, 'chr')
-  nametable = get_bytes(obj, 'nametable', expand=True)
-  attribute = get_bytes(obj, 'attribute', expand=True)
-  save_output(fill_template(out_nt_tmpl, 0), insert_pad(nametable, padding))
-  save_output(fill_template(out_attr_tmpl, 0), attribute)
-  palette = get_bytes(obj, 'palette', expand=True)
-  if out_palette_name:
-    save_output(out_palette_name, palette)
+  filename = input_files[0]
+  if filename.endswith('.o'):
+    obj = parse_object_file(filename)
+    chr_bin = get_bytes(obj, 'chr')
+    nametable = get_bytes(obj, 'nametable', expand=True)
+    attribute = get_bytes(obj, 'attribute', expand=True)
+    save_output(fill_template(out_nt_tmpl, 0), insert_pad(nametable, padding))
+    save_output(fill_template(out_attr_tmpl, 0), attribute)
+    palette = get_bytes(obj, 'palette', expand=True)
+    if out_palette_name:
+      save_output(out_palette_name, palette)
+  else:
+    chr_bin = read_chr_file(filename)
   combined_chr_page = chr_data.SortableChrPage.from_binary(str(chr_bin))
-  for i,obj in enumerate(collect):
+  for i,filename in enumerate(input_files):
     if i == 0:
       continue
+    obj = parse_object_file(filename)
     chr_bin = get_bytes(obj, 'chr')
     nametable = get_bytes(obj, 'nametable', expand=True)
     attribute = get_bytes(obj, 'attribute', expand=True)
@@ -155,15 +179,10 @@ def parse_object_file(filename):
 
 def process(input_files, alpha_input_file, digits_input_file, out_chr_name,
             out_palette_name, out_nt_tmpl, out_attr_tmpl):
-  collect = []
-  for f in input_files:
-    if not '%d' in f:
-      obj = parse_object_file(f)
-      collect.append(obj)
   alpha_obj = parse_object_file(alpha_input_file)
   digit_obj = parse_object_file(digits_input_file)
-  merge_objects(collect, alpha_obj, digit_obj, out_chr_name, out_palette_name,
-                out_nt_tmpl, out_attr_tmpl)
+  merge_objects(input_files, alpha_obj, digit_obj, out_chr_name,
+                out_palette_name, out_nt_tmpl, out_attr_tmpl)
 
 
 def run():
