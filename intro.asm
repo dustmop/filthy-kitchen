@@ -29,7 +29,7 @@ inner = values + 5
 
   ldx #<title_graphics
   ldy #>title_graphics
-  jsr LoadGraphicsNt0
+  jsr LoadGraphicsCompressed
 
   ldx #MSG_PRESS
   jsr MsgRender

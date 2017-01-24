@@ -47,7 +47,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/title.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat \
-            .b/title.palette.dat
+            .b/title.palette.dat .b/title.compressed.asm
 	ca65 -o .b/prologue.o prologue.asm -g
 
 .b/draw_picture.o: draw_picture.asm .b/pictures.asm
@@ -56,7 +56,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/player.o: player.asm .b/pictures.h.asm
 	ca65 -o .b/player.o player.asm -g
 
-.b/hud_display.o: hud_display.asm .b/hud.nametable.dat
+.b/hud_display.o: hud_display.asm .b/hud.compressed.asm
 	ca65 -o .b/hud_display.o hud_display.asm -g
 
 .b/level_data.o: level_data.asm .b/level1_data.asm .b/level9_data.asm
@@ -72,6 +72,14 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr chars.png -o .b/chars.%s.dat -s -b 34=0f -t 8x16 \
             --allow-overflow s
+
+.b/title.compressed.asm: graphics_compress.py .b/title.graphics.dat
+	python graphics_compress.py .b/title.graphics.dat \
+            -o .b/title.compressed.asm
+
+.b/hud.compressed.asm: graphics_compress.py .b/hud.nametable.dat
+	python graphics_compress.py .b/hud.nametable.dat \
+            -o .b/hud.compressed.asm
 
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \

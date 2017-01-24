@@ -90,17 +90,10 @@ Done:
 
 .proc HudDataFill
   jsr PrepareRenderHorizontal
-  ;
-  mov PPU_ADDR, #$20
-  mov PPU_ADDR, #$00
-  ldx #0
-NametableLoop:
-  lda hud_data,x
-  sta PPU_DATA
-  inx
-  cpx #192
-  bne NametableLoop
-  ;
+  ldx #<hud_data
+  ldy #>hud_data
+  jsr LoadGraphicsCompressed
+  ; Set attributes.
   mov PPU_ADDR, #$23
   mov PPU_ADDR, #$c0
   lda #$55
@@ -114,4 +107,4 @@ AttributeLoop:
 .endproc
 
 hud_data:
-.incbin ".b/hud.nametable.dat"
+.include ".b/hud.compressed.asm"

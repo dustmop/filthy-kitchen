@@ -2,6 +2,7 @@
 
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
+.export LoadGraphicsCompressed
 .export EnableNmi, WaitNewFrame, EnableDisplay
 .export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
@@ -10,6 +11,8 @@
 
 .import chr_data
 .importzp ppu_mask_current, ppu_ctrl_current, main_yield, color
+.importzp values
+next = values + $00
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -58,6 +61,67 @@ Loop:
   inc pointer+1
   dex
   bne Loop
+  rts
+.endproc
+
+.proc LoadGraphicsCompressed
+  bit PPU_STATUS
+  stx pointer+0
+  sty pointer+1
+  mov PPU_ADDR, #$20
+  ldy #0
+  sty PPU_ADDR
+OuterLoop:
+  lda (pointer),y
+  beq OuterDone
+  bmi RepeatSequence
+  cmp #$40
+  bge IncSequence
+LiteralSequence:
+  tax
+  iny
+LiteralLoop:
+  lda (pointer),y
+  sta PPU_DATA
+  iny
+  dex
+  bne LiteralLoop
+  beq OuterNext
+IncSequence:
+  iny
+  and #$3f
+  tax
+  lda (pointer),y
+  iny
+IncLoop:
+  sta PPU_DATA
+  clc
+  adc #1
+  dex
+  bne IncLoop
+  beq OuterNext
+RepeatSequence:
+  iny
+  and #$3f
+  tax
+  lda (pointer),y
+  iny
+RepeatLoop:
+  sta PPU_DATA
+  dex
+  bne RepeatLoop
+OuterNext:
+  sty next
+  lda pointer+0
+  clc
+  adc next
+  sta pointer+0
+  lda pointer+1
+  adc #0
+  sta pointer+1
+  ldy #0
+  jmp OuterLoop
+OuterDone:
   rts
 .endproc
 

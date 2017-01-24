@@ -33,7 +33,7 @@ title_palette:
 .incbin ".b/title.palette.dat"
 
 title_graphics:
-.incbin ".b/title.graphics.dat"
+.include ".b/title.compressed.asm"
 
 
 .segment "VECTORS"
