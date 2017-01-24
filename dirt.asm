@@ -28,7 +28,7 @@ DIRT_KIND_SPLOTCH = 1
 DIRTY_SINK_TILE_LEFT = $7d
 DIRTY_SINK_TILE_RIGHT = $7f
 
-DIRT_SPAWN_GUNK_DROP_BEGIN = 35
+DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
 GUNK_DROP_LIFE = 65
 
@@ -41,7 +41,10 @@ GUNK_DROP_LIFE = 65
   cmp #DIRT_KIND_SPLOTCH
   bne Return
 WallSplotch:
-  mov {dirt_step,x}, #DIRT_SPAWN_GUNK_DROP_BEGIN
+  lda #DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V
+  sec
+  sbc object_v,x
+  sta dirt_step,x
 Return:
   rts
 .endproc
