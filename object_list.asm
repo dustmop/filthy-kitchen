@@ -393,12 +393,17 @@ Failure:
   lda #$ff
   sta object_life,x
   lda object_kind,x
+  cmp #OBJECT_KIND_FLY
+  beq Fly
   cmp #OBJECT_KIND_FOOD
   beq Food
   cmp #OBJECT_KIND_UTENSILS
   beq Utensils
   cmp #OBJECT_KIND_DIRTY_SINK
   beq Dirt
+  rts
+Fly:
+  jsr FlyConstructor
   rts
 Food:
   jsr FoodConstructor

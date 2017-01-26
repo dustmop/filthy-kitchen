@@ -1,3 +1,4 @@
+.export FlyConstructor
 .export FlyListUpdate
 .export FlyExecute
 .export FlyDraw
@@ -78,6 +79,13 @@ SpawnFlies:
   sta object_v,x
 
 Return:
+  rts
+.endproc
+
+
+.proc FlyConstructor
+  mov {fly_direction,x}, #$ff
+  mov {fly_step,x}, #40
   rts
 .endproc
 
