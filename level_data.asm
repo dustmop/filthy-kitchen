@@ -94,11 +94,13 @@ Load9:
 ; output Y: Strip id
 .proc LevelDataGetStripId
 chunk_id = strip_id
+  mov high_byte, #0
   ; Get chunk_id.
   lda (level_data_pointer),y
   ; chunk_id * 8
   .repeat 3
   asl a
+  rol high_byte
   .endrepeat
   sta chunk_id
   txa
@@ -106,9 +108,15 @@ chunk_id = strip_id
   sbc #1
   clc
   adc chunk_id
-  tay
+  clc
+  adc level_chunk_pointer+0
+  sta pointer+0
+  lda level_chunk_pointer+1
+  adc high_byte
+  sta pointer+1
+  ldy #0
   ; Get strip id.
-  lda (level_chunk_pointer),y
+  lda (pointer),y
   tay
   rts
 .endproc

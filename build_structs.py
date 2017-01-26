@@ -86,8 +86,9 @@ class WorldCollection(object):
       w = ord(spawn[k+2])
       id = ord(spawn[k+3])
       offset = x / 0x20 + (w * 8)
-      # Each element is 4 bytes.
-      self.spawn[offset] = [y, x, w, id]
+      if not offset in self.spawn:
+        self.spawn[offset] = []
+      self.spawn[offset] += [y, x, w, id]
       k += 4
 
   def done(self):

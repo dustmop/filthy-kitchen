@@ -16,6 +16,11 @@
 .importzp player_gravity_low, player_health_delta
 .importzp values
 
+num_tiles = values + $00
+tile_0 = values + $01
+tile_1 = values + $02
+tile_2 = values + $03
+
 .import object_data_extend
 dirt_kind = object_data_extend + $00
 dirt_step = object_data_extend + $10
@@ -23,10 +28,16 @@ dirt_step = object_data_extend + $10
 
 DIRT_KIND_SINK = 0
 DIRT_KIND_SPLOTCH = 1
+DIRT_KIND_PILE = 2
+DIRT_KIND_PUDDLE = 3
 
 
-DIRTY_SINK_TILE_LEFT = $7d
-DIRTY_SINK_TILE_RIGHT = $7f
+DIRTY_SINK_TILE_0 = $7d
+DIRTY_SINK_TILE_1 = $7f
+
+DIRTY_PILE_TILE_0 = $8b
+DIRTY_PILE_TILE_1 = $8d
+DIRTY_PILE_TILE_2 = $8f
 
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
@@ -133,20 +144,42 @@ Next:
   lda dirt_kind,x
   cmp #DIRT_KIND_SINK
   beq DirtySink
+  cmp #DIRT_KIND_PILE
+  beq DirtyPile
   rts
 
 DirtySink:
-  ; Draw the dirty sink, left side.
+  mov num_tiles, #2
+  mov tile_0, #DIRTY_SINK_TILE_0
+  mov tile_1, #DIRTY_SINK_TILE_1
+  jmp DrawIt
+DirtyPile:
+  lda draw_h
+  sec
+  sbc #4
+  sta draw_h
+  mov num_tiles, #3
+  mov tile_0, #DIRTY_PILE_TILE_0
+  mov tile_1, #DIRTY_PILE_TILE_1
+  mov tile_2, #DIRTY_PILE_TILE_2
+
+DrawIt:
+  ldy #0
+DrawLoop:
   jsr SpriteSpaceAllocate
   lda draw_v
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
-  ldy draw_frame
-  lda #DIRTY_SINK_TILE_LEFT
+  lda tile_0,y
   sta sprite_tile,x
   lda #$03
   sta sprite_attr,x
+
+  dec num_tiles
+  beq Return
+
+  iny
 
   lda draw_h
   clc
@@ -154,16 +187,7 @@ DirtySink:
   sta draw_h
   bcs Return
 
-  ; Draw the dirty sink, right side.
-  jsr SpriteSpaceAllocate
-  lda draw_v
-  sta sprite_v,x
-  lda draw_h
-  sta sprite_h,x
-  lda #DIRTY_SINK_TILE_RIGHT
-  sta sprite_tile,x
-  lda #$03
-  sta sprite_attr,x
+  jmp DrawLoop
 
 Return:
   rts
