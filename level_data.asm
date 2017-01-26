@@ -36,10 +36,10 @@ upper_addr = values + $03
 high_byte  = values + $04
 
 ; DEBUGGING ONLY
-debug_10_action   = $410
-debug_11_offset   = $411
-debug_12_target   = $412
-debug_13_strip_id = $413
+debug_10_action   = $610
+debug_11_offset   = $611
+debug_12_target   = $612
+debug_13_strip_id = $613
 
 
 .segment "CODE"

@@ -52,6 +52,13 @@ Return:
 
 .proc DirtExecute
 
+.scope MaybeDespawn
+  jsr ObjectOffscreenDespawn
+  bcc Okay
+  rts
+Okay:
+.endscope
+
 .scope SpawnGunkDrop
   lda dirt_kind,x
   cmp #DIRT_KIND_SPLOTCH

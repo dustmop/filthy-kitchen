@@ -4,6 +4,7 @@
 .export ObjectAllocate
 .export ObjectFree
 .export ObjectConstructor
+.export ObjectOffscreenDespawn
 .export ObjectCollisionWithPlayer
 .export ObjectMovementApplyDelta
 
@@ -28,19 +29,23 @@
 .importzp player_v, player_h, player_screen, player_collision_idx
 .importzp objects_only_draw
 .importzp values
+; TODO: Circular dependency, bad.
+.import offscreen_things
+.importzp spawn_left_index, spawn_right_index
 
-.export object_data
+.export object_data, object_index
 object_data   = $440
 object_kind   = object_data + $00
 object_next   = object_data + $10
-object_v      = object_data + $10
-object_h      = object_data + $20
-object_screen = object_data + $30
-object_frame  = object_data + $40
-object_step   = object_data + $50
-object_life   = object_data + $60
+object_index  = object_data + $10
+object_v      = object_data + $20
+object_h      = object_data + $30
+object_screen = object_data + $40
+object_frame  = object_data + $50
+object_step   = object_data + $60
+object_life   = object_data + $70
 .export object_data_extend
-object_data_extend = object_data + $70
+object_data_extend = object_data + $80
 
 
 OBJECT_KIND_NONE = $ff
@@ -226,6 +231,40 @@ MovementLeft:
   sbc #0
   sta object_screen,x
 MovementDone:
+  rts
+.endproc
+
+
+.proc ObjectOffscreenDespawn
+  ; TODO: Circular dependency, bad.
+  lda object_h,x
+  sec
+  sbc player_h
+  lda object_screen,x
+  sbc player_screen
+  eor #$80
+  cmp #$81
+  bge DespawnRight
+  cmp #$7f
+  blt DespawnLeft
+  bge Failure
+DespawnLeft:
+  lda object_index,x
+  sta spawn_left_index
+  jmp DespawnObject
+DespawnRight:
+  lda object_index,x
+  sta spawn_right_index
+DespawnObject:
+  tay
+  lda #$00
+  sta offscreen_things,y
+  jsr ObjectFree
+Success:
+  sec
+  rts
+Failure:
+  clc
   rts
 .endproc
 

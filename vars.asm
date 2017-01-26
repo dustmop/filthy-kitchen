@@ -26,7 +26,8 @@ buttons_last: .byte 0
 buttons_press: .byte 0
 camera_h: .byte 0
 camera_screen: .byte 0
-spawn_index: .byte 0
+spawn_left_index: .byte 0
+spawn_right_index: .byte 0
 level_max_screen: .byte 0
 level_has_entrance_door: .byte 0
 level_has_infinite_flies: .byte 0
@@ -119,7 +120,7 @@ which_level: .byte 0
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
-.exportzp spawn_index
+.exportzp spawn_left_index, spawn_right_index
 .exportzp lives
 .exportzp player_state_begin, player_state_end
 .exportzp level_state_begin, level_state_end

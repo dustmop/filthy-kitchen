@@ -23,11 +23,11 @@ COLLIDE_TYPE_WALL   = $aa
 
 
 ; DEBUGGING ONLY
-debug_00_row     = $400 ; Row number
-debug_01_upper   = $401 ; Upper byte (left or right half)
-debug_02_col     = $402 ; Column number
-debug_03_index   = $403 ; Index into collison map (row | column | upper)
-debug_04_collide = $404 ; Byte at the collison map
+debug_00_row     = $600 ; Row number
+debug_01_upper   = $601 ; Upper byte (left or right half)
+debug_02_col     = $602 ; Column number
+debug_03_index   = $603 ; Index into collison map (row | column | upper)
+debug_04_collide = $604 ; Byte at the collison map
 
 
 .segment "CODE"

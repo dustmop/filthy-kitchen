@@ -25,6 +25,13 @@
 
 .proc BroomExecute
 
+.scope MaybeDespawn
+  jsr ObjectOffscreenDespawn
+  bcc Okay
+  rts
+Okay:
+.endscope
+
 .scope CollisionWithPlayer
   jsr ObjectCollisionWithPlayer
   bcc Next
