@@ -149,6 +149,10 @@ Next:
   rts
 
 DirtySink:
+  lda draw_v
+  clc
+  adc #4
+  sta draw_v
   mov num_tiles, #2
   mov tile_0, #DIRTY_SINK_TILE_0
   mov tile_1, #DIRTY_SINK_TILE_1
@@ -156,7 +160,7 @@ DirtySink:
 DirtyPile:
   lda draw_h
   sec
-  sbc #4
+  sbc #3
   sta draw_h
   mov num_tiles, #3
   mov tile_0, #DIRTY_PILE_TILE_0

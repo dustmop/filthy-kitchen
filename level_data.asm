@@ -286,6 +286,7 @@ Loop:
   asl a
   clc
   adc strip_id
+  rol high_byte
   .repeat 3
   asl a
   rol high_byte
