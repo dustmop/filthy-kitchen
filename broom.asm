@@ -58,6 +58,8 @@ Draw:
 Ready:
   ; Draw position.
   lda object_h,x
+  clc
+  adc #6
   sec
   sbc camera_h
   sta draw_h

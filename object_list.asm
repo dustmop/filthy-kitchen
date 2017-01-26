@@ -453,10 +453,10 @@ kind_offset_h:
 .byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4
 
 kind_bigger_h:
-.byte   0,  0,     $80,    $80,    8,     4,        0,    12,         3
+.byte   0,  0,     $80,    $80,    8,     4,        0,     0,         3
 
 kind_bigger_v:
-.byte   0,  0,     $80,    $80,    2,     0,        0,    24,         3
+.byte   0,  0,     $80,    $80,    2,     0,        0,    30,         3
 
 execute_table:
 .word SwatterExecute-1
