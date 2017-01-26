@@ -1,4 +1,5 @@
 .export SwatterExecute
+.export SwatterDraw
 .export swatter_speed
 
 .include "include.branch-macros.asm"
@@ -19,6 +20,7 @@
 swatter_speed     = object_data_extend + $00
 swatter_speed_low = object_data_extend + $10
 swatter_v_low     = object_data_extend + $20
+swatter_frame     = object_data_extend + $30
 .export swatter_speed, swatter_speed_low, swatter_v_low
 
 
@@ -137,6 +139,10 @@ Negative:
 Okay:
 .endscope
 
+  mov {swatter_frame,x}, draw_frame
+
+Draw:
+
   ; Draw position.
   lda object_h,x
   sec
@@ -148,7 +154,7 @@ Okay:
   mov draw_v, {object_v,x}
 
   ; Animation.
-  ldy draw_frame
+  ldy swatter_frame,x
   lda swatter_animation_sequence,y
   sta draw_picture_id
   MovWord draw_picture_pointer, swatter_picture_data
@@ -160,6 +166,9 @@ Okay:
 Return:
   rts
 .endproc
+
+
+SwatterDraw = SwatterExecute::Draw
 
 
 swatter_animation_sequence:

@@ -184,9 +184,14 @@ OnlyDraw:
   tya
   cmp #OBJECT_KIND_FLY
   beq OnlyDrawFly
+  cmp #OBJECT_KIND_SWATTER
+  beq OnlyDrawSwatter
   cmp #OBJECT_KIND_BROOM
   beq OnlyDrawBroom
   bne OnlyDrawDone
+OnlyDrawSwatter:
+  jsr SwatterDraw
+  jmp OnlyDrawDone
 OnlyDrawFly:
   jsr FlyDraw
   jmp OnlyDrawDone
