@@ -26,10 +26,14 @@ food_kind = object_data_extend + $00
 
 FOOD_KIND_APPLE = 0
 FOOD_KIND_STEAK = 1
+FOOD_KIND_GRAPES = 2
+FOOD_KIND_ICE_CREAM = 3
 
 
 LIFE_GAIN_APPLE = 2
 LIFE_GAIN_STEAK = 5
+LIFE_GAIN_GRAPES = 2
+LIFE_GAIN_ICE_CREAM = 1
 
 
 .segment "CODE"
@@ -60,7 +64,11 @@ DidCollide:
   mov draw_screen, {object_screen,x}
   lda food_kind,x
   beq PointsApple
-  bne PointsSteak
+  cmp #FOOD_KIND_STEAK
+  beq PointsSteak
+  cmp #FOOD_KIND_GRAPES
+  beq PointsGrapes
+  bne PointsIceCream
 PointsApple:
   lda #LIFE_GAIN_APPLE
   ldy #POINTS_APPLE
@@ -68,6 +76,14 @@ PointsApple:
 PointsSteak:
   lda #LIFE_GAIN_STEAK
   ldy #POINTS_STEAK
+  jmp Okay
+PointsGrapes:
+  lda #LIFE_GAIN_GRAPES
+  ldy #POINTS_GRAPES
+  jmp Okay
+PointsIceCream:
+  lda #LIFE_GAIN_ICE_CREAM
+  ldy #POINTS_ICE_CREAM
 Okay:
   clc
   adc player_health_delta
@@ -113,6 +129,8 @@ Return:
 food_picture:
 .byte PICTURE_ID_FOOD_APPLE_OUTER
 .byte PICTURE_ID_FOOD_STEAK_OUTER
+.byte PICTURE_ID_FOOD_GRAPES_OUTER
+.byte PICTURE_ID_FOOD_ICE_CREAM_OUTER
 
 food_animate_v_offset:
 .byte 0
