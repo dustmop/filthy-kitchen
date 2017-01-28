@@ -73,6 +73,20 @@ class GraphicsCompressor(object):
     self.buffer = bytearray()
     self.size = 0
 
+  def to_bytes(self):
+    accum = []
+    for kind, size, data in self.commands:
+      if kind == 'same':
+        accum.append(0x80 | size)
+        accum.append(data[0])
+      elif kind == 'inc':
+        accum.append(0x40 | size)
+        accum.append(data[0])
+      elif kind == 'literal':
+        accum.append(0x00 | size)
+        accum += data
+    return accum
+
 
 def run():
   parser = argparse.ArgumentParser()

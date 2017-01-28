@@ -52,7 +52,8 @@ def process(bg_image, meta_image, level_num, palette, include,
   objects = []
   for screen in list_template(split_screens):
     obj_file = screen.replace('.png', '.o')
-    cmd = 'makechr %s -b 0f -p %s -o %s' % (screen, palette, obj_file)
+    cmd = 'makechr %s -b 0f -p %s -o %s -t vertical' % (
+      screen, palette, obj_file)
     run_command(cmd)
     objects.append(obj_file)
   # Merge the results of makechr to get single chr, multiple nametables.

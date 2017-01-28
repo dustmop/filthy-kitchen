@@ -1,5 +1,7 @@
 import argparse
 import collections
+import graphics_compress
+import math
 import os
 
 
@@ -48,6 +50,7 @@ class WorldCollection(object):
     self.collision = []
     self.spawn = {}
     self.size = None
+    self.compressor = graphics_compress.GraphicsCompressor()
 
   def add_nametable(self, nametable):
     # Nametable has 8 chunks across.
@@ -59,7 +62,9 @@ class WorldCollection(object):
         for y in xrange(6,30):
           nt_column.append(ord(nametable[y*0x20 + x]))
         # Each element is 24 bytes.
-        self.nt_column.append(nt_column)
+        self.compressor.compress([chr(e) for e in nt_column[:-2]])
+        bytes = self.compressor.to_bytes()
+        self.nt_column.append(bytes)
 
   def add_attribute(self, attribute):
     # Attributes has 8 chunks across.
@@ -117,14 +122,24 @@ class LevelDataBuilder(object):
 
   def init(self):
     self.level_data = []
-    self.nt_column = collections.OrderedDict()
+    self.nt_lookup = {}
+    self.nt_compress = []
     self.attribute = collections.OrderedDict()
     self.collision = collections.OrderedDict()
     self.spawn = collections.OrderedDict()
     self.chunks = collections.OrderedDict()
 
   def store_nt(self, data):
-    return self._intern(self.nt_column, data)
+    SLICE_SIZE = 12
+    key = bytes(bytearray(data))
+    if not key in self.nt_lookup:
+      index = len(self.nt_compress) / SLICE_SIZE
+      for i in xrange(int(math.ceil(len(data) * 1.0 / SLICE_SIZE))):
+        slice = data[i*SLICE_SIZE: i*SLICE_SIZE+SLICE_SIZE]
+        slice += [0xff]*(SLICE_SIZE - len(slice))
+        self.nt_compress += slice
+      self.nt_lookup[key] = index
+    return self.nt_lookup[key]
 
   def store_attr(self, data):
     return self._intern(self.attribute, data)
@@ -147,26 +162,6 @@ class LevelDataBuilder(object):
       storage[key] = len(storage)
     return storage[key]
 
-  def save_bin(self, output_tmpl):
-    fp = open(fill_template(output_tmpl, ''), 'w')
-    fp.write(bytearray(self.level_data))
-    fp.close()
-    fp = open(fill_template(output_tmpl, '_chunks'), 'w')
-    fp.write(self.storage_bytes(self.chunks))
-    fp.close()
-    fp = open(fill_template(output_tmpl, '_nt_column'), 'w')
-    fp.write(self.storage_bytes(self.nt_column))
-    fp.close()
-    fp = open(fill_template(output_tmpl, '_attribute'), 'w')
-    fp.write(self.storage_bytes(self.attribute))
-    fp.close()
-    fp = open(fill_template(output_tmpl, '_collision'), 'w')
-    fp.write(self.storage_bytes(self.collision))
-    fp.close()
-    fp = open(fill_template(output_tmpl, '_spawn'), 'w')
-    fp.write(self.storage_bytes(self.spawn, [0xff]))
-    fp.close()
-
   def save_text(self, level, output_file):
     if not level:
       raise RuntimeError('Need level, got %s' % level)
@@ -179,12 +174,12 @@ class LevelDataBuilder(object):
     fp.write('level%s_chunk:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.chunks), 8)
     fp.write('level%s_table_of_contents:\n' % level)
-    fp.write('.word level%s_nt_column\n' % level)
+    fp.write('.word level%s_nt_compress\n' % level)
     fp.write('.word level%s_attribute\n' % level)
     fp.write('.word level%s_collision\n' % level)
     fp.write('\n')
-    fp.write('level%s_nt_column:\n' % level)
-    self.write_slices(fp, self.storage_bytes(self.nt_column), 24)
+    fp.write('level%s_nt_compress:\n' % level)
+    self.write_slices(fp, self.nt_compress, 12)
     fp.write('level%s_attribute:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.attribute), 8)
     fp.write('level%s_collision:\n' % level)

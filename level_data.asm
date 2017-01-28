@@ -281,13 +281,18 @@ Loop:
   sta pointer+1
   ;
   mov high_byte, #0
-  ; Set up pointer to nametable data, strip_id * 24 + level_nt_column
+  ; Set up pointer to nametable data, strip_id * 12 + level_nt_column
   lda strip_id
   asl a
-  clc
-  adc strip_id
   rol high_byte
-  .repeat 3
+  adc strip_id
+  sta strip_id
+  lda high_byte
+  adc #0
+  sta high_byte
+  lda strip_id
+  ;
+  .repeat 2
   asl a
   rol high_byte
   .endrepeat
@@ -315,15 +320,9 @@ Loop:
   adc offset
   adc #$c0
   sta PPU_ADDR
-  ; Render the strip, 24 elements.
-  ldy #0
-  ldx #24
-RenderLoop:
-  lda (pointer),y
-  sta PPU_DATA
-  iny
-  dex
-  bne RenderLoop
+  ; Render the strip, 22 elements after being decompressed.
+  lda #22
+  jsr RenderGraphicsCompressed
 
 Return:
   pla

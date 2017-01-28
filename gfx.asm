@@ -2,7 +2,7 @@
 
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
-.export LoadGraphicsCompressed
+.export LoadGraphicsCompressed, RenderGraphicsCompressed
 .export EnableNmi, WaitNewFrame, EnableDisplay
 .export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
@@ -11,14 +11,17 @@
 
 .import chr_data
 .importzp ppu_mask_current, ppu_ctrl_current, main_yield, color
-.importzp values
-next = values + $00
+.importzp decompress_count, decompress_limit
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 
-.importzp pointer
+.importzp NMI_pointer
+.importzp NMI_values
+pointer = NMI_pointer
+next    = NMI_values + $00
+
 
 .proc ClearBothNametables
   bit PPU_STATUS
@@ -35,6 +38,7 @@ Loop:
   rts
 .endproc
 
+
 .proc LoadGraphicsNt0
   lda #$20
   jmp LoadGraphicsSingleNametable
@@ -44,6 +48,7 @@ Loop:
   lda #$24
   fallt LoadGraphicsSingleNametable
 .endproc
+
 
 .proc LoadGraphicsSingleNametable
   bit PPU_STATUS
@@ -64,14 +69,34 @@ Loop:
   rts
 .endproc
 
+
 .proc LoadGraphicsCompressed
   bit PPU_STATUS
   stx pointer+0
   sty pointer+1
+  mov decompress_limit, #$ff
   mov PPU_ADDR, #$20
+  mov PPU_ADDR, #$00
+  jmp Decompressor
+.endproc
+
+
+.proc RenderGraphicsCompressed
+  sta decompress_limit
+  mov decompress_count, #$00
+  jmp Decompressor
+.endproc
+
+
+.proc Decompressor
   ldy #0
-  sty PPU_ADDR
 OuterLoop:
+  lda decompress_limit
+  bmi GetSequenceType
+  cmp decompress_count
+  beq OuterDone
+  blt OuterDone
+GetSequenceType:
   lda (pointer),y
   beq OuterDone
   bmi RepeatSequence
@@ -79,6 +104,9 @@ OuterLoop:
   bge IncSequence
 LiteralSequence:
   tax
+  clc
+  adc decompress_count
+  sta decompress_count
   iny
 LiteralLoop:
   lda (pointer),y
@@ -91,6 +119,9 @@ IncSequence:
   iny
   and #$3f
   tax
+  clc
+  adc decompress_count
+  sta decompress_count
   lda (pointer),y
   iny
 IncLoop:
@@ -104,6 +135,9 @@ RepeatSequence:
   iny
   and #$3f
   tax
+  clc
+  adc decompress_count
+  sta decompress_count
   lda (pointer),y
   iny
 RepeatLoop:
@@ -125,6 +159,7 @@ OuterDone:
   rts
 .endproc
 
+
 .proc LoadPalette
   bit PPU_STATUS
   stx pointer+0
@@ -143,6 +178,7 @@ Loop:
   rts
 .endproc
 
+
 .proc LoadSpritelist
   stx pointer+0
   sty pointer+1
@@ -157,6 +193,7 @@ Loop:
 Done:
   rts
 .endproc
+
 
 .proc LoadChrRam
   bit PPU_STATUS
@@ -177,6 +214,7 @@ Loop:
   rts
 .endproc
 
+
 ; Turn on the nmi, then wait for the next frame before enabling the display.
 ; This prevents a partially rendered frame from appearing at start-up.
 .proc EnableNmiThenWaitNewFrameThenEnableDisplay
@@ -184,6 +222,7 @@ Loop:
   jsr WaitNewFrame
   fallt EnableDisplay
 .endproc
+
 
 .proc EnableDisplay
   lda ppu_mask_current
@@ -193,6 +232,7 @@ Loop:
   rts
 .endproc
 
+
 .proc EnableNmi
   lda #(PPU_CTRL_NMI_ENABLE | PPU_CTRL_SPRITE_1000)
   sta PPU_CTRL
@@ -200,6 +240,7 @@ Loop:
   cli
   rts
 .endproc
+
 
 .proc WaitNewFrame
   mov main_yield, #0
@@ -210,6 +251,7 @@ WaitLoop:
   rts
 .endproc
 
+
 .proc DisableDisplay
   lda ppu_mask_current
   and #($ff & ~PPU_MASK_SHOW_SPRITES & ~PPU_MASK_SHOW_BG)
@@ -217,6 +259,7 @@ WaitLoop:
   sta ppu_mask_current
   rts
 .endproc
+
 
 .proc DisableDisplayAndNmi
   lda #0
@@ -229,6 +272,7 @@ WaitLoop:
   rts
 .endproc
 
+
 .proc TintApplyToPpuMask
   sta color
   lda ppu_mask_current
@@ -239,6 +283,7 @@ WaitLoop:
   rts
 .endproc
 
+
 .proc PrepareRenderVertical
   bit PPU_STATUS
   lda ppu_ctrl_current
@@ -247,6 +292,7 @@ WaitLoop:
   sta PPU_CTRL
   rts
 .endproc
+
 
 .proc PrepareRenderHorizontal
   bit PPU_STATUS
