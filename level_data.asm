@@ -454,6 +454,8 @@ Loop:
 .endproc
 
 
+.segment "LEVEL"
+
 level1_meta:
 .byte $80, 0
 .byte $b8

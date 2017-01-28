@@ -44,6 +44,9 @@ GameplayMain:
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
+  ; Load level data from prg bank 4.
+  lda #4
+  jsr GeneralMapperPrgBank8000
   jsr PlayerClearData
   jsr LevelClearData
 

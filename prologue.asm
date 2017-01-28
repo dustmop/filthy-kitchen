@@ -62,7 +62,3 @@ title_chr_data:
 .segment "CHRDATA3"
 
 .byte $03
-
-.segment "CHRDATA4"
-
-.byte $04
