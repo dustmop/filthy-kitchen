@@ -281,18 +281,9 @@ Loop:
   sta pointer+1
   ;
   mov high_byte, #0
-  ; Set up pointer to nametable data, strip_id * 12 + level_nt_column
+  ; Set up pointer to nametable data, strip_id * 8 + level_nt_column
   lda strip_id
-  asl a
-  rol high_byte
-  adc strip_id
-  sta strip_id
-  lda high_byte
-  adc #0
-  sta high_byte
-  lda strip_id
-  ;
-  .repeat 2
+  .repeat 3
   asl a
   rol high_byte
   .endrepeat

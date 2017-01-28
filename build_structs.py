@@ -130,7 +130,7 @@ class LevelDataBuilder(object):
     self.chunks = collections.OrderedDict()
 
   def store_nt(self, data):
-    SLICE_SIZE = 12
+    SLICE_SIZE = 8
     key = bytes(bytearray(data))
     if not key in self.nt_lookup:
       index = len(self.nt_compress) / SLICE_SIZE
@@ -179,7 +179,7 @@ class LevelDataBuilder(object):
     fp.write('.word level%s_collision\n' % level)
     fp.write('\n')
     fp.write('level%s_nt_compress:\n' % level)
-    self.write_slices(fp, self.nt_compress, 12)
+    self.write_slices(fp, self.nt_compress, 8)
     fp.write('level%s_attribute:\n' % level)
     self.write_slices(fp, self.storage_bytes(self.attribute), 8)
     fp.write('level%s_collision:\n' % level)
