@@ -13,7 +13,7 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp draw_screen, draw_h, draw_v
+.importzp draw_screen, draw_h, draw_v, draw_frame
 .importzp player_v
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta

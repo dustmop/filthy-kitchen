@@ -79,6 +79,7 @@ draw_curr_h: .byte 0
 draw_curr_v: .byte 0
 draw_screen: .byte 0
 draw_palette: .byte 0
+draw_frame: .byte 0
 random_value: .byte 0
 spawn_count: .byte 0
 color: .byte 0
@@ -115,7 +116,7 @@ which_level: .byte 0
 .exportzp level_player_start_v
 .exportzp draw_picture_pointer, draw_sprite_pointer
 .exportzp draw_picture_id, draw_h, draw_v, draw_screen, draw_palette
-.exportzp draw_curr_h, draw_curr_v
+.exportzp draw_curr_h, draw_curr_v, draw_frame
 .exportzp random_value, debug_mode, render_last
 .exportzp spawn_count, color
 .exportzp score_low, score_medium, combo_low, combo_medium

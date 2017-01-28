@@ -13,7 +13,7 @@
 
 .importzp player_owns_swatter, player_collision_idx
 .importzp player_v, player_h, player_screen, player_iframe
-.importzp draw_screen
+.importzp draw_screen, draw_frame
 .importzp camera_h, camera_screen
 
 .import object_data_extend

@@ -23,7 +23,7 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp player_health_delta
 .importzp camera_h, camera_screen
 .importzp spawn_count
-.importzp draw_h, draw_v, draw_screen
+.importzp draw_h, draw_v, draw_screen, draw_frame
 .importzp combo_low
 .importzp level_has_infinite_flies
 .importzp values

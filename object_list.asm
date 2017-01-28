@@ -27,7 +27,7 @@
 
 .importzp object_list_head, object_list_tail, camera_h
 .importzp player_v, player_h, player_screen, player_collision_idx
-.importzp objects_only_draw
+.importzp objects_only_draw, draw_frame
 .importzp values
 ; TODO: Circular dependency, bad.
 .import offscreen_things

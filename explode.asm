@@ -7,7 +7,7 @@
 .include "object_list.h.asm"
 .include "shared_object_values.asm"
 
-.importzp draw_h, draw_v, draw_screen
+.importzp draw_h, draw_v, draw_screen, draw_frame
 .importzp camera_h, camera_v, camera_screen
 
 .segment "CODE"
