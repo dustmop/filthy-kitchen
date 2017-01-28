@@ -29,6 +29,10 @@ COLLISION_SWATTER_FLY_V_HITBOX = 10
 .importzp values
 adjust_v = values + 0
 adjust_h = values + 1
+diff_h   = values + 2
+is_left  = values + 3
+mask     = values + 4
+base     = values + 5
 
 .import object_data_extend
 fly_direction = object_data_extend + $00
@@ -97,6 +101,17 @@ FLY_MAX_V = $b0
 
 .proc FlyExecute
 
+.scope MaybeDespawn
+  ; If infinite flies, don't use the offscreen despawner.
+  bit level_has_infinite_flies
+  bmi Next
+
+  jsr ObjectOffscreenDespawn
+  bcc Next
+  rts
+Next:
+.endscope
+
 .scope Movement
   ldy fly_direction,x
   bmi Wait
@@ -149,24 +164,26 @@ MoveDownOverflow:
   bne RestNow
 Decrement:
   dec fly_step,x
+  lda fly_step,x
+  cmp #1
   bne Next
 RestNow:
   mov {fly_direction,x}, #$ff
   jsr RandomGet
   and #$1f
   clc
-  adc #120
+  adc #50
   sta fly_step,x
   jmp Next
 Wait:
   dec fly_step,x
+  lda fly_step,x
+  cmp #1
   bne Next
 Pick:
+  jsr SetNewDirection
   jsr RandomGet
-  and #$3f
-  sta fly_direction,x
-  jsr RandomGet
-  and #$0f
+  and #$1f
   clc
   adc #30
   sta fly_step,x
@@ -174,6 +191,10 @@ Next:
 .endscope
 
 .scope MaybeDespawnFarAway
+  ; Only do this if there are infinite flies.
+  bit level_has_infinite_flies
+  bpl Next
+
   lda object_h,x
   sec
   sbc player_h
@@ -354,6 +375,80 @@ HaveCombo:
 Return:
   rts
 .endproc
+
+
+.proc SetNewDirection
+  mov mask, #$3f
+  mov base, #0
+
+.scope VerticalRestrict
+  lda object_v,x
+  cmp #(FLY_MIN_V + $10)
+  blt AlwaysMoveDown
+  cmp #(FLY_MAX_V - $10)
+  bge AlwaysMoveUp
+  blt Next
+AlwaysMoveDown:
+  lsr mask
+  mov base, #$20
+  bpl Next
+AlwaysMoveUp:
+  lsr mask
+Next:
+.endscope
+
+.scope FindHorizontalDiff
+  mov is_left, #0
+  lda object_h,x
+  sec
+  sbc player_h
+  sta diff_h
+  lda object_screen,x
+  sbc player_screen
+  bpl Next
+AbsoluteValue:
+  lda diff_h
+  eor #$ff
+  clc
+  adc #1
+  sta diff_h
+  dec is_left
+Next:
+.endscope
+
+.scope HorizontalRestrict
+  lda diff_h
+  cmp #$50
+  blt Next
+FarAway:
+  bit is_left
+  bpl AlwaysMoveLeft
+AlwaysMoveRight:
+  lda base
+  clc
+  adc #$30
+  sta base
+  lsr mask
+  jmp Next
+AlwaysMoveLeft:
+  lda base
+  clc
+  adc #$10
+  sta base
+  lsr mask
+Next:
+.endscope
+
+Choose:
+  jsr RandomGet
+  and mask
+  clc
+  adc base
+  and #$3f
+  sta fly_direction,x
+  rts
+.endproc
+
 
 
 FLY_ANIMATE_1 = $0b
