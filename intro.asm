@@ -9,6 +9,7 @@
 .include "gameplay.h.asm"
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
+.include "famitone.h.asm"
 
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
@@ -41,10 +42,15 @@ inner = values + 5
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
+  ; Play a song.
+  ;lda #0
+  ;jsr FamiToneMusicPlay
+
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
 IntroLoop:
   jsr WaitNewFrame
+  jsr FamiToneUpdate
   jsr ReadController
   ; Start to exit normally.
   lda buttons_press
@@ -57,10 +63,12 @@ IntroLoop:
   beq IntroLoop
 
 TransitionFast:
+  jsr FamiToneMusicStop
   mov which_level, #9
   jmp ExitIntroScreen
 
 TransitionOut:
+  jsr FamiToneMusicStop
   mov outer, #12
 
 OuterLoop:
@@ -74,6 +82,7 @@ OuterLoop:
   dec outer
   bne OuterLoop
   jsr WaitNewFrame
+  jsr FamiToneUpdate
 
 ExitIntroScreen:
   jsr DisableDisplayAndNmi
@@ -102,6 +111,7 @@ Loop:
   mov inner, #4
 Loop:
   jsr WaitNewFrame
+  jsr FamiToneUpdate
   dec inner
   bne Loop
   rts

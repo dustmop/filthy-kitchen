@@ -22,6 +22,7 @@
 .include "random.h.asm"
 .include "health.h.asm"
 .include "msg_catalog.h.asm"
+.include "famitone.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed, lives
@@ -140,6 +141,9 @@ EngineReady:
 
   DebugModeSetTint green
   jsr HealthApplyDelta
+
+  DebugModeSetTint blue
+  jsr FamiToneUpdate
 
   DebugModeSetTint 0
   jsr MaybeDebugToggle

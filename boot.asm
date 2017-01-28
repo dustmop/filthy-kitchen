@@ -5,6 +5,7 @@
 .include "general_mapper.h.asm"
 .include "gfx.h.asm"
 .include "intro.h.asm"
+.include "famitone.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed
@@ -57,6 +58,11 @@ Wait1:
   jsr GeneralMapperPrgBank8000
 
   jsr ClearBothNametables
+
+  lda #1
+  ldx #<music_data
+  ldy #>music_data
+  jsr FamiToneInit
 
   ; Exit to the intro
   jmp IntroTitle
