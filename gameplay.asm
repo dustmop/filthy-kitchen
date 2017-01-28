@@ -111,8 +111,25 @@ GameplayLoop:
 
   lda level_complete
   beq HandleEngine
+
+.scope LevelEnding
+  inc level_complete
+  lda level_complete
+  beq IsZero
+  cmp #$48
+  beq DestroyBroom
+  cmp #$c0
+  bne Ready
+  jmp GameplayExit
+IsZero:
+  mov level_complete, #1
+  jmp Ready
+DestroyBroom:
+  jsr BroomExplodeIntoStars
+Ready:
   mov objects_only_draw, #1
   bne EngineReady
+.endscope
 
 HandleEngine:
 
@@ -160,3 +177,8 @@ EngineReady:
 
   jmp GameplayLoop
 .endscope
+
+
+GameplayExit:
+  jsr DisableDisplayAndNmi
+  jmp GameplayExit

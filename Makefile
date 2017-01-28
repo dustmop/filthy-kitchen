@@ -33,6 +33,7 @@ SRC = gfx.asm \
       utensils.asm \
       broom.asm \
       gunk_drop.asm \
+      star.asm \
       random.asm \
       health.asm \
       msg_catalog.asm \

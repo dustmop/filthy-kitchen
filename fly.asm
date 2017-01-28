@@ -36,9 +36,9 @@ base     = values + 5
 
 .import object_data_extend
 fly_direction = object_data_extend + $00
-fly_step      = object_data_extend + $10
-fly_v_low     = object_data_extend + $20
-fly_h_low     = object_data_extend + $30
+fly_v_low     = object_data_extend + $10
+fly_h_low     = object_data_extend + $20
+fly_step      = object_data_extend + $30
 
 
 .segment "CODE"

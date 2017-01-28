@@ -1,6 +1,7 @@
 .import ObjectListInit
 .import ObjectListUpdate
 .import ObjectListCountAvail
+.import ObjectListGetLast
 .import ObjectAllocate
 .import ObjectFree
 .import ObjectConstructor
@@ -17,6 +18,7 @@ OBJECT_KIND_DIRTY_SINK = $05
 OBJECT_KIND_UTENSILS   = $06
 OBJECT_KIND_BROOM      = $07
 OBJECT_KIND_GUNK_DROP  = $08
+OBJECT_KIND_STAR       = $09
 
 OBJECT_IS_NEW = $40
 

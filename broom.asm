@@ -1,5 +1,6 @@
 .export BroomExecute
 .export BroomDraw
+.export BroomExplodeIntoStars
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -44,12 +45,7 @@ Next:
 Draw:
   lda level_complete
   beq Ready
-  mov {object_frame,x}, #0
-  inc level_complete
-  lda level_complete
-  bne :+
-  mov level_complete, #1
-:
+  ; Flash the broom.
   and #$0f
   tay
   lda flash_priority,y
@@ -87,6 +83,52 @@ Return:
 
 
 BroomDraw = BroomExecute::Draw
+
+
+.proc BroomExplodeIntoStars
+  jsr ObjectListGetLast
+Loop:
+  lda object_kind,x
+  cmp #OBJECT_KIND_BROOM
+  bne Increment
+Explode:
+  lda object_v,x
+  clc
+  adc #$10
+  sta draw_v
+  lda object_h,x
+  clc
+  adc #$08
+  sta draw_h
+  mov draw_screen, {object_screen,x}
+  jsr ObjectFree
+  ldy #0
+  jsr CreateStar
+  ldy #1
+  jsr CreateStar
+  ldy #2
+  jsr CreateStar
+  ldy #3
+  jsr CreateStar
+  rts
+Increment:
+  dex
+  bpl Loop
+  rts
+.endproc
+
+
+.proc CreateStar
+  jsr ObjectAllocate
+  bcc Return
+  mov {object_kind,x}, #OBJECT_KIND_STAR
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  jsr ObjectConstructor
+Return:
+  rts
+.endproc
 
 
 broom_animate_v_offset:

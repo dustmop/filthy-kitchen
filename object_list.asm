@@ -1,6 +1,7 @@
 .export ObjectListInit
 .export ObjectListUpdate
 .export ObjectListCountAvail
+.export ObjectListGetLast
 .export ObjectAllocate
 .export ObjectFree
 .export ObjectConstructor
@@ -21,6 +22,7 @@
 .include "utensils.h.asm"
 .include "broom.h.asm"
 .include "gunk_drop.h.asm"
+.include "star.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -58,6 +60,7 @@ OBJECT_KIND_DIRTY_SINK = $05
 OBJECT_KIND_UTENSILS   = $06
 OBJECT_KIND_BROOM      = $07
 OBJECT_KIND_GUNK_DROP  = $08
+OBJECT_KIND_STAR       = $09
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -102,6 +105,12 @@ Increment:
   cpx #MAX_NUM_OBJECTS
   bne Loop
   tya
+  rts
+.endproc
+
+
+.proc ObjectListGetLast
+  ldx #(MAX_NUM_OBJECTS - 1)
   rts
 .endproc
 
@@ -188,6 +197,8 @@ OnlyDraw:
   beq OnlyDrawSwatter
   cmp #OBJECT_KIND_BROOM
   beq OnlyDrawBroom
+  cmp #OBJECT_KIND_STAR
+  beq OnlyDrawStar
   bne OnlyDrawDone
 OnlyDrawSwatter:
   jsr SwatterDraw
@@ -197,6 +208,9 @@ OnlyDrawFly:
   jmp OnlyDrawDone
 OnlyDrawBroom:
   jsr BroomDraw
+  jmp OnlyDrawDone
+OnlyDrawStar:
+  jsr StarDraw
 OnlyDrawDone:
   pla
   tax
@@ -406,6 +420,8 @@ Failure:
   beq Utensils
   cmp #OBJECT_KIND_DIRTY_SINK
   beq Dirt
+  cmp #OBJECT_KIND_STAR
+  beq Star
   rts
 Fly:
   jsr FlyConstructor
@@ -418,6 +434,9 @@ Utensils:
   rts
 Dirt:
   jsr DirtConstructor
+  rts
+Star:
+  jsr StarConstructor
   rts
 .endproc
 
@@ -451,22 +470,22 @@ Done:
 
 
 
-;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM, GUNK_DROP
+;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM, GUNK_DROP, STAR
 
 table_object_num_frames:
-.byte   8,  3,       3,      1,    8,     1,        1,     8,         1
+.byte   8,  3,       3,      1,    8,     1,        1,     8,         1,    4
 
 table_object_animate_limit:
-.byte   2,  3,       6,      1,    4,     1,        1,     4,         1
+.byte   2,  3,       6,      1,    4,     1,        1,     4,         1,    4
 
 kind_offset_h:
-.byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4
+.byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4,  $80
 
 kind_bigger_h:
-.byte   0,  0,     $80,    $80,    8,     4,        0,     0,         3
+.byte   0,  0,     $80,    $80,    8,     4,        0,     0,         3,  $80
 
 kind_bigger_v:
-.byte   0,  0,     $80,    $80,    2,     0,        0,    30,         3
+.byte   0,  0,     $80,    $80,    2,     0,        0,    30,         3,  $80
 
 execute_table:
 .word SwatterExecute-1
@@ -478,3 +497,4 @@ execute_table:
 .word UtensilsExecute-1
 .word BroomExecute-1
 .word GunkDropExecute-1
+.word StarExecute-1
