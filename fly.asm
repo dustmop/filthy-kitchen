@@ -56,7 +56,7 @@ SpawnFlies:
   mov spawn_count, #0
 
   jsr ObjectListCountAvail
-  cmp #3
+  cmp #4
   blt Return
 
   jsr ObjectAllocate
