@@ -6,6 +6,7 @@
 .include "intro_outro.h.asm"
 .include "marque.h.asm"
 .include "gfx.h.asm"
+.include "endboss.h.asm"
 .include "fader.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
@@ -38,15 +39,22 @@
 
 GameplayMain:
 .scope GameplayMain
-  ; Load palette, which is defined in the prologue.
-  ;ldx #<gameplay_palette
-  ;ldy #>gameplay_palette
-  ;jsr LoadPalette
 
+  lda which_level
+  cmp #BOSS_LEVEL
+  beq BossChrRam
+NormalChrRam:
   ; Load chr-ram from prg bank 0.
   lda #0
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
+  jmp ChrRamDone
+BossChrRam:
+  ; Load chr-ram from prg bank 0.
+  lda #2
+  jsr GeneralMapperPrgBank8000
+  jsr LoadChrRam
+ChrRamDone:
 
   ; Load level data from prg bank 4.
   lda #4

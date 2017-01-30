@@ -13,6 +13,7 @@ SRC = gfx.asm \
       marque.asm \
       fader.asm \
       gameplay.asm \
+      endboss.asm \
       player.asm \
       detect_collision.asm \
       camera.asm \
@@ -49,7 +50,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python lint_objects.py $<
 	ca65 -o $@ $< -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat .b/title.chr.dat \
+.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource2.chr.dat \
+            .b/title.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
@@ -72,6 +74,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/fader.o: fader.asm .b/fader_pal.dat
 	ca65 -o .b/fader.o fader.asm -g
+
+.b/endboss.o: endboss.asm .b/boss.compressed.asm
+	ca65 -o .b/endboss.o endboss.asm -g
 
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
 	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
@@ -97,6 +102,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/hud.compressed.asm: graphics_compress.py .b/hud.nametable.dat
 	python graphics_compress.py .b/hud.nametable.dat \
             -o .b/hud.compressed.asm
+
+.b/boss.compressed.asm: graphics_compress.py .b/boss.graphics.dat
+	python graphics_compress.py .b/boss.graphics.dat \
+            -o .b/boss.compressed.asm
 
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
@@ -146,6 +155,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr punc.png -o .b/punc.o -b 0f
 
+.b/boss.o: boss.png
+	mkdir -p .b/
+	makechr boss.png -o .b/boss.o -b 0f
+
 .b/bg_pal.o .b/bg_pal.dat: bg_pal.png
 	makechr --makepal bg_pal.png -o .b/bg_pal.o
 	makechr --makepal bg_pal.png -o .b/bg_pal.dat
@@ -191,6 +204,16 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_level.py -b bg9.png -m meta9.png -l 9 \
             -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
             -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
+
+.b/resource2.chr.dat .b/boss.graphics.dat .b/boss.palette.dat: \
+            .b/chars.chr.dat .b/hud.o .b/boss.o .b/alpha.o .b/digit.o
+	python merge_chr_nt.py .b/hud.o .b/boss.o -A .b/alpha.o -D .b/digit.o \
+            -c .b/boss.chr.dat -n .b/boss.nametable.dat \
+            -a .b/boss.attribute.dat
+	cat .b/boss.nametable.dat .b/boss.attribute.dat > \
+            .b/boss.graphics.dat
+	head -c 4096 .b/boss.chr.dat > .b/resource2.chr.dat
+	tail -c 4096 .b/chars.chr.dat >> .b/resource2.chr.dat
 
 .b/resource.chr.dat .b/resource.palette.dat: \
             .b/chars.chr.dat .b/merged_1_to_9.chr.dat .b/bg_pal.dat

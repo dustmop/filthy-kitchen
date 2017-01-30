@@ -7,6 +7,7 @@
 .include "include.scroll-action.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
+.include "endboss.h.asm"
 
 .importzp ppu_ctrl_current
 .importzp NMI_pointer
@@ -140,6 +141,13 @@ chunk_id = strip_id
 ;LevelDataFillEntireScreen
 ; Clobbers Y
 .proc LevelDataFillEntireScreen
+  lda which_level
+  cmp #BOSS_LEVEL
+  bne Normal
+  ;
+  jsr EndBossFillGraphics
+  rts
+Normal:
   jsr PrepareRenderVertical
   ldy #0
 Loop:

@@ -69,15 +69,22 @@ IntroLoop:
 
 TransitionFast:
   jsr FamiToneMusicStop
-  ; hold B to get level 9
+  ; hold A to get level 9
   lda buttons
-  and #BUTTON_B
+  and #BUTTON_A
   bne Level9
+  ; hold down to get boss
+  lda buttons
+  and #BUTTON_DOWN
+  bne LevelBoss
 Level2:
   mov which_level, #2
   jmp ExitFast
 Level9:
   mov which_level, #9
+  jmp ExitFast
+LevelBoss:
+  mov which_level, #$0a
   jmp ExitFast
 
 TransitionOut:

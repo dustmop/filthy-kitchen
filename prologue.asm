@@ -66,8 +66,9 @@ title_chr_data:
 .incbin ".b/title.chr.dat"
 
 .segment "CHRDATA2"
-
-.byte $02
+.export boss_chr_data
+boss_chr_data:
+.incbin ".b/resource2.chr.dat"
 
 .segment "CHRDATA3"
 
