@@ -110,6 +110,18 @@ Next:
   mov player_animate, #0
 Next:
 .endscope
+  ; Debug only
+.scope DieBySelectB
+  lda buttons_press
+  and #(BUTTON_SELECT | BUTTON_B)
+  beq Next
+  lda buttons
+  and #(BUTTON_SELECT | BUTTON_B)
+  cmp #(BUTTON_SELECT | BUTTON_B)
+  bne Next
+  mov player_health, #0
+Next:
+.endscope
   ; Apply gravity to v, for both jumping and falling.
 .scope Gravity
   lda player_gravity

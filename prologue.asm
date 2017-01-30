@@ -20,20 +20,25 @@ MAPPER_NUMBER = 4
 
 .segment "CODE"
 
-.export gameplay_palette, title_palette
-.export title_graphics
+.export gameplay_palette
+.export title_palette, title_graphics
+.export game_over_palette, game_over_graphics
 
 gameplay_palette:
 .incbin ".b/bg_pal.dat"
 .incbin ".b/sprite_pal.dat"
 
 title_palette:
+game_over_palette:
 .incbin ".b/title.palette.dat"
 ; TODO: Title's sprites palette.
 .incbin ".b/title.palette.dat"
 
 title_graphics:
 .include ".b/title.compressed.asm"
+
+game_over_graphics:
+.include ".b/game_over.compressed.asm"
 
 
 .segment "VECTORS"

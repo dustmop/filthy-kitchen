@@ -1,5 +1,6 @@
 .import AllocateRenderAction
 .import RenderActionApplyAll
+.import RenderActionClear
 
 render_action_size      = $700
 render_action_addr_high = $701

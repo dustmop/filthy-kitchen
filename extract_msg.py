@@ -107,7 +107,8 @@ def process(input_file, alpha_input_file, digits_input_file, output_file,
   bg_color = parse_bg_color(bg_color_text)
   msg_codes = extract_msgs(input_file, alpha_font, digit_font, output_file,
                            bg_color)
-  build_msgs_file(msg_codes, msgs_file)
+  if msgs_file:
+    build_msgs_file(msg_codes, msgs_file)
 
 
 def run():

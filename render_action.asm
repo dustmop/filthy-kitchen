@@ -1,5 +1,6 @@
 .export AllocateRenderAction
 .export RenderActionApplyAll
+.export RenderActionClear
 
 .importzp render_last
 .importzp NMI_values
@@ -39,6 +40,15 @@ RENDER_ACTION_HEADER_SIZE = 3
   pla
   rts
 .endproc
+
+
+;RenderActionClear
+; Clobbers A
+.proc RenderActionClear
+  mov render_last, #0
+  rts
+.endproc
+
 
 ;RenderActionsApply
 ; Apply all RenderActions in the $0700 page.

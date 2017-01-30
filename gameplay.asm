@@ -3,6 +3,7 @@
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
+.include "intro_outro.h.asm"
 .include "gfx.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
@@ -169,8 +170,7 @@ EngineReady:
   cmp #150
   bne :+
   dec lives
-  ; TODO
-  ;bmi GameOver
+  beq GameplayGameOverExit
   jsr DisableDisplayAndNmi
   jmp GameplayMain
 :
@@ -182,3 +182,9 @@ EngineReady:
 GameplayExit:
   jsr DisableDisplayAndNmi
   jmp GameplayExit
+
+
+GameplayGameOverExit:
+  ; TODO: Fade out.
+  jsr DisableDisplayAndNmi
+  jmp OutroScreen

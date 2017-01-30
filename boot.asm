@@ -4,7 +4,7 @@
 .include "level_data.h.asm"
 .include "general_mapper.h.asm"
 .include "gfx.h.asm"
-.include "intro.h.asm"
+.include "intro_outro.h.asm"
 .include "famitone.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
@@ -65,7 +65,7 @@ Wait1:
   jsr FamiToneInit
 
   ; Exit to the intro
-  jmp IntroTitle
+  jmp IntroScreen
 
 
 NMI:

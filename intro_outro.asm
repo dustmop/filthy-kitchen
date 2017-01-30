@@ -1,4 +1,5 @@
-.export IntroTitle
+.export IntroScreen
+.export OutroScreen
 
 .include "include.controller.asm"
 .include "include.mov-macros.asm"
@@ -16,13 +17,15 @@
 .importzp which_level
 .import title_palette
 .import title_graphics
+.import game_over_palette
+.import game_over_graphics
 
 outer = values + 4
 inner = values + 5
 
 .segment "CODE"
 
-.proc IntroTitle
+.proc IntroScreen
   ; Load palette, which is defined in the prologue.
   ldx #<title_palette
   ldy #>title_palette
@@ -115,4 +118,35 @@ Loop:
   dec inner
   bne Loop
   rts
+.endproc
+
+
+.proc OutroScreen
+  jsr RenderActionClear
+  jsr ClearBothNametables
+
+  ; Load palette, which is defined in the prologue.
+  ldx #<game_over_palette
+  ldy #>game_over_palette
+  jsr LoadPalette
+
+  ldx #<game_over_graphics
+  ldy #>game_over_graphics
+  jsr LoadGraphicsCompressed
+
+  ; Load chr-ram from prg bank 1.
+  lda #1
+  jsr GeneralMapperPrgBank8000
+  jsr LoadChrRam
+
+  ; Play a song.
+  ;lda #0
+  ;jsr FamiToneMusicPlay
+
+  jsr EnableNmiThenWaitNewFrameThenEnableDisplay
+
+OutroLoop:
+  jsr WaitNewFrame
+  jsr FamiToneUpdate
+  jmp OutroLoop
 .endproc

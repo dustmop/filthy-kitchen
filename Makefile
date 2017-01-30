@@ -9,7 +9,7 @@ SRC = gfx.asm \
       vars.asm \
       general_mmc3.asm \
       boot.asm \
-      intro.asm \
+      intro_outro.asm \
       gameplay.asm \
       player.asm \
       detect_collision.asm \
@@ -49,7 +49,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/title.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat \
-            .b/title.palette.dat .b/title.compressed.asm
+            .b/title.palette.dat .b/title.compressed.asm \
+            .b/game_over.compressed.asm
 	ca65 -o .b/prologue.o prologue.asm -g
 
 .b/draw_picture.o: draw_picture.asm .b/pictures.asm
@@ -84,6 +85,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python graphics_compress.py .b/title.graphics.dat \
             -o .b/title.compressed.asm
 
+.b/game_over.compressed.asm: graphics_compress.py .b/game_over.graphics.dat
+	python graphics_compress.py .b/game_over.graphics.dat \
+            -o .b/game_over.compressed.asm
+
 .b/hud.compressed.asm: graphics_compress.py .b/hud.nametable.dat
 	python graphics_compress.py .b/hud.nametable.dat \
             -o .b/hud.compressed.asm
@@ -96,21 +101,28 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python extract_msg.py title.png -A alpha.png -D digit.png \
             -o .b/title_nomsg.png -b 0078fc -m .b/title_msg.asm
 
+.b/game_over_nomsg.png: extract_msg.py game_over.png alpha.png digit.png
+	python extract_msg.py game_over.png -A alpha.png -D digit.png \
+            -o .b/game_over_nomsg.png -b 0078fc
+
 .b/hud_nomsg.png .b/hud_msg.asm: extract_msg.py hud.png alpha.png digit.png
 	python extract_msg.py hud.png -A alpha.png -D digit.png \
             -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
 
-.b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat: \
-            merge_chr_nt.py .b/title_nomsg.png .b/alpha.o .b/digit.o .b/title_pal.o
+.b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat .b/game_over.graphics.dat: \
+            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/alpha.o .b/digit.o .b/title_pal.o
 	mkdir -p .b/
 	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
-	python merge_chr_nt.py .b/title.o \
+	makechr .b/game_over_nomsg.png -o .b/game_over.o -p .b/title_pal.o
+	python merge_chr_nt.py .b/title.o .b/game_over.o \
             -A .b/alpha.o \
             -D .b/digit.o \
             -c .b/title.chr.dat -p .b/title.palette.dat \
-            -n .b/title.nametable.dat -a .b/title.attribute.dat
-	cat .b/title.nametable.dat .b/title.attribute.dat > \
+            -n .b/built%d.nametable.dat -a .b/built%d.attribute.dat
+	cat .b/built00.nametable.dat .b/built00.attribute.dat > \
             .b/title.graphics.dat
+	cat .b/built01.nametable.dat .b/built01.attribute.dat > \
+            .b/game_over.graphics.dat
 
 .b/hud.o: .b/hud_nomsg.png
 	mkdir -p .b/
