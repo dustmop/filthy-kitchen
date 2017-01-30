@@ -15,6 +15,7 @@
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
 .importzp which_level
+.importzp buttons
 .import title_palette
 .import title_graphics
 .import game_over_palette
@@ -67,6 +68,14 @@ IntroLoop:
 
 TransitionFast:
   jsr FamiToneMusicStop
+  ; hold B to get level 9
+  lda buttons
+  and #BUTTON_B
+  bne Level9
+Level2:
+  mov which_level, #2
+  jmp ExitIntroScreen
+Level9:
   mov which_level, #9
   jmp ExitIntroScreen
 

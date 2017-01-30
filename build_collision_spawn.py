@@ -46,7 +46,10 @@ def retrieve_spawn_data(y, x, pixels, img):
 
 
 def color_or_add_spawn_data(y, x, pixels, img, spawn_data):
-  c = convert_color(pixels[x,y])
+  try:
+    c = convert_color(pixels[x,y])
+  except RuntimeError as e:
+    raise RuntimeError('At y=%s, x=%s: %s' % (y, x, e))
   if c == SPAWN_ID:
     spawn_data += retrieve_spawn_data(y, x, pixels, img)
     return 0

@@ -148,12 +148,24 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr --makepal title_pal.png -o .b/title_pal.o
 
 .b/level1_data.asm .b/merged_1.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
-            build_level.py .b/hud.o bg1.png meta1.png .b/bg_pal.o .b/alpha.o .b/digit.o
-	python build_level.py -b bg1.png -m meta1.png -l 1 -p .b/bg_pal.o -i .b/hud.o -A .b/alpha.o -D .b/digit.o -o .b/level1_data.asm -c .b/merged_1.chr.dat -x .b/hud.%s.dat
+            build_level.py .b/hud.o bg1.png meta1.png .b/bg_pal.o \
+            .b/alpha.o .b/digit.o
+	python build_level.py -b bg1.png -m meta1.png -l 1 \
+            -p .b/bg_pal.o -i .b/hud.o \
+            -A .b/alpha.o -D .b/digit.o \
+            -o .b/level1_data.asm -c .b/merged_1.chr.dat -x .b/hud.%s.dat
+
+.b/level2_data.asm .b/merged_1_to_2.chr.dat:\
+            build_level.py .b/merged_1.chr.dat bg2.png meta2.png .b/bg_pal.o
+	python build_level.py -b bg2.png -m meta2.png -l 2 \
+            -p .b/bg_pal.o -i .b/merged_1.chr.dat \
+            -o .b/level2_data.asm -c .b/merged_1_to_2.chr.dat
 
 .b/level9_data.asm .b/merged_1_to_9.chr.dat:\
-            build_level.py .b/merged_1.chr.dat bg9.png meta9.png .b/bg_pal.o .b/alpha.o .b/digit.o
-	python build_level.py -b bg9.png -m meta9.png -l 9 -p .b/bg_pal.o -i .b/merged_1.chr.dat -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
+            build_level.py .b/merged_1_to_2.chr.dat bg9.png meta9.png .b/bg_pal.o
+	python build_level.py -b bg9.png -m meta9.png -l 9 \
+            -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
+            -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
 
 .b/resource.chr.dat .b/resource.palette.dat: \
             .b/chars.chr.dat .b/merged_1_to_9.chr.dat .b/bg_pal.dat

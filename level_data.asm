@@ -61,6 +61,10 @@ ClearLoop:
 ;LevelLoadInit
 .proc LevelLoadInit
   lda which_level
+  cmp #1
+  beq Load1
+  cmp #2
+  beq Load2
   cmp #9
   beq Load9
 
@@ -73,6 +77,17 @@ Load1:
   mov level_has_entrance_door, level1_meta+0
   mov level_has_infinite_flies, level1_meta+1
   mov level_player_start_v, level1_meta+2
+  rts
+
+Load2:
+  MovWord level_data_pointer, level2_data
+  MovWord level_chunk_pointer, level2_chunk
+  MovWord level_spawn_pointer, level2_spawn
+  MovWord level_table_of_contents_pointer, level2_table_of_contents
+  mov level_max_screen, level2_last_screen
+  mov level_has_entrance_door, level2_meta+0
+  mov level_has_infinite_flies, level2_meta+1
+  mov level_player_start_v, level2_meta+2
   rts
 
 Load9:
@@ -450,6 +465,11 @@ level1_meta:
 .byte $80, 0
 .byte $b8
 .include ".b/level1_data.asm"
+
+level2_meta:
+.byte 0, 0
+.byte $a8
+.include ".b/level2_data.asm"
 
 level9_meta:
 .byte 0, $80
