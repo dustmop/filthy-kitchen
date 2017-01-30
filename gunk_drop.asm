@@ -26,9 +26,9 @@ gunk_drop_speed     = object_data_extend + $20
 gunk_drop_speed_low = object_data_extend + $30
 
 
-GUNK_DROP_0_TILE = $8f
-GUNK_DROP_1_TILE = $91
-GUNK_DROP_2_TILE = $93
+GUNK_DROP_0_TILE = $91
+GUNK_DROP_1_TILE = $93
+GUNK_DROP_2_TILE = $95
 GUNK_DROP_FORM_LIMIT = 10
 
 

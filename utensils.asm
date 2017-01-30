@@ -19,8 +19,8 @@
 .import object_data_extend
 
 
-UTENSILS_TILE_LEFT = $8b
-UTENSILS_TILE_RIGHT = $8d
+UTENSILS_TILE_LEFT = $8d
+UTENSILS_TILE_RIGHT = $8f
 
 
 .segment "CODE"

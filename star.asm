@@ -153,7 +153,7 @@ Success:
 .endproc
 
 
-STAR_ANIMATE_0 = $a9
+STAR_ANIMATE_0 = $ab
 STAR_ANIMATE_1 = STAR_ANIMATE_0 + 2
 STAR_ANIMATE_2 = STAR_ANIMATE_0 + 4
 
@@ -162,3 +162,4 @@ star_animation_sequence:
 .byte STAR_ANIMATE_0
 .byte STAR_ANIMATE_1
 .byte STAR_ANIMATE_2
+.byte STAR_ANIMATE_1
