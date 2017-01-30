@@ -397,8 +397,10 @@ Return:
   lda player_screen
   bne Next
   lda player_h
-  cmp #$e0
+  cmp #$d0
   blt Next
+  cmp #$f8
+  bge Next
   mov draw_attr, #$20
 Next:
 .endscope
