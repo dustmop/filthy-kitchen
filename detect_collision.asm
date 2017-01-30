@@ -53,7 +53,7 @@ debug_04_collide = $604 ; Byte at the collison map
   ; (Y + 0x18) / 16 * 16 = row of collision_map
   lda pos_v
   clc
-  adc #$18
+  adc #$1e
   and #$f0
   sta row
   sta debug_00_row
