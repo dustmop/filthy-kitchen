@@ -4,6 +4,7 @@
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
 .include "intro_outro.h.asm"
+.include "marque.h.asm"
 .include "gfx.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
@@ -27,7 +28,7 @@
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed, lives
-.importzp level_complete, objects_only_draw
+.importzp level_complete, which_level, objects_only_draw
 .import gameplay_palette, graphics0, graphics1
 
 
@@ -65,6 +66,8 @@ GameplayMain:
   jsr MsgRender
   ldx #MSG_ZERO_COMBO
   jsr MsgRender
+
+  mov objects_only_draw, #0
 
   jsr ObjectListInit
   jsr SpriteSpaceInit
@@ -183,7 +186,8 @@ EngineReady:
 
 GameplayExit:
   jsr DisableDisplayAndNmi
-  jmp GameplayExit
+  inc which_level
+  jmp MarqueScreen
 
 
 GameplayGameOverExit:
