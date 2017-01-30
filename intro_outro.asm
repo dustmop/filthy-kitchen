@@ -8,6 +8,7 @@
 .include "general_mapper.h.asm"
 .include "read_controller.h.asm"
 .include "gameplay.h.asm"
+.include "marque.h.asm"
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
@@ -74,10 +75,10 @@ TransitionFast:
   bne Level9
 Level2:
   mov which_level, #2
-  jmp ExitIntroScreen
+  jmp ExitFast
 Level9:
   mov which_level, #9
-  jmp ExitIntroScreen
+  jmp ExitFast
 
 TransitionOut:
   jsr FamiToneMusicStop
@@ -97,6 +98,11 @@ OuterLoop:
   jsr FamiToneUpdate
 
 ExitIntroScreen:
+  jsr DisableDisplayAndNmi
+  mov which_level, #1
+  jmp MarqueScreen
+
+ExitFast:
   jsr DisableDisplayAndNmi
   mov lives, #3
   jmp GameplayMain

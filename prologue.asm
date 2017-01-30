@@ -23,6 +23,7 @@ MAPPER_NUMBER = 4
 .export gameplay_palette
 .export title_palette, title_graphics
 .export game_over_palette, game_over_graphics
+.export text_palette
 
 gameplay_palette:
 .incbin ".b/bg_pal.dat"
@@ -33,6 +34,10 @@ game_over_palette:
 .incbin ".b/title.palette.dat"
 ; TODO: Title's sprites palette.
 .incbin ".b/title.palette.dat"
+
+text_palette:
+.incbin ".b/text_pal.dat"
+.incbin ".b/sprite_pal.dat"
 
 title_graphics:
 .include ".b/title.compressed.asm"

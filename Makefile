@@ -10,6 +10,7 @@ SRC = gfx.asm \
       general_mmc3.asm \
       boot.asm \
       intro_outro.asm \
+      marque.asm \
       gameplay.asm \
       player.asm \
       detect_collision.asm \
@@ -48,7 +49,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	ca65 -o $@ $< -g
 
 .b/prologue.o: prologue.asm .b/resource.chr.dat .b/title.chr.dat \
-            .b/bg_pal.dat .b/sprite_pal.dat \
+            .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
 	ca65 -o .b/prologue.o prologue.asm -g
@@ -110,13 +111,14 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
 
 .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat .b/game_over.graphics.dat: \
-            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/alpha.o .b/digit.o .b/title_pal.o
+            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/alpha.o .b/digit.o .b/punc.o .b/title_pal.o
 	mkdir -p .b/
 	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
 	makechr .b/game_over_nomsg.png -o .b/game_over.o -p .b/title_pal.o
 	python merge_chr_nt.py .b/title.o .b/game_over.o \
             -A .b/alpha.o \
             -D .b/digit.o \
+            -P .b/punc.o \
             -c .b/title.chr.dat -p .b/title.palette.dat \
             -n .b/built%d.nametable.dat -a .b/built%d.attribute.dat
 	cat .b/built00.nametable.dat .b/built00.attribute.dat > \
@@ -136,6 +138,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr digit.png -o .b/digit.o -b 0f
 
+.b/punc.o: punc.png
+	mkdir -p .b/
+	makechr punc.png -o .b/punc.o -b 0f
+
 .b/bg_pal.o .b/bg_pal.dat: bg_pal.png
 	makechr --makepal bg_pal.png -o .b/bg_pal.o
 	makechr --makepal bg_pal.png -o .b/bg_pal.dat
@@ -146,6 +152,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/title_pal.o: title_pal.png
 	makechr --makepal title_pal.png -o .b/title_pal.o
+
+.b/text_pal.o .b/text_pal.dat: text_pal.png
+	makechr --makepal text_pal.png -o .b/text_pal.o
+	makechr --makepal text_pal.png -o .b/text_pal.dat
 
 .b/level1_data.asm .b/merged_1.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
             build_level.py .b/hud.o bg1.png meta1.png .b/bg_pal.o \

@@ -122,9 +122,11 @@ def insert_pad(data, padding):
   return make
 
 
-def merge_objects(input_files, alpha_obj, digit_obj, out_chr_name,
+def merge_objects(input_files, alpha_obj, digit_obj, punc_obj, out_chr_name,
                   out_palette_name, out_nt_tmpl, out_attr_tmpl):
   padding = []
+  if punc_obj:
+    padding.append([0x20,  2])
   if digit_obj:
     padding.append([0x30, 10])
   if alpha_obj:
@@ -155,6 +157,8 @@ def merge_objects(input_files, alpha_obj, digit_obj, out_chr_name,
     save_output(fill_template(out_nt_tmpl, i), insert_pad(nametable, padding))
     save_output(fill_template(out_attr_tmpl, i), attribute)
   data = combined_chr_page.to_bytes()
+  if punc_obj:
+    data = data[:0x200] + get_bytes(punc_obj, 'chr')[:0x20] + data[0x200:]
   if digit_obj:
     data = data[:0x300] + get_bytes(digit_obj, 'chr')[:0xa0] + data[0x300:]
   if alpha_obj:
@@ -177,11 +181,12 @@ def parse_object_file(filename):
   return obj
 
 
-def process(input_files, alpha_input_file, digits_input_file, out_chr_name,
-            out_palette_name, out_nt_tmpl, out_attr_tmpl):
+def process(input_files, alpha_input_file, digits_input_file, punc_input_file,
+            out_chr_name, out_palette_name, out_nt_tmpl, out_attr_tmpl):
   alpha_obj = parse_object_file(alpha_input_file)
   digit_obj = parse_object_file(digits_input_file)
-  merge_objects(input_files, alpha_obj, digit_obj, out_chr_name,
+  punc_obj = parse_object_file(punc_input_file)
+  merge_objects(input_files, alpha_obj, digit_obj, punc_obj, out_chr_name,
                 out_palette_name, out_nt_tmpl, out_attr_tmpl)
 
 
@@ -194,9 +199,10 @@ def run():
   parser.add_argument('-a', dest='attribute')
   parser.add_argument('-A', dest='alpha')
   parser.add_argument('-D', dest='digits')
+  parser.add_argument('-P', dest='punc')
   args = parser.parse_args()
-  process(args.input, args.alpha, args.digits, args.chr, args.palette,
-          args.nametable, args.attribute)
+  process(args.input, args.alpha, args.digits, args.punc, args.chr,
+          args.palette, args.nametable, args.attribute)
 
 
 if __name__ == '__main__':
