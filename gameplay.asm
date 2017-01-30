@@ -6,6 +6,7 @@
 .include "intro_outro.h.asm"
 .include "marque.h.asm"
 .include "gfx.h.asm"
+.include "fader.h.asm"
 .include "read_controller.h.asm"
 .include "player.h.asm"
 .include "camera.h.asm"
@@ -38,9 +39,9 @@
 GameplayMain:
 .scope GameplayMain
   ; Load palette, which is defined in the prologue.
-  ldx #<gameplay_palette
-  ldy #>gameplay_palette
-  jsr LoadPalette
+  ;ldx #<gameplay_palette
+  ;ldy #>gameplay_palette
+  ;jsr LoadPalette
 
   ; Load chr-ram from prg bank 0.
   lda #0
@@ -85,12 +86,20 @@ GameplayMain:
   jsr HudSplitAssign
   jsr RenderScore
 
-  jsr EnableNmiThenWaitNewFrameThenEnableDisplay
+  ; Display sprites.
+  jsr CameraUpdate
+  jsr HudElemsPut
+  jsr PlayerDraw
 
+FadeInFromBlack:
+  jsr FadeSetFullBlack
+  jsr EnableNmiThenWaitNewFrameThenEnableDisplay
+  ; TODO: Annoyingly, the above call clobbers the ppu_ctrl values.
   lda ppu_ctrl_current
   ora #PPU_CTRL_SPRITE_8x16
   sta ppu_ctrl_current
   sta PPU_CTRL
+  jsr FadeIn
 
 GameplayLoop:
   jsr WaitNewFrame

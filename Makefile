@@ -11,6 +11,7 @@ SRC = gfx.asm \
       boot.asm \
       intro_outro.asm \
       marque.asm \
+      fader.asm \
       gameplay.asm \
       player.asm \
       detect_collision.asm \
@@ -68,6 +69,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/fly.o: fly.asm .b/trig.h.asm
 	ca65 -o .b/fly.o fly.asm -g
+
+.b/fader.o: fader.asm .b/fader_pal.dat
+	ca65 -o .b/fader.o fader.asm -g
 
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
 	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
@@ -149,6 +153,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/sprite_pal.o .b/sprite_pal.dat: sprite_pal.png
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
+
+.b/fader_pal.dat: bg_pal.png sprite_pal.png bg_fade_1.png sprite_fade_1.png bg_fade_2.png sprite_fade_2.png
+	makechr --makepal bg_pal.png -o .b/bg_pal.dat
+	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
+	makechr --makepal bg_fade_1.png -o .b/bg_fade_1.dat
+	makechr --makepal sprite_fade_1.png -o .b/sprite_fade_1.dat
+	makechr --makepal bg_fade_2.png -o .b/bg_fade_2.dat
+	makechr --makepal sprite_fade_2.png -o .b/sprite_fade_2.dat
+	cat .b/bg_pal.dat .b/sprite_pal.dat \
+            .b/bg_fade_1.dat .b/sprite_fade_1.dat \
+            .b/bg_fade_2.dat .b/sprite_fade_2.dat > .b/fader_pal.dat
 
 .b/title_pal.o: title_pal.png
 	makechr --makepal title_pal.png -o .b/title_pal.o
