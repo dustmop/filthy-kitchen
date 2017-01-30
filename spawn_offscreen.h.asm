@@ -1,2 +1,3 @@
 .import SpawnOffscreenInit
 .import SpawnOffscreenUpdate
+.import SpawnOffscreenFillEntireScreen

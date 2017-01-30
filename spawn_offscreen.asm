@@ -1,5 +1,6 @@
 .export SpawnOffscreenInit
 .export SpawnOffscreenUpdate
+.export SpawnOffscreenFillEntireScreen
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -29,6 +30,22 @@ Loop:
   inx
   cpx #$40
   bne Loop
+  rts
+.endproc
+
+
+.proc SpawnOffscreenFillEntireScreen
+  mov camera_h, #$10
+  mov camera_screen, #$ff
+Loop:
+  jsr SpawnOffscreenToRight
+  lda camera_h
+  clc
+  adc #$10
+  sta camera_h
+  bne Loop
+  mov camera_h, #$00
+  mov camera_screen, _
   rts
 .endproc
 

@@ -66,16 +66,18 @@ GameplayMain:
   ldx #MSG_ZERO_COMBO
   jsr MsgRender
 
+  jsr ObjectListInit
+  jsr SpriteSpaceInit
+  jsr SpawnOffscreenInit
+
   jsr LevelLoadInit
   jsr LevelDataFillEntireScreen
+  jsr SpawnOffscreenFillEntireScreen
   jsr HealthSetMax
 
   jsr RandomSeedInit
   jsr PlayerInit
   jsr CameraInit
-  jsr ObjectListInit
-  jsr SpriteSpaceInit
-  jsr SpawnOffscreenInit
 
   jsr HudSplitAssign
   jsr RenderScore
