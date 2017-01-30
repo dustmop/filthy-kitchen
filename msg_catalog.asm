@@ -3,6 +3,8 @@
 .exportzp MSG_ZERO_SCORE, MSG_ZERO_COMBO, MSG_PRESS, MSG_START
 .exportzp MSG_THE_KITCHEN_IS_FILTHY
 .exportzp MSG_FIND_THE_BROOM
+.exportzp MSG_KILL_ALL_THE_FLIES
+.exportzp MSG_WATCH_OUT_FOR_DANGER
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -30,6 +32,9 @@ MSG_START      = <(msg_start - msg_catalog)
 
 MSG_THE_KITCHEN_IS_FILTHY = <( msg_the_kitchen_is_filthy - msg_catalog )
 MSG_FIND_THE_BROOM        = <( msg_find_the_broom - msg_catalog )
+
+MSG_KILL_ALL_THE_FLIES   = <( msg_kill_all_the_flies - msg_catalog )
+MSG_WATCH_OUT_FOR_DANGER = <( msg_watch_out_for_danger - msg_catalog )
 
 
 ; X @in  Identifier for the message.
@@ -69,3 +74,12 @@ MsgPosition 13, 5
 msg_find_the_broom:
 MsgPosition 15, 9
 .byte 14,"FIND THE BROOM"
+
+msg_kill_all_the_flies:
+MsgPosition 13, 6
+.byte 19,"KILL ALL THE FLIES!"
+
+msg_watch_out_for_danger:
+MsgPosition 15, 6
+.byte 20,"WATCH OUT FOR DANGER"
+

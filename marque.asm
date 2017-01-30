@@ -32,10 +32,26 @@ inner = values + 5
 
   jsr ClearBothNametables
 
+  lda which_level
+  cmp #1
+  beq Level1
+  jmp Level2
+
+Level1:
   ldx #MSG_THE_KITCHEN_IS_FILTHY
   jsr MsgRender
   ldx #MSG_FIND_THE_BROOM
   jsr MsgRender
+  jmp LevelDone
+
+Level2:
+  ldx #MSG_KILL_ALL_THE_FLIES
+  jsr MsgRender
+  ldx #MSG_WATCH_OUT_FOR_DANGER
+  jsr MsgRender
+  jmp LevelDone
+
+LevelDone:
 
   ; Load chr-ram from prg bank 1.
   lda #1
