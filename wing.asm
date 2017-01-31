@@ -23,7 +23,7 @@ wing_attr = object_data_extend + $00
 
 
 .proc WingConstructor
-  lda wing_attr,y
+  lda wing_attr_table,y
   sta wing_attr,x
   mov {object_life,x}, #$f0
   rts
@@ -48,6 +48,12 @@ wing_attr = object_data_extend + $00
   sta draw_tile
   lda wing_attr,x
   sta draw_attr
+
+  ; If horizontal flip is set, change the horizontal offset.
+  and #$40
+  beq :+
+  mov offset_h, #8
+:
 
   lda object_life,x
   cmp #$d0
@@ -97,8 +103,11 @@ Return:
 .endproc
 
 
-wing_attr:
-.byte $00 ; up
+wing_attr_table:
+.byte $40
+.byte $20
+.byte $60
+.byte $00
 
 wing_animation:
 .byte $78

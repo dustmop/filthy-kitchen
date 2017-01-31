@@ -6,6 +6,7 @@
 .include "gfx.h.asm"
 .include "general_mapper.h.asm"
 .include "read_controller.h.asm"
+.include "sprite_space.h.asm"
 .include "gameplay.h.asm"
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
@@ -30,6 +31,7 @@ inner = values + 5
   ldy #>text_palette
   jsr LoadPalette
 
+  jsr SpriteSpaceEraseAllAndSpriteZero
   jsr ClearBothNametables
 
   lda which_level

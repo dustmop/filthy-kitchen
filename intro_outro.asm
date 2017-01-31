@@ -50,13 +50,7 @@ wings_frame = values + 6
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
-  jsr ObjectListInit
-  jsr ObjectAllocate
-  mov {object_kind,x}, #OBJECT_KIND_WING
-  mov {object_v,x}, #$9c
-  mov {object_h,x}, #$dd
-  ldy #0
-  jsr ObjectConstructor
+  jsr CreateFlyWings
 
   ; Play a song.
   ;lda #0
@@ -196,5 +190,40 @@ OutroLoop:
   and #($ff & ~PPU_CTRL_SPRITE_8x16)
   sta ppu_ctrl_current
   sta PPU_CTRL
+  rts
+.endproc
+
+
+.proc CreateFlyWings
+  jsr ObjectListInit
+
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_WING
+  mov {object_v,x}, #$9c
+  mov {object_h,x}, #$13
+  ldy #0
+  jsr ObjectConstructor
+
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_WING
+  mov {object_v,x}, #$9c
+  mov {object_h,x}, #$24
+  ldy #1
+  jsr ObjectConstructor
+
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_WING
+  mov {object_v,x}, #$9c
+  mov {object_h,x}, #$cc
+  ldy #2
+  jsr ObjectConstructor
+
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_WING
+  mov {object_v,x}, #$9c
+  mov {object_h,x}, #$dd
+  ldy #3
+  jsr ObjectConstructor
+
   rts
 .endproc

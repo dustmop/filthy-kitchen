@@ -2,6 +2,7 @@
 .export SpriteSpaceNext
 .export SpriteSpaceAllocate
 .export SpriteSpaceEraseAll
+.export SpriteSpaceEraseAllAndSpriteZero
 .export SpriteSpaceEnsure
 .export SpriteSpaceSetLowPriority
 .export SpriteSpaceRelax
@@ -155,4 +156,16 @@ StartAfterZero:
   dey
   bne Loop
   rts
+.endproc
+
+
+.proc SpriteSpaceEraseSpriteZero
+  mov sprite_v, #$ff
+  rts
+.endproc
+
+
+.proc SpriteSpaceEraseAllAndSpriteZero
+  jsr SpriteSpaceEraseAll
+  jmp SpriteSpaceEraseSpriteZero
 .endproc
