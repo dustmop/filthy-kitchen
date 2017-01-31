@@ -92,6 +92,7 @@ def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('input')
   parser.add_argument('-o', dest='output')
+  parser.add_argument('-n', dest='no_null', action='store_true')
   args = parser.parse_args()
   fp = open(args.input, 'r')
   content = fp.read()
@@ -108,7 +109,8 @@ def run():
       fout.write('.byte $%02x\n' % (0x00 | size))
     fout.write('.byte %s\n' % ','.join('$%02x' % b for b in data))
     fout.write('\n')
-  fout.write('.byte $00\n')
+  if not args.no_null:
+    fout.write('.byte $00\n')
   fout.close()
 
 

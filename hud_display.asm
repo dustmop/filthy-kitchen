@@ -12,16 +12,16 @@
 .include "gfx.h.asm"
 .include "msg_catalog.h.asm"
 
-SPRITE_0_TILE = $07
+SPRITE_0_TILE = $b1
 
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
 
 .segment "CODE"
 
 .proc HudSplitAssign
-  mov $200, #$21
+  mov $200, #$22
   mov $201, #SPRITE_0_TILE
-  mov $202, #$60
+  mov $202, #$20
   mov $203, #$76
   rts
 .endproc

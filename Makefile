@@ -114,11 +114,16 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud.compressed.asm
 
 .b/boss.compressed.asm: graphics_compress.py .b/boss.graphics.dat
+	tail -c 256 .b/boss.graphics.dat > .b/boss.floor.dat
 	tail -c 832 .b/boss.graphics.dat > .b/boss.main.dat
+	python graphics_compress.py .b/boss.floor.dat \
+            -o .b/boss.compressed-floor.asm -n
 	python graphics_compress.py .b/boss.main.dat \
-            -o .b/boss.compress-no-header.asm
-	printf ".byte \04480,\04420,\044c0\n\n" > .b/boss.compressed.asm
-	cat .b/boss.compress-no-header.asm >> .b/boss.compressed.asm
+            -o .b/boss.compressed-main.asm
+	printf ".byte \04480,\04423,\04400\n\n" > .b/boss.compressed.asm
+	cat .b/boss.compressed-floor.asm >> .b/boss.compressed.asm
+	printf ".byte \04480,\04424,\044c0\n\n" >> .b/boss.compressed.asm
+	cat .b/boss.compressed-main.asm >> .b/boss.compressed.asm
 
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
