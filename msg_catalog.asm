@@ -1,10 +1,12 @@
 .export MsgRender
 .exportzp MSG_HEALTH, MSG_LIVES, MSG_SCORE, MSG_COMBO
 .exportzp MSG_ZERO_SCORE, MSG_ZERO_COMBO, MSG_PRESS, MSG_START
-.exportzp MSG_THE_KITCHEN_IS_FILTHY
+.exportzp MSG_THE_KITCHEN_IS
 .exportzp MSG_FIND_THE_BROOM
+.exportzp MSG_AND_CLEAN_IT_UP
 .exportzp MSG_KILL_ALL_THE_FLIES
-.exportzp MSG_WATCH_OUT_FOR_DANGER
+.exportzp MSG_WATCH_OUT_FOR
+.exportzp MSG_AND_APPLIANCES
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -30,11 +32,13 @@ MSG_ZERO_COMBO = <(msg_000 - msg_catalog)
 MSG_PRESS      = <(msg_press - msg_catalog)
 MSG_START      = <(msg_start - msg_catalog)
 
-MSG_THE_KITCHEN_IS_FILTHY = <( msg_the_kitchen_is_filthy - msg_catalog )
-MSG_FIND_THE_BROOM        = <( msg_find_the_broom - msg_catalog )
+MSG_THE_KITCHEN_IS = <( msg_the_kitchen_is_so_dirty - msg_catalog )
+MSG_FIND_THE_BROOM = <( msg_find_the_broom - msg_catalog )
+MSG_AND_CLEAN_IT_UP = <( msg_and_clean_it_up - msg_catalog )
 
-MSG_KILL_ALL_THE_FLIES   = <( msg_kill_all_the_flies - msg_catalog )
-MSG_WATCH_OUT_FOR_DANGER = <( msg_watch_out_for_danger - msg_catalog )
+MSG_KILL_ALL_THE_FLIES = <( msg_kill_all_the_flies - msg_catalog )
+MSG_WATCH_OUT_FOR      = <( msg_watch_out_for_utensils - msg_catalog )
+MSG_AND_APPLIANCES     = <( msg_and_appliances - msg_catalog )
 
 
 ; X @in  Identifier for the message.
@@ -67,19 +71,26 @@ msg_catalog:
 .include ".b/hud_msg.asm"
 .include ".b/title_msg.asm"
 
-msg_the_kitchen_is_filthy:
-MsgPosition 13, 5
-.byte 22,"THE KITCHEN IS FILTHY!"
+msg_the_kitchen_is_so_dirty:
+MsgPosition 12, 4
+.byte 24,"THE KITCHEN IS SO DIRTY!"
 
 msg_find_the_broom:
-MsgPosition 15, 9
+MsgPosition 14, 9
 .byte 14,"FIND THE BROOM"
 
+msg_and_clean_it_up:
+MsgPosition 16, 8
+.byte 16,"AND CLEAN IT UP!"
+
 msg_kill_all_the_flies:
-MsgPosition 13, 6
+MsgPosition 12, 7
 .byte 19,"KILL ALL THE FLIES!"
 
-msg_watch_out_for_danger:
-MsgPosition 15, 6
-.byte 20,"WATCH OUT FOR DANGER"
+msg_watch_out_for_utensils:
+MsgPosition 14, 5
+.byte 22,"WATCH OUT FOR UTENSILS"
 
+msg_and_appliances:
+MsgPosition 16, 9
+.byte 14,"AND APPLIANCES"

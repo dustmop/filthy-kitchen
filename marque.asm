@@ -41,16 +41,20 @@ inner = values + 5
   jmp Level2
 
 Level1:
-  ldx #MSG_THE_KITCHEN_IS_FILTHY
+  ldx #MSG_THE_KITCHEN_IS
   jsr MsgRender
   ldx #MSG_FIND_THE_BROOM
+  jsr MsgRender
+  ldx #MSG_AND_CLEAN_IT_UP
   jsr MsgRender
   jmp LevelDone
 
 Level2:
   ldx #MSG_KILL_ALL_THE_FLIES
   jsr MsgRender
-  ldx #MSG_WATCH_OUT_FOR_DANGER
+  ldx #MSG_WATCH_OUT_FOR
+  jsr MsgRender
+  ldx #MSG_AND_APPLIANCES
   jsr MsgRender
   jmp LevelDone
 
