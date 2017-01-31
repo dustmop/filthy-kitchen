@@ -24,6 +24,7 @@
 .include "gunk_drop.h.asm"
 .include "star.h.asm"
 .include "wing.h.asm"
+.include "toaster.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -63,6 +64,7 @@ OBJECT_KIND_BROOM      = $07
 OBJECT_KIND_GUNK_DROP  = $08
 OBJECT_KIND_STAR       = $09
 OBJECT_KIND_WING       = $0a
+OBJECT_KIND_TOASTER    = $0b
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -426,6 +428,8 @@ Failure:
   beq Star
   cmp #OBJECT_KIND_WING
   beq Wing
+  cmp #OBJECT_KIND_TOASTER
+  beq Toaster
   rts
 Fly:
   jsr FlyConstructor
@@ -444,6 +448,9 @@ Star:
   rts
 Wing:
   jsr WingConstructor
+  rts
+Toaster:
+  jsr ToasterConstructor
   rts
 .endproc
 
@@ -478,21 +485,27 @@ Done:
 
 
 ;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM, GUNK_DROP, STAR
+;   WING, TOASTER
 
 table_object_num_frames:
 .byte   8,  3,       3,      1,    8,     1,        1,     8,         1,    4
+.byte $80,      6
 
 table_object_animate_limit:
 .byte   2,  3,       6,      1,    4,     1,        1,     4,         1,    4
+.byte $80,      4
 
 kind_offset_h:
 .byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4,  $80
+.byte $80,      0
 
 kind_bigger_h:
 .byte   0,  0,     $80,    $80,    8,     4,        0,     0,         3,  $80
+.byte $80,      2
 
 kind_bigger_v:
 .byte   0,  0,     $80,    $80,    2,     0,        0,    30,         3,  $80
+.byte $80,      8
 
 execute_table:
 .word SwatterExecute-1
@@ -506,3 +519,4 @@ execute_table:
 .word GunkDropExecute-1
 .word StarExecute-1
 .word WingExecute-1
+.word ToasterExecute-1

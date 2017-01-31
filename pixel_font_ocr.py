@@ -15,6 +15,14 @@ def lookup_char(rows):
     return '6'
   elif rows == [[1, 1, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]:
     return '7'
+  elif rows == [[1, 1, 1], [1, 0, 1], [1, 1, 1], [1, 0, 1], [1, 1, 1]]:
+    return '8'
+  elif rows == [[1, 1, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [1, 1, 1]]:
+    return '9'
+  elif rows == [[1, 1, 1], [1, 0, 1], [1, 1, 1], [1, 0, 1], [1, 0, 1]]:
+    return 'A'
+  elif rows == [[1, 1, 1], [1, 0, 1], [1, 1, 0], [1, 0, 1], [1, 1, 1]]:
+    return 'B'
   else:
     print rows
     raise NotImplementedError()
