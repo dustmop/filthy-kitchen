@@ -32,8 +32,10 @@ gameplay_palette:
 title_palette:
 game_over_palette:
 .incbin ".b/title.palette.dat"
-; TODO: Title's sprites palette.
-.incbin ".b/title.palette.dat"
+.byte $11,$30,$10,$00
+.byte $11,$0f,$0f,$0f
+.byte $11,$0f,$0f,$0f
+.byte $11,$0f,$0f,$0f
 
 text_palette:
 .incbin ".b/text_pal.dat"
@@ -63,7 +65,7 @@ chr_data:
 .segment "CHRDATA1"
 .export title_chr_data
 title_chr_data:
-.incbin ".b/title.chr.dat"
+.incbin ".b/resource1.chr.dat"
 
 .segment "CHRDATA2"
 .export boss_chr_data

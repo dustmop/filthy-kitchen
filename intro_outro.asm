@@ -24,6 +24,7 @@
 
 outer = values + 4
 inner = values + 5
+wings_frame = values + 6
 
 .segment "CODE"
 
@@ -52,10 +53,12 @@ inner = values + 5
   ;jsr FamiToneMusicPlay
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
+  jsr Disable8x16
 
 IntroLoop:
   jsr WaitNewFrame
   jsr FamiToneUpdate
+  jsr DrawWings
   jsr ReadController
   ; Start to exit normally.
   lda buttons_press
@@ -172,3 +175,57 @@ OutroLoop:
   jsr FamiToneUpdate
   jmp OutroLoop
 .endproc
+
+
+.proc DrawWings
+  inc wings_frame
+  lda wings_frame
+  and #$07
+  sta wings_frame
+  and #$06
+  tay
+  ;
+  lda wing_animation+0,y
+  tax
+  lda wing_animation+1,y
+  tay
+  jsr LoadSpritelist
+  rts
+.endproc
+
+
+.proc Disable8x16
+  lda ppu_ctrl_current
+  and #($ff & ~PPU_CTRL_SPRITE_8x16)
+  sta ppu_ctrl_current
+  sta PPU_CTRL
+  rts
+.endproc
+
+
+wing_animation:
+.word wings_up
+.word wings_middle
+.word wings_down
+.word wings_middle
+
+wings_up:
+.byte $9c  ,$78,$00,$dd
+.byte $9c  ,$79,$00,$dd+8
+.byte $9c+8,$7e,$00,$dd
+.byte $9c+8,$7f,$00,$dd+8
+.byte $ff
+
+wings_middle:
+.byte $9c  ,$7a,$00,$dd
+.byte $9c  ,$7b,$00,$dd+8
+.byte $9c+8,$80,$00,$dd
+.byte $9c+8,$81,$00,$dd+8
+.byte $ff
+
+wings_down:
+.byte $9c  ,$7c,$00,$dd
+.byte $9c  ,$7d,$00,$dd+8
+.byte $9c+8,$82,$00,$dd
+.byte $9c+8,$83,$00,$dd+8
+.byte $ff

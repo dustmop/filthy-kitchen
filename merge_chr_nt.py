@@ -34,6 +34,8 @@ def get_bytes(obj, kind, expand=False):
     if packet.role == role:
       binary = packet.binary
       break
+  else:
+    return bytearray()
   data = binary.bin
   if expand:
     if binary.pre_pad:

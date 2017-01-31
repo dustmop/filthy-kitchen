@@ -50,8 +50,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python lint_objects.py $<
 	ca65 -o $@ $< -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat .b/resource2.chr.dat \
-            .b/title.chr.dat \
+.b/prologue.o: prologue.asm .b/resource.chr.dat \
+            .b/resource1.chr.dat \
+            .b/resource2.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
@@ -91,6 +92,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr chars.png -o .b/chars.%s.dat -s -b 34=0f -t 8x16 \
             --allow-overflow s
 
+.b/title_chars.o: title_chars.png
+	mkdir -p .b/
+	makechr title_chars.png -o .b/title_chars.o -s -l
+
 .b/title.compressed.asm: graphics_compress.py .b/title.graphics.dat
 	python graphics_compress.py .b/title.graphics.dat \
             -o .b/title.compressed.asm
@@ -124,11 +129,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
 
 .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat .b/game_over.graphics.dat: \
-            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/alpha.o .b/digit.o .b/punc.o .b/title_pal.o
+            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/title_chars.o .b/alpha.o .b/digit.o .b/punc.o .b/title_pal.o
 	mkdir -p .b/
 	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
 	makechr .b/game_over_nomsg.png -o .b/game_over.o -p .b/title_pal.o
-	python merge_chr_nt.py .b/title.o .b/game_over.o \
+	python merge_chr_nt.py .b/title.o .b/game_over.o .b/title_chars.o \
             -A .b/alpha.o \
             -D .b/digit.o \
             -P .b/punc.o \
@@ -204,6 +209,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_level.py -b bg9.png -m meta9.png -l 9 \
             -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
             -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
+
+.b/resource1.chr.dat: .b/title.chr.dat
+	head -c 4096 .b/title.chr.dat > .b/resource1.chr.dat
+	head -c 4096 .b/title.chr.dat >> .b/resource1.chr.dat
 
 .b/resource2.chr.dat .b/boss.graphics.dat .b/boss.palette.dat: \
             .b/chars.chr.dat .b/hud.o .b/boss.o .b/alpha.o .b/digit.o
