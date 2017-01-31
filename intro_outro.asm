@@ -53,8 +53,8 @@ wings_frame = values + 6
   jsr CreateFlyWings
 
   ; Play a song.
-  ;lda #0
-  ;jsr FamiToneMusicPlay
+  lda #0
+  jsr FamiToneMusicPlay
 
   jsr SpriteSpaceInit
 

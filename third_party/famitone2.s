@@ -26,7 +26,7 @@ FT_PITCH_FIX = (FT_PAL_SUPPORT|FT_NTSC_SUPPORT)			;add PAL/NTSC pitch correction
 	.endif
 	.endif
 
-FT_DPCM_PTR		= (FT_DPCM_OFF&$3fff)>>6
+FT_DPCM_PTR		= <((FT_DPCM_OFF&$3fff)>>6)
 
 
 ;zero page variables

@@ -8,9 +8,11 @@
 .export FamiToneSamplePlay
 .export music_data
 
+.import music_samples
+
 FT_BASE_ADR = $0100
 FT_TEMP = $fd
-FT_DPCM_OFF = $c000
+FT_DPCM_OFF = music_samples
 FT_SFX_STREAMS = 4
 FT_THREAD = 1
 

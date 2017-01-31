@@ -42,7 +42,8 @@ SRC = gfx.asm \
       health.asm \
       msg_catalog.asm \
       flash.asm \
-      famitone.asm
+      famitone.asm \
+      samples.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
@@ -83,10 +84,13 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
 	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
 
-.b/famitone.o: famitone.asm music.ftm third_party/famitone2.s
+.b/famitone.o .b/music.dmc: famitone.asm music.ftm third_party/famitone2.s
 	famitracker music.ftm -export .b/music.txt
 	text2data -ca65 .b/music.txt
 	ca65 -o .b/famitone.o famitone.asm
+
+.b/samples.o: samples.asm .b/music.dmc
+	ca65 -o .b/samples.o samples.asm -g
 
 .b/chars.chr.dat: chars.png
 	mkdir -p .b/
