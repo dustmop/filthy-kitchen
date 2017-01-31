@@ -1,5 +1,7 @@
 default: mmc3
 
+all: a53 mmc3
+
 a53: filthy-kitchen.nes
 
 mmc3: filthy-kitchen-mmc3.nes
