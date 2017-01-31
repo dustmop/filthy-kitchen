@@ -40,7 +40,7 @@ toaster_in_air   = object_data_extend + $30
 
 .scope CountDown
   lda object_life,x
-  cmp #$a0
+  cmp #$b0
   bge Next
   ; Jump the toaster.
   mov {object_life,x}, #$f0
@@ -60,7 +60,7 @@ Next:
   sta object_v,x
   lda toaster_jump_low,x
   clc
-  adc #$30
+  adc #$40
   sta toaster_jump_low,x
   lda toaster_jump,x
   adc #0
