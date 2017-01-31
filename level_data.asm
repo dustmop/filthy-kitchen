@@ -171,9 +171,6 @@ Loop:
 
 ;LevelDataUpdateScroll
 .proc LevelDataUpdateScroll
-  lda NMI_SCROLL_target
-  cmp #$f0
-  bge Return
   ; If no action, exit.
   lda NMI_SCROLL_action
   beq Return

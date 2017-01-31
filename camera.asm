@@ -123,6 +123,12 @@ GotMoving:
   clc
   adc level_bit
   tay
+  cpy #$f0
+  blt Continue
+Failure:
+  mov NMI_SCROLL_action, #$00
+  bpl Next
+Continue:
   ldx action_num
   stx NMI_SCROLL_action
   jsr LevelDataGetStripId
