@@ -134,6 +134,7 @@ IncLoop:
 RepeatSequence:
   iny
   and #$3f
+  beq SetPpuAddrSequence
   tax
   clc
   adc decompress_count
@@ -144,6 +145,14 @@ RepeatLoop:
   sta PPU_DATA
   dex
   bne RepeatLoop
+  beq OuterNext
+SetPpuAddrSequence:
+  lda (pointer),y
+  iny
+  sta PPU_ADDR
+  lda (pointer),y
+  iny
+  sta PPU_ADDR
 OuterNext:
   sty next
   lda pointer+0

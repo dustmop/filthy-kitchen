@@ -1,5 +1,6 @@
 .export FadeSetFullBlack
-.export FadeIn
+.export FadeInGameplay
+.export FadeInBoss
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -11,6 +12,7 @@
 .importzp values
 offset = values + $00
 count = values + $01
+outer = values + $02
 
 FADE_TIME_NUM_FRAMES = 6
 
@@ -33,8 +35,20 @@ Loop:
 .endproc
 
 
-.proc FadeIn
+.proc FadeInGameplay
   mov offset, #$40
+  jmp FadeIn
+.endproc
+
+
+.proc FadeInBoss
+  mov offset, #$a0
+  jmp FadeIn
+.endproc
+
+
+.proc FadeIn
+  mov outer, #3
 FadeLoop:
   ; Wait a couple of frames.
   lda #FADE_TIME_NUM_FRAMES
@@ -59,7 +73,8 @@ CopyLoop:
   sec
   sbc #$20
   sta offset
-  bpl FadeLoop
+  dec outer
+  bne FadeLoop
 FadeDone:
   rts
 .endproc

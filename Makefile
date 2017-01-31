@@ -110,8 +110,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud.compressed.asm
 
 .b/boss.compressed.asm: graphics_compress.py .b/boss.graphics.dat
-	python graphics_compress.py .b/boss.graphics.dat \
-            -o .b/boss.compressed.asm
+	tail -c 832 .b/boss.graphics.dat > .b/boss.main.dat
+	python graphics_compress.py .b/boss.main.dat \
+            -o .b/boss.compress-no-header.asm
+	printf ".byte \04480,\04420,\044c0\n\n" > .b/boss.compressed.asm
+	cat .b/boss.compress-no-header.asm >> .b/boss.compressed.asm
 
 .b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
 	python build_pictures.py -i pictures.info -p pictures.png \
@@ -173,16 +176,24 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.o
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
 
-.b/fader_pal.dat: bg_pal.png sprite_pal.png bg_fade_1.png sprite_fade_1.png bg_fade_2.png sprite_fade_2.png
+.b/fader_pal.dat: bg_pal.png sprite_pal.png bg_fade_1.png sprite_fade_1.png bg_fade_2.png sprite_fade_2.png boss_pal.png
+	#
 	makechr --makepal bg_pal.png -o .b/bg_pal.dat
 	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
 	makechr --makepal bg_fade_1.png -o .b/bg_fade_1.dat
 	makechr --makepal sprite_fade_1.png -o .b/sprite_fade_1.dat
 	makechr --makepal bg_fade_2.png -o .b/bg_fade_2.dat
 	makechr --makepal sprite_fade_2.png -o .b/sprite_fade_2.dat
+	#
+	makechr --makepal boss_pal.png -o .b/boss_pal.dat
+	makechr --makepal sprite_pal.png -o .b/sprite_pal.dat
 	cat .b/bg_pal.dat .b/sprite_pal.dat \
             .b/bg_fade_1.dat .b/sprite_fade_1.dat \
-            .b/bg_fade_2.dat .b/sprite_fade_2.dat > .b/fader_pal.dat
+            .b/bg_fade_2.dat .b/sprite_fade_2.dat \
+            .b/boss_pal.dat .b/sprite_pal.dat \
+            .b/boss_pal.dat .b/sprite_pal.dat \
+            .b/boss_pal.dat .b/sprite_pal.dat \
+            > .b/fader_pal.dat
 
 .b/title_pal.o: title_pal.png
 	makechr --makepal title_pal.png -o .b/title_pal.o
@@ -190,6 +201,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/text_pal.o .b/text_pal.dat: text_pal.png
 	makechr --makepal text_pal.png -o .b/text_pal.o
 	makechr --makepal text_pal.png -o .b/text_pal.dat
+
+.b/boss_pal.o .b/boss_pal.dat: boss_pal.png
+	makechr --makepal boss_pal.png -o .b/boss_pal.o
+	makechr --makepal boss_pal.png -o .b/boss_pal.dat
 
 .b/level1_data.asm .b/merged_1.chr.dat .b/hud.nametable.dat .b/hud.attribute.dat:\
             build_level.py .b/hud.o bg1.png meta1.png .b/bg_pal.o \

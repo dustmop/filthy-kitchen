@@ -63,18 +63,7 @@ ChrRamDone:
   jsr LevelClearData
 
   jsr HudDataFill
-  ldx #MSG_HEALTH
-  jsr MsgRender
-  ldx #MSG_LIVES
-  jsr MsgRender
-  ldx #MSG_SCORE
-  jsr MsgRender
-  ldx #MSG_COMBO
-  jsr MsgRender
-  ldx #MSG_ZERO_SCORE
-  jsr MsgRender
-  ldx #MSG_ZERO_COMBO
-  jsr MsgRender
+  jsr HudMessagesRender
 
   mov objects_only_draw, #0
 
@@ -99,7 +88,7 @@ ChrRamDone:
   jsr HudElemsPut
   jsr PlayerDraw
 
-FadeInFromBlack:
+.scope FadeInFromBlack
   jsr FadeSetFullBlack
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
   ; TODO: Annoyingly, the above call clobbers the ppu_ctrl values.
@@ -107,7 +96,16 @@ FadeInFromBlack:
   ora #PPU_CTRL_SPRITE_8x16
   sta ppu_ctrl_current
   sta PPU_CTRL
-  jsr FadeIn
+  lda which_level
+  cmp #BOSS_LEVEL
+  beq Boss
+Gameplay:
+  jsr FadeInGameplay
+  jmp Next
+Boss:
+  jsr FadeInBoss
+Next:
+.endscope
 
 GameplayLoop:
   jsr WaitNewFrame

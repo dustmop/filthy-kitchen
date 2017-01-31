@@ -35,7 +35,7 @@ SPRITE_SPACE_NEXT   = $5c
   mov sprite_space_force, #$00
   mov sprite_space_force2, _
   mov sprite_space_force3, _
-  rts
+  jmp SpriteSpaceEraseAllAndSpriteZero
 .endproc
 
 

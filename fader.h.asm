@@ -1,2 +1,3 @@
 .import FadeSetFullBlack
-.import FadeIn
+.import FadeInGameplay
+.import FadeInBoss

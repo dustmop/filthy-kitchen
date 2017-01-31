@@ -68,6 +68,8 @@ ClearLoop:
   beq Load2
   cmp #9
   beq Load9
+  cmp #BOSS_LEVEL
+  jeq LoadBoss
 
 Load1:
   MovWord level_data_pointer, level1_data
@@ -101,6 +103,14 @@ Load9:
   mov level_has_infinite_flies, level9_meta+1
   mov level_player_start_v, level9_meta+2
   rts
+
+LoadBoss:
+  mov level_max_screen, #0
+  mov level_has_entrance_door, #0
+  mov level_has_infinite_flies, #0
+  mov level_player_start_v, #$a8
+  rts
+
 .endproc
 
 

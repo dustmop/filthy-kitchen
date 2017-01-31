@@ -1,13 +1,16 @@
 .export HudSplitAssign
 .export HudSplitWait
 .export HudDataFill
+.export HudMessagesRender
 .export HudElemsPut
+.export HudApplyAttributes
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
+.include "msg_catalog.h.asm"
 
 SPRITE_0_TILE = $07
 
@@ -94,9 +97,16 @@ Done:
   ldy #>hud_data
   jsr LoadGraphicsCompressed
   ; Set attributes.
-  mov PPU_ADDR, #$23
-  mov PPU_ADDR, #$c0
   lda #$55
+  jmp HudApplyAttributes
+.endproc
+
+
+.proc HudApplyAttributes
+  ldx #$23
+  stx PPU_ADDR
+  ldx #$c0
+  stx PPU_ADDR
   ldx #0
 AttributeLoop:
   sta PPU_DATA
@@ -105,6 +115,24 @@ AttributeLoop:
   bne AttributeLoop
   rts
 .endproc
+
+
+.proc HudMessagesRender
+  ldx #MSG_HEALTH
+  jsr MsgRender
+  ldx #MSG_LIVES
+  jsr MsgRender
+  ldx #MSG_SCORE
+  jsr MsgRender
+  ldx #MSG_COMBO
+  jsr MsgRender
+  ldx #MSG_ZERO_SCORE
+  jsr MsgRender
+  ldx #MSG_ZERO_COMBO
+  jsr MsgRender
+  rts
+.endproc
+
 
 hud_data:
 .include ".b/hud.compressed.asm"
