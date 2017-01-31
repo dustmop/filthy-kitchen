@@ -85,7 +85,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/hud_display.o: hud_display.asm .b/hud.compressed.asm
 	ca65 -o .b/hud_display.o hud_display.asm -g
 
-.b/level_data.o: level_data.asm .b/level1_data.asm .b/level9_data.asm
+.b/level_data.o: level_data.asm .b/level1_data.asm .b/level2_data.asm .b/level3_data.asm
 	ca65 -o .b/level_data.o level_data.asm -g
 
 .b/fly.o: fly.asm .b/trig.h.asm
@@ -245,15 +245,16 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -p .b/bg_pal.o -i .b/merged_1.chr.dat \
             -o .b/level2_data.asm -c .b/merged_1_to_2.chr.dat
 
-.b/level9_data.asm .b/merged_1_to_9.chr.dat:\
-            build_level.py .b/merged_1_to_2.chr.dat bg9.png meta9.png .b/bg_pal.o
-	python build_level.py -b bg9.png -m meta9.png -l 9 \
+.b/level3_data.asm .b/merged_1_to_3.chr.dat:\
+            build_level.py .b/merged_1_to_2.chr.dat bg3.png meta3.png \
+                .b/bg_pal.o
+	python build_level.py -b bg3.png -m meta3.png -l 3 \
             -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
-            -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
+            -o .b/level3_data.asm -c .b/merged_1_to_3.chr.dat
 
 .b/resource0.chr.dat .b/resource.palette.dat: \
-            .b/chars.chr.dat .b/merged_1_to_9.chr.dat .b/bg_pal.dat
-	head -c 4096 .b/merged_1_to_9.chr.dat > .b/resource0.chr.dat
+            .b/chars.chr.dat .b/merged_1_to_3.chr.dat .b/bg_pal.dat
+	head -c 4096 .b/merged_1_to_3.chr.dat > .b/resource0.chr.dat
 	tail -c 4096 .b/chars.chr.dat >> .b/resource0.chr.dat
 	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat

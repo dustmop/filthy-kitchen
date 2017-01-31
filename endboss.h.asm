@@ -2,4 +2,4 @@
 .import EndBossFillGraphics
 .import EndBossSwatterHandle
 
-BOSS_LEVEL = $0a
+BOSS_LEVEL = $04

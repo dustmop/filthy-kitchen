@@ -7,3 +7,6 @@
 .importzp MSG_KILL_ALL_THE_FLIES
 .importzp MSG_WATCH_OUT_FOR
 .importzp MSG_AND_APPLIANCES
+.importzp MSG_KEEP_GOING_ALMOST
+.importzp MSG_GET_COMBO_KILLS
+.importzp MSG_TO_EARN_HIGH

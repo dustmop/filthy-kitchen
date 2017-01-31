@@ -66,8 +66,8 @@ ClearLoop:
   beq Load1
   cmp #2
   beq Load2
-  cmp #9
-  beq Load9
+  cmp #3
+  beq Load3
   cmp #BOSS_LEVEL
   jeq LoadBoss
 
@@ -93,15 +93,15 @@ Load2:
   mov level_player_start_v, level2_meta+2
   rts
 
-Load9:
-  MovWord level_data_pointer, level9_data
-  MovWord level_chunk_pointer, level9_chunk
-  MovWord level_spawn_pointer, level9_spawn
-  MovWord level_table_of_contents_pointer, level9_table_of_contents
-  mov level_max_screen, level9_last_screen
-  mov level_has_entrance_door, level9_meta+0
-  mov level_has_infinite_flies, level9_meta+1
-  mov level_player_start_v, level9_meta+2
+Load3:
+  MovWord level_data_pointer, level3_data
+  MovWord level_chunk_pointer, level3_chunk
+  MovWord level_spawn_pointer, level3_spawn
+  MovWord level_table_of_contents_pointer, level3_table_of_contents
+  mov level_max_screen, level3_last_screen
+  mov level_has_entrance_door, level3_meta+0
+  mov level_has_infinite_flies, level3_meta+1
+  mov level_player_start_v, level3_meta+2
   rts
 
 LoadBoss:
@@ -489,7 +489,7 @@ level2_meta:
 .byte $a8
 .include ".b/level2_data.asm"
 
-level9_meta:
-.byte 0, $80
+level3_meta:
+.byte 0, 0
 .byte $a8
-.include ".b/level9_data.asm"
+.include ".b/level3_data.asm"

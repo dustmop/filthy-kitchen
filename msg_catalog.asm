@@ -7,6 +7,10 @@
 .exportzp MSG_KILL_ALL_THE_FLIES
 .exportzp MSG_WATCH_OUT_FOR
 .exportzp MSG_AND_APPLIANCES
+.exportzp MSG_KEEP_GOING_ALMOST
+.exportzp MSG_GET_COMBO_KILLS
+.exportzp MSG_TO_EARN_HIGH
+
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -39,6 +43,10 @@ MSG_AND_CLEAN_IT_UP = <( msg_and_clean_it_up - msg_catalog )
 MSG_KILL_ALL_THE_FLIES = <( msg_kill_all_the_flies - msg_catalog )
 MSG_WATCH_OUT_FOR      = <( msg_watch_out_for_utensils - msg_catalog )
 MSG_AND_APPLIANCES     = <( msg_and_appliances - msg_catalog )
+
+MSG_KEEP_GOING_ALMOST  = <( msg_keep_going_almost_there - msg_catalog )
+MSG_GET_COMBO_KILLS    = <( msg_get_combo_kills - msg_catalog )
+MSG_TO_EARN_HIGH       = <( msg_to_earn_high_scores - msg_catalog )
 
 
 ; X @in  Identifier for the message.
@@ -94,3 +102,15 @@ MsgPosition 14, 5
 msg_and_appliances:
 MsgPosition 16, 9
 .byte 14,"AND APPLIANCES"
+
+msg_keep_going_almost_there:
+MsgPosition 12, 4
+.byte 23,"KEEP GOING ALMOST THERE"
+
+msg_get_combo_kills:
+MsgPosition 14, 8
+.byte 15,"GET COMBO KILLS"
+
+msg_to_earn_high_scores:
+MsgPosition 16, 6
+.byte 19,"TO EARN HIGH SCORES"

@@ -38,7 +38,9 @@ inner = values + 5
   lda which_level
   cmp #1
   beq Level1
-  jmp Level2
+  cmp #2
+  beq Level2
+  jmp Level3
 
 Level1:
   ldx #MSG_THE_KITCHEN_IS
@@ -55,6 +57,15 @@ Level2:
   ldx #MSG_WATCH_OUT_FOR
   jsr MsgRender
   ldx #MSG_AND_APPLIANCES
+  jsr MsgRender
+  jmp LevelDone
+
+Level3:
+  ldx #MSG_KEEP_GOING_ALMOST
+  jsr MsgRender
+  ldx #MSG_GET_COMBO_KILLS
+  jsr MsgRender
+  ldx #MSG_TO_EARN_HIGH
   jsr MsgRender
   jmp LevelDone
 

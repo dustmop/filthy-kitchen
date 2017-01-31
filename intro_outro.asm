@@ -15,6 +15,7 @@
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
+.include "endboss.h.asm"
 
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
@@ -83,7 +84,7 @@ TransitionFast:
   ; hold A to get level 9
   lda buttons
   and #BUTTON_A
-  bne Level9
+  bne Level4
   ; hold down to get boss
   lda buttons
   and #BUTTON_DOWN
@@ -91,11 +92,11 @@ TransitionFast:
 Level2:
   mov which_level, #2
   jmp ExitFast
-Level9:
-  mov which_level, #9
+Level4:
+  mov which_level, #4
   jmp ExitFast
 LevelBoss:
-  mov which_level, #$0a
+  mov which_level, #BOSS_LEVEL
   jmp ExitFast
 
 TransitionOut:

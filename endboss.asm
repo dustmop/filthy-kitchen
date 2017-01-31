@@ -16,7 +16,7 @@ inner = values + $0
 outer = values + $1
 
 
-BOSS_LEVEL = $0a
+BOSS_LEVEL = $04
 
 
 .proc EndBossUpdate
