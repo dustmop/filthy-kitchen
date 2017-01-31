@@ -1,13 +1,12 @@
 .segment "INESHDR"
 
-MAPPER_NUMBER = 4
-
+.import MAPPER_NUMBER
 
 .byte "NES", $1a
 .byte $04 ; prg * $4000
 .byte $00 ; chr-ram
-.byte ((MAPPER_NUMBER & $0f) << 4) | $01
-.byte (MAPPER_NUMBER & $f0) | $00
+.byte ((<MAPPER_NUMBER & $0f) << 4) | $01
+.byte (<MAPPER_NUMBER & $f0) | $00
 .byte $00 ; 8) mapper variant
 .byte $00 ; 9) upper bits of ROM size
 .byte $00 ; 10) prg ram

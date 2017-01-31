@@ -1,4 +1,8 @@
-default: filthy-kitchen.nes
+default: mmc3
+
+a53: filthy-kitchen.nes
+
+mmc3: filthy-kitchen-mmc3.nes
 
 clean:
 	rm -rf .b/
@@ -7,7 +11,6 @@ SRC = gfx.asm \
       read_controller.asm \
       prologue.asm \
       vars.asm \
-      general_mmc3.asm \
       memory_layout.asm \
       boot.asm \
       intro_outro.asm \
@@ -62,6 +65,14 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
 	ca65 -o .b/prologue.o prologue.asm -g
+
+.b/general_mmc3.o: general_mmc3.asm
+	mkdir -p .b/
+	ca65 -o .b/general_mmc3.o general_mmc3.asm -g
+
+.b/general_a53.o: general_a53.asm
+	mkdir -p .b/
+	ca65 -o .b/general_a53.o general_a53.asm -g
 
 .b/draw_picture.o: draw_picture.asm .b/pictures.asm
 	ca65 -o .b/draw_picture.o draw_picture.asm -g
@@ -264,8 +275,18 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_trig.py -a .b/trig.asm -f .b/trig.h.asm
 	ca65 -o .b/trig.o .b/trig.asm
 
-filthy-kitchen.nes: $(OBJ) link.cfg
-	ld65 -o filthy-kitchen.nes $(OBJ) -C link.cfg -Ln filthy-kitchen.ln
+filthy-kitchen-mmc3.nes: $(OBJ) .b/general_mmc3.o link-mmc3.cfg
+	ld65 -o filthy-kitchen-mmc3.nes $(OBJ) .b/general_mmc3.o \
+            -C link-mmc3.cfg -Ln filthy-kitchen-mmc3.ln
+	python convertln.py filthy-kitchen-mmc3.ln \
+            > filthy-kitchen-mmc3.nes.0.nl
+	cp filthy-kitchen-mmc3.nes.0.nl filthy-kitchen-mmc3.nes.1.nl
+	cp filthy-kitchen-mmc3.nes.0.nl filthy-kitchen-mmc3.nes.2.nl
+	cp filthy-kitchen-mmc3.nes.0.nl filthy-kitchen-mmc3.nes.3.nl
+
+filthy-kitchen.nes: $(OBJ) .b/general_a53.o link-a53.cfg
+	ld65 -o filthy-kitchen.nes $(OBJ) .b/general_a53.o \
+            -C link-a53.cfg -Ln filthy-kitchen.ln
 	python convertln.py filthy-kitchen.ln > filthy-kitchen.nes.0.nl
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.1.nl
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.2.nl

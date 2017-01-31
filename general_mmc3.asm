@@ -1,3 +1,4 @@
+.export GeneralMapperInit
 .export GeneralMapperPrg8000ToC000
 
 MMC3_BANK_SELECT = $8000
@@ -7,6 +8,11 @@ SELECT_PRG_8000   = $06
 SELECT_PRG_A000   = $07
 
 .segment "BOOT"
+
+.proc GeneralMapperInit
+  rts
+.endproc
+
 
 ; A: Bank to swap in.
 ; Clobbers Y

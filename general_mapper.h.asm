@@ -1,1 +1,2 @@
+.import GeneralMapperInit
 .import GeneralMapperPrg8000ToC000

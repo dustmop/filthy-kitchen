@@ -19,6 +19,7 @@ MEMORY_LAYOUT_BOSS_POINTER = $a0
 .segment "BOOT"
 
 .proc MemoryLayoutInit
+  jsr GeneralMapperInit
   lda #MEMORY_LAYOUT_BANK_MAIN_CODE
   jsr GeneralMapperPrg8000ToC000
   rts
