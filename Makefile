@@ -37,6 +37,7 @@ SRC = gfx.asm \
       broom.asm \
       gunk_drop.asm \
       star.asm \
+      wing.asm \
       random.asm \
       health.asm \
       msg_catalog.asm \

@@ -9,6 +9,8 @@
 .include "read_controller.h.asm"
 .include "gameplay.h.asm"
 .include "marque.h.asm"
+.include "sprite_space.h.asm"
+.include "object_list.h.asm"
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
@@ -48,9 +50,19 @@ wings_frame = values + 6
   jsr GeneralMapperPrgBank8000
   jsr LoadChrRam
 
+  jsr ObjectListInit
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_WING
+  mov {object_v,x}, #$9c
+  mov {object_h,x}, #$dd
+  ldy #0
+  jsr ObjectConstructor
+
   ; Play a song.
   ;lda #0
   ;jsr FamiToneMusicPlay
+
+  jsr SpriteSpaceInit
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
   jsr Disable8x16
@@ -58,7 +70,9 @@ wings_frame = values + 6
 IntroLoop:
   jsr WaitNewFrame
   jsr FamiToneUpdate
-  jsr DrawWings
+  jsr SpriteSpaceEraseAll
+  jsr SpriteSpaceNext
+  jsr ObjectListUpdate
   jsr ReadController
   ; Start to exit normally.
   lda buttons_press
@@ -177,23 +191,6 @@ OutroLoop:
 .endproc
 
 
-.proc DrawWings
-  inc wings_frame
-  lda wings_frame
-  and #$07
-  sta wings_frame
-  and #$06
-  tay
-  ;
-  lda wing_animation+0,y
-  tax
-  lda wing_animation+1,y
-  tay
-  jsr LoadSpritelist
-  rts
-.endproc
-
-
 .proc Disable8x16
   lda ppu_ctrl_current
   and #($ff & ~PPU_CTRL_SPRITE_8x16)
@@ -201,31 +198,3 @@ OutroLoop:
   sta PPU_CTRL
   rts
 .endproc
-
-
-wing_animation:
-.word wings_up
-.word wings_middle
-.word wings_down
-.word wings_middle
-
-wings_up:
-.byte $9c  ,$78,$00,$dd
-.byte $9c  ,$79,$00,$dd+8
-.byte $9c+8,$7e,$00,$dd
-.byte $9c+8,$7f,$00,$dd+8
-.byte $ff
-
-wings_middle:
-.byte $9c  ,$7a,$00,$dd
-.byte $9c  ,$7b,$00,$dd+8
-.byte $9c+8,$80,$00,$dd
-.byte $9c+8,$81,$00,$dd+8
-.byte $ff
-
-wings_down:
-.byte $9c  ,$7c,$00,$dd
-.byte $9c  ,$7d,$00,$dd+8
-.byte $9c+8,$82,$00,$dd
-.byte $9c+8,$83,$00,$dd+8
-.byte $ff

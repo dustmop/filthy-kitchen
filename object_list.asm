@@ -23,6 +23,7 @@
 .include "broom.h.asm"
 .include "gunk_drop.h.asm"
 .include "star.h.asm"
+.include "wing.h.asm"
 .include "shared_object_values.asm"
 .include "collision_data.h.asm"
 
@@ -61,6 +62,7 @@ OBJECT_KIND_UTENSILS   = $06
 OBJECT_KIND_BROOM      = $07
 OBJECT_KIND_GUNK_DROP  = $08
 OBJECT_KIND_STAR       = $09
+OBJECT_KIND_WING       = $0a
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -422,6 +424,8 @@ Failure:
   beq Dirt
   cmp #OBJECT_KIND_STAR
   beq Star
+  cmp #OBJECT_KIND_WING
+  beq Wing
   rts
 Fly:
   jsr FlyConstructor
@@ -437,6 +441,9 @@ Dirt:
   rts
 Star:
   jsr StarConstructor
+  rts
+Wing:
+  jsr WingConstructor
   rts
 .endproc
 
@@ -498,3 +505,4 @@ execute_table:
 .word BroomExecute-1
 .word GunkDropExecute-1
 .word StarExecute-1
+.word WingExecute-1
