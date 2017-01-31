@@ -1,2 +1,1 @@
-.import GeneralMapperInit
-.import GeneralMapperPrgBank8000
+.import GeneralMapperPrg8000ToC000

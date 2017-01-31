@@ -3,6 +3,7 @@
 .include "render_action.h.asm"
 .include "level_data.h.asm"
 .include "general_mapper.h.asm"
+.include "memory_layout.h.asm"
 .include "gfx.h.asm"
 .include "intro_outro.h.asm"
 .include "famitone.h.asm"
@@ -53,9 +54,7 @@ Wait1:
   bit PPU_STATUS
   bpl Wait1
 
-  jsr GeneralMapperInit
-  lda #0
-  jsr GeneralMapperPrgBank8000
+  jsr MemoryLayoutInit
 
   jsr ClearBothNametables
 

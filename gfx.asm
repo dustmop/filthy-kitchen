@@ -7,7 +7,6 @@
 .export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
 .export PrepareRenderVertical, PrepareRenderHorizontal
-.export LoadChrRam
 
 .import chr_data
 .importzp ppu_mask_current, ppu_ctrl_current, main_yield, color
@@ -200,26 +199,6 @@ Loop:
   iny
   bne Loop
 Done:
-  rts
-.endproc
-
-
-.proc LoadChrRam
-  bit PPU_STATUS
-  mov PPU_ADDR, #0
-  mov PPU_ADDR, _
-  mov pointer+0, #<chr_data
-  mov pointer+1, #>chr_data
-  ldx #$20
-  ldy #0
-Loop:
-  lda (pointer),y
-  sta PPU_DATA
-  iny
-  bne Loop
-  inc pointer+1
-  dex
-  bne Loop
   rts
 .endproc
 

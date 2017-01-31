@@ -3,6 +3,7 @@
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
+.include "memory_layout.h.asm"
 .include "intro_outro.h.asm"
 .include "marque.h.asm"
 .include "gfx.h.asm"
@@ -45,20 +46,17 @@ GameplayMain:
   beq BossChrRam
 NormalChrRam:
   ; Load chr-ram from prg bank 0.
-  lda #0
-  jsr GeneralMapperPrgBank8000
-  jsr LoadChrRam
+  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
+  ldx #MEMORY_LAYOUT_NORMAL_POINTER
+  jsr MemoryLayoutFillChrRam
   jmp ChrRamDone
 BossChrRam:
   ; Load chr-ram from prg bank 0.
-  lda #2
-  jsr GeneralMapperPrgBank8000
-  jsr LoadChrRam
+  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
+  ldx #MEMORY_LAYOUT_BOSS_POINTER
+  jsr MemoryLayoutFillChrRam
 ChrRamDone:
 
-  ; Load level data from prg bank 4.
-  lda #4
-  jsr GeneralMapperPrgBank8000
   jsr PlayerClearData
   jsr LevelClearData
 

@@ -8,6 +8,7 @@ SRC = gfx.asm \
       prologue.asm \
       vars.asm \
       general_mmc3.asm \
+      memory_layout.asm \
       boot.asm \
       intro_outro.asm \
       marque.asm \
@@ -53,7 +54,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python lint_objects.py $<
 	ca65 -o $@ $< -g
 
-.b/prologue.o: prologue.asm .b/resource.chr.dat \
+.b/prologue.o: prologue.asm \
+            .b/resource0.chr.dat \
             .b/resource1.chr.dat \
             .b/resource2.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
@@ -236,26 +238,26 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
             -o .b/level9_data.asm -c .b/merged_1_to_9.chr.dat
 
-.b/resource1.chr.dat: .b/title.chr.dat
-	head -c 4096 .b/title.chr.dat > .b/resource1.chr.dat
-	head -c 4096 .b/title.chr.dat >> .b/resource1.chr.dat
+.b/resource0.chr.dat .b/resource.palette.dat: \
+            .b/chars.chr.dat .b/merged_1_to_9.chr.dat .b/bg_pal.dat
+	head -c 4096 .b/merged_1_to_9.chr.dat > .b/resource0.chr.dat
+	tail -c 4096 .b/chars.chr.dat >> .b/resource0.chr.dat
+	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
+	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/resource2.chr.dat .b/boss.graphics.dat .b/boss.palette.dat: \
+.b/resource1.chr.dat .b/boss.graphics.dat .b/boss.palette.dat: \
             .b/chars.chr.dat .b/hud.o .b/boss.o .b/alpha.o .b/digit.o
 	python merge_chr_nt.py .b/hud.o .b/boss.o -A .b/alpha.o -D .b/digit.o \
             -c .b/boss.chr.dat -n .b/boss.nametable.dat \
             -a .b/boss.attribute.dat
 	cat .b/boss.nametable.dat .b/boss.attribute.dat > \
             .b/boss.graphics.dat
-	head -c 4096 .b/boss.chr.dat > .b/resource2.chr.dat
-	tail -c 4096 .b/chars.chr.dat >> .b/resource2.chr.dat
+	head -c 4096 .b/boss.chr.dat > .b/resource1.chr.dat
+	tail -c 4096 .b/chars.chr.dat >> .b/resource1.chr.dat
 
-.b/resource.chr.dat .b/resource.palette.dat: \
-            .b/chars.chr.dat .b/merged_1_to_9.chr.dat .b/bg_pal.dat
-	head -c 4096 .b/merged_1_to_9.chr.dat > .b/resource.chr.dat
-	tail -c 4096 .b/chars.chr.dat >> .b/resource.chr.dat
-	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
-	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
+.b/resource2.chr.dat: .b/title.chr.dat
+	head -c 4096 .b/title.chr.dat > .b/resource2.chr.dat
+	head -c 4096 .b/title.chr.dat >> .b/resource2.chr.dat
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

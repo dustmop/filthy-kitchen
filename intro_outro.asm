@@ -6,6 +6,7 @@
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "general_mapper.h.asm"
+.include "memory_layout.h.asm"
 .include "read_controller.h.asm"
 .include "gameplay.h.asm"
 .include "marque.h.asm"
@@ -45,10 +46,9 @@ wings_frame = values + 6
   ldx #MSG_START
   jsr MsgRender
 
-  ; Load chr-ram from prg bank 1.
-  lda #1
-  jsr GeneralMapperPrgBank8000
-  jsr LoadChrRam
+  lda #MEMORY_LAYOUT_BANK_SCREEN_CHR
+  ldx #MEMORY_LAYOUT_NORMAL_POINTER
+  jsr MemoryLayoutFillChrRam
 
   jsr CreateFlyWings
 
@@ -167,10 +167,9 @@ Loop:
   ldy #>game_over_graphics
   jsr LoadGraphicsCompressed
 
-  ; Load chr-ram from prg bank 1.
-  lda #1
-  jsr GeneralMapperPrgBank8000
-  jsr LoadChrRam
+  lda #MEMORY_LAYOUT_BANK_SCREEN_CHR
+  ldx #MEMORY_LAYOUT_NORMAL_POINTER
+  jsr MemoryLayoutFillChrRam
 
   ; Play a song.
   ;lda #0

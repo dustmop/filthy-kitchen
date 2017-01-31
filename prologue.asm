@@ -60,16 +60,16 @@ game_over_graphics:
 .segment "CHRDATA0"
 .export chr_data
 chr_data:
-.incbin ".b/resource.chr.dat"
+.incbin ".b/resource0.chr.dat"
 
 .segment "CHRDATA1"
-.export title_chr_data
-title_chr_data:
+.export boss_chr_data
+boss_chr_data:
 .incbin ".b/resource1.chr.dat"
 
 .segment "CHRDATA2"
-.export boss_chr_data
-boss_chr_data:
+.export title_chr_data
+title_chr_data:
 .incbin ".b/resource2.chr.dat"
 
 .segment "CHRDATA3"
