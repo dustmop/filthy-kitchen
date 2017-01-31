@@ -27,14 +27,17 @@ UTENSILS_TILE_RIGHT = $8f
 
 
 .proc UtensilsConstructor
+  cpy #1
+  bne Return
   lda player_v
-  cmp #$60
+  cmp #$90
   bge SpawnLowerLevel
 SpawnHigherLevel:
   mov {object_v,x}, #$58
   rts
 SpawnLowerLevel:
   mov {object_v,x}, #$a8
+Return:
   rts
 .endproc
 
