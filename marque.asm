@@ -87,7 +87,7 @@ Level5:
   jsr MsgRender2
   ldx #MSG_THE_KITCHEN_IS_CLEAN
   jsr MsgRender2
-  lda #0
+  lda #1
   jsr FamiToneMusicPlay
   jmp LevelDone
 

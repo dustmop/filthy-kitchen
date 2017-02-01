@@ -20,7 +20,7 @@
 .importzp endboss_screen, endboss_count, endboss_state
 .importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
 .importzp endboss_iframe, endboss_is_dead
-.importzp player_owns_swatter
+.importzp player_owns_swatter, player_health, player_h
 .importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
 
@@ -204,6 +204,24 @@ Display:
   lda #$01
   sbc endboss_screen
   sta bg_nt_select
+
+PlayerOverlap:
+.scope PlayerOverlap
+  lda player_health
+  beq Break
+  ; Kill them.
+  lda endboss_screen
+  bne Break
+  lda player_h
+  cmp endboss_h
+  blt Break
+  ; Play sound effect
+  lda #SFX_GOT_HURT
+  jsr SoundPlay
+  mov player_health, #0
+Break:
+.endscope
+
   rts
 .endproc
 
