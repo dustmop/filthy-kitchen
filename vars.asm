@@ -86,6 +86,13 @@ random_value: .byte 0
 spawn_count: .byte 0
 color: .byte 0
 
+; end boss
+endboss_screen: .byte 0
+endboss_count: .byte 0
+endboss_state: .byte 0
+endboss_h: .byte 0
+endboss_health: .byte 0
+
 ; progress
 score_low: .byte 0
 score_medium: .byte 0
@@ -132,6 +139,9 @@ which_level: .byte 0
 .exportzp level_table_of_contents_pointer, level_spawn_pointer
 .exportzp level_complete
 .exportzp which_level
+.exportzp endboss_screen, endboss_count, endboss_state
+.exportzp endboss_h, endboss_health
+
 
 collision_map = $500
 

@@ -77,6 +77,7 @@ ChrRamDone:
   jsr RandomSeedInit
   jsr PlayerInit
   jsr CameraInit
+  jsr EndBossInit
 
   jsr HudSplitAssign
   jsr RenderScore
@@ -167,11 +168,7 @@ HandleEngine:
 
 EngineReady:
 
-  lda which_level
-  cmp #BOSS_LEVEL
-  bne :+
   jsr EndBossUpdate
-:
 
   DebugModeSetTint green
   jsr ObjectListUpdate
