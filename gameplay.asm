@@ -1,5 +1,6 @@
 .export GameplayMain
 
+.include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
@@ -107,6 +108,16 @@ Boss:
 Next:
 .endscope
 
+.scope StartSong
+  ldy which_level
+  beq Next
+  cpy #5
+  bge Next
+  lda level_song,y
+  jsr FamiToneMusicPlay
+Next:
+.endscope
+
 GameplayLoop:
   jsr WaitNewFrame
 
@@ -211,3 +222,11 @@ GameplayGameOverExit:
   ; TODO: Fade out.
   jsr DisableDisplayAndNmi
   jmp OutroScreen
+
+
+level_song:
+.byte $ff
+.byte 1
+.byte 2
+.byte 0
+.byte 3

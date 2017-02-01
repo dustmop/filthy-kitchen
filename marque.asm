@@ -77,8 +77,8 @@ LevelDone:
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
-  mov outer, #$1
-  mov inner, #$40
+  mov outer, #$0
+  mov inner, #$50
 
 MarqueLoop:
   jsr WaitNewFrame

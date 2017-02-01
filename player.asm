@@ -16,6 +16,7 @@
 .include "swatter.h.asm"
 .include "flash.h.asm"
 .include ".b/pictures.h.asm"
+.include "famitone.h.asm"
 .include "sound.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
@@ -109,6 +110,8 @@ Next:
   bne Next
   mov player_state, #PLAYER_STATE_DEAD
   mov player_animate, #0
+  ;
+  jsr FamiToneMusicStop
 Next:
 .endscope
   ; Debug only

@@ -11,6 +11,7 @@
 .include "draw_picture.h.asm"
 .include "flash.h.asm"
 .include ".b/pictures.h.asm"
+.include "famitone.h.asm"
 .include "sound.h.asm"
 
 .importzp camera_h, camera_screen
@@ -130,6 +131,8 @@ Increment:
   mov {object_h,x}, draw_h
   mov {object_screen,x}, draw_screen
   jsr ObjectConstructor
+  ; Stop music
+  jsr FamiToneMusicStop
   ; Play sound of making stars
   lda #SFX_MAKE_STARS
   jsr SoundPlay
