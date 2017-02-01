@@ -1,4 +1,4 @@
-.segment "CODE"
+.segment "BOOT" ; should be in "CODE", but need to save space
 
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist

@@ -4,7 +4,7 @@
 
 .importzp buttons, buttons_last, buttons_press
 
-.segment "CODE"
+.segment "BOOT" ; should be in "CODE", but need to save space
 
 
 .proc ReadController
