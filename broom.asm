@@ -13,6 +13,7 @@
 .include ".b/pictures.h.asm"
 .include "famitone.h.asm"
 .include "sound.h.asm"
+.include "score_combo.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp level_complete
@@ -115,6 +116,12 @@ Explode:
   jsr CreateStar
   ldy #3
   jsr CreateStar
+  ; Play sound of making stars
+  lda #SFX_MAKE_STARS
+  jsr SoundPlay
+  ; Gain points for collecting the broom.
+  lda #1
+  jsr ScoreAddMedium
   rts
 Increment:
   dex
@@ -133,9 +140,6 @@ Increment:
   jsr ObjectConstructor
   ; Stop music
   jsr FamiToneMusicStop
-  ; Play sound of making stars
-  lda #SFX_MAKE_STARS
-  jsr SoundPlay
 Return:
   rts
 .endproc

@@ -10,6 +10,9 @@
 .exportzp MSG_KEEP_GOING_ALMOST
 .exportzp MSG_GET_COMBO_KILLS
 .exportzp MSG_TO_EARN_HIGH
+.exportzp MSG_WARNING
+.exportzp MSG_BOSS_FLY_IS_APPROACHING
+.exportzp MSG_RESOLVE_YOUR_BATTLE
 
 
 .include "include.branch-macros.asm"
@@ -47,6 +50,10 @@ MSG_AND_APPLIANCES     = <( msg_and_appliances - msg_catalog )
 MSG_KEEP_GOING_ALMOST  = <( msg_keep_going_almost_there - msg_catalog )
 MSG_GET_COMBO_KILLS    = <( msg_get_combo_kills - msg_catalog )
 MSG_TO_EARN_HIGH       = <( msg_to_earn_high_scores - msg_catalog )
+
+MSG_WARNING                 = <( msg_warning - msg_catalog)
+MSG_BOSS_FLY_IS_APPROACHING = <( msg_boss_fly_is_approaching - msg_catalog )
+MSG_RESOLVE_YOUR_BATTLE     = <( msg_resolve_your_battle - msg_catalog )
 
 
 ; X @in  Identifier for the message.
@@ -114,3 +121,15 @@ MsgPosition 14, 8
 msg_to_earn_high_scores:
 MsgPosition 16, 6
 .byte 19,"TO EARN HIGH SCORES"
+
+msg_warning:
+MsgPosition 12, 12
+.byte 7,"WARNING"
+
+msg_boss_fly_is_approaching:
+MsgPosition 14, 4
+.byte 23,"BOSS FLY IS APPROACHING"
+
+msg_resolve_your_battle:
+MsgPosition 16, 6
+.byte 19,"RESOLVE YOUR BATTLE"

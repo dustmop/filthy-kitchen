@@ -33,6 +33,7 @@
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed, lives
 .importzp level_complete, which_level, objects_only_draw
+.importzp combo_low, combo_medium
 .import gameplay_palette, graphics0, graphics1
 
 
@@ -65,6 +66,8 @@ ChrRamDone:
   jsr HudMessagesRender
 
   mov objects_only_draw, #0
+  mov combo_low, #0
+  mov combo_medium, #0
 
   jsr ObjectListInit
   jsr SpriteSpaceInit

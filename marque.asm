@@ -40,7 +40,9 @@ inner = values + 5
   beq Level1
   cmp #2
   beq Level2
-  jmp Level3
+  cmp #3
+  beq Level3
+  jmp Level4
 
 Level1:
   ldx #MSG_THE_KITCHEN_IS
@@ -66,6 +68,15 @@ Level3:
   ldx #MSG_GET_COMBO_KILLS
   jsr MsgRender
   ldx #MSG_TO_EARN_HIGH
+  jsr MsgRender
+  jmp LevelDone
+
+Level4:
+  ldx #MSG_WARNING
+  jsr MsgRender
+  ldx #MSG_BOSS_FLY_IS_APPROACHING
+  jsr MsgRender
+  ldx #MSG_RESOLVE_YOUR_BATTLE
   jsr MsgRender
   jmp LevelDone
 
