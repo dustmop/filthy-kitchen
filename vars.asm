@@ -95,6 +95,8 @@ endboss_count: .byte 0
 endboss_state: .byte 0
 endboss_h: .byte 0
 endboss_health: .byte 0
+endboss_aggro: .byte 0
+endboss_speed: .byte 0
 
 ; progress
 score_low: .byte 0
@@ -145,6 +147,8 @@ which_level: .byte 0
 .exportzp which_level
 .exportzp endboss_screen, endboss_count, endboss_state
 .exportzp endboss_h, endboss_health
+.exportzp endboss_aggro, endboss_speed
+
 
 
 collision_map = $500

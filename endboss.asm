@@ -4,16 +4,19 @@
 .export EndBossSwatterHandle
 
 .include "include.controller.asm"
+.include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "hud_display.h.asm"
 .include "render_action.h.asm"
+.include "object_list.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
-.importzp endboss_h, endboss_health
+.importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
 .importzp bg_x_scroll, bg_nt_select
+
 .importzp which_level
 .importzp values
 inner = values + $0
@@ -38,6 +41,7 @@ Okay:
   mov endboss_screen, #$01
   mov endboss_state, #0
   mov endboss_count, #0
+  mov endboss_aggro, #0
   rts
 .endproc
 
@@ -51,7 +55,7 @@ Okay:
 
   lda endboss_state
   beq MovementIntoView
-  bne Display
+  bne DriftAndFire
 
 MovementIntoView:
 .scope MovementIntoView
@@ -67,6 +71,51 @@ State:
   cmp #$90
   bne Next
   mov endboss_state, #1
+  mov endboss_speed, #$ff
+Next:
+  jmp Display
+.endscope
+
+DriftAndFire:
+
+DriftMovement:
+.scope DriftAndFire
+  inc endboss_count
+  lda endboss_count
+  and #$03
+  bne AfterDrift
+  lda endboss_h
+  clc
+  adc endboss_speed
+  sta endboss_h
+AfterDrift:
+  lda endboss_count
+  cmp #$80
+  blt AfterDir
+  mov endboss_count, #0
+  lda endboss_speed
+  eor #$ff
+  clc
+  adc #1
+  sta endboss_speed
+AfterDir:
+.endscope
+
+Attack:
+.scope Attack
+  inc endboss_aggro
+  lda endboss_aggro
+  cmp #$35
+  bne Next
+  mov endboss_aggro, #0
+  ; Fire
+  jsr ObjectAllocate
+  mov {object_kind,x}, #OBJECT_KIND_DIRTY_SINK
+  mov {object_v,x}, #100
+  mov {object_h,x}, endboss_h
+  mov {object_screen,x}, #0
+  ldy #4
+  jsr ObjectConstructor
 Next:
 .endscope
 

@@ -9,7 +9,10 @@
 .include "shared_object_values.asm"
 .include "gunk_drop.h.asm"
 .include "sound.h.asm"
+.include "random.h.asm"
 
+.import trig_movement
+.import trig_lookup
 .importzp camera_h, camera_screen
 .importzp player_health_delta
 .importzp draw_screen, draw_h, draw_v
@@ -25,12 +28,16 @@ tile_2 = values + $03
 .import object_data_extend
 dirt_kind = object_data_extend + $00
 dirt_step = object_data_extend + $10
+dirt_direction = dirt_step
+dirt_h_low = object_data_extend + $20
+dirt_v_low = object_data_extend + $30
 
 
 DIRT_KIND_SINK = 0
 DIRT_KIND_SPLOTCH = 1
 DIRT_KIND_PILE = 2
 DIRT_KIND_PUDDLE = 3
+DIRT_KIND_SPIT = 4
 
 
 DIRTY_SINK_TILE_0 = $89
@@ -39,6 +46,10 @@ DIRTY_SINK_TILE_1 = $8b
 DIRTY_PILE_TILE_0 = $97
 DIRTY_PILE_TILE_1 = $99
 DIRTY_PILE_TILE_2 = $9b
+
+DIRTY_SPIT_TILE_0 = $cb
+DIRTY_SPIT_TILE_1 = $cd
+
 
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
@@ -51,18 +62,31 @@ GUNK_DROP_LIFE = 65
   tya
   sta dirt_kind,x
   cmp #DIRT_KIND_SPLOTCH
-  bne Return
+  beq WallSplotch
+  cmp #DIRT_KIND_SPIT
+  beq Spit
+  rts
 WallSplotch:
   lda #DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V
   sec
   sbc object_v,x
   sta dirt_step,x
-Return:
+  rts
+Spit:
+  jsr RandomGet
+  and #$07
+  clc
+  adc #36
+  sta dirt_direction,x
   rts
 .endproc
 
 
 .proc DirtExecute
+
+  lda dirt_kind,x
+  cmp #DIRT_KIND_SPIT
+  beq SpitHandler
 
 .scope MaybeDespawn
   jsr ObjectOffscreenDespawn
@@ -116,6 +140,16 @@ Return:
 Next:
 .endscope
 
+  jmp Later
+
+SpitHandler:
+.scope SpitHandler
+  jsr ApplyMovement
+  jsr ApplyMovement
+.endscope
+
+Later:
+
 .scope CollisionWithPlayer
   lda player_iframe
   bne Next
@@ -149,6 +183,8 @@ Next:
   beq DirtySink
   cmp #DIRT_KIND_PILE
   beq DirtyPile
+  cmp #DIRT_KIND_SPIT
+  beq DirtySpit
   rts
 
 DirtySink:
@@ -169,6 +205,15 @@ DirtyPile:
   mov tile_0, #DIRTY_PILE_TILE_0
   mov tile_1, #DIRTY_PILE_TILE_1
   mov tile_2, #DIRTY_PILE_TILE_2
+  jmp DrawIt
+DirtySpit:
+  lda draw_h
+  sec
+  sbc #3
+  sta draw_h
+  mov num_tiles, #2
+  mov tile_0, #DIRTY_SPIT_TILE_0
+  mov tile_1, #DIRTY_SPIT_TILE_1
 
 DrawIt:
   ldy #0
@@ -197,5 +242,53 @@ DrawLoop:
   jmp DrawLoop
 
 Return:
+  rts
+.endproc
+
+
+.proc ApplyMovement
+  ldy dirt_direction,x
+  lda trig_lookup,y
+  tay
+HorizontalDelta:
+  lda trig_movement,y
+  clc
+  adc dirt_h_low,x
+  sta dirt_h_low,x
+  iny
+  lda trig_movement,y
+  bmi ToTheLeft
+ToTheRight:
+  adc object_h,x
+  sta object_h,x
+  lda object_screen,x
+  adc #0
+  sta object_screen,x
+  jmp VerticalDelta
+ToTheLeft:
+  adc object_h,x
+  sta object_h,x
+  lda object_screen,x
+  adc #$ff
+  sta object_screen,x
+VerticalDelta:
+  iny
+  lda trig_movement,y
+  clc
+  adc dirt_v_low,x
+  sta dirt_v_low,x
+  iny
+  lda trig_movement,y
+  adc object_v,x
+  sta object_v,x
+  cmp #$f0
+  bge Failure
+  blt Success
+Failure:
+  jsr ObjectFree
+  clc
+  rts
+Success:
+  sec
   rts
 .endproc
