@@ -75,9 +75,9 @@ IntroLoop:
   and #BUTTON_START
   bne TransitionOut
   ; Select to exit fast to level 9 - debug feature.
-  lda buttons_press
-  and #BUTTON_SELECT
-  bne TransitionFast
+  ;lda buttons_press
+  ;and #BUTTON_SELECT
+  ;bne TransitionFast
   beq IntroLoop
 
 TransitionFast:
