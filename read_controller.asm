@@ -1,14 +1,29 @@
 .export ReadController, ReadInputPort0, ReadInputPort1
 
+.include "include.mov-macros.asm"
 .include "include.sys.asm"
 
 .importzp buttons, buttons_last, buttons_press
+.importzp values
+first = values + 0
+second = values + 1
 
 .segment "BOOT" ; should be in "CODE", but need to save space
 
 
 .proc ReadController
   jsr ReadInputPort0
+  mov first, buttons
+  jsr ReadInputPort0
+  mov second, buttons
+  jsr ReadInputPort0
+  lda buttons
+  cmp first
+  beq Okay
+  cmp second
+  beq Okay
+  mov buttons, first
+Okay:
   lda buttons_last
   eor #$ff
   and buttons
