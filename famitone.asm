@@ -28,3 +28,6 @@ FT_DPCM_ENABLE = 1
 
 music_data:
 .include ".b/music.s"
+
+sfx_data:
+.include ".b/sfx.s"

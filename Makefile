@@ -100,9 +100,15 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
 	ca65 -o .b/msg_catalog.o msg_catalog.asm -g
 
-.b/famitone.o .b/music.dmc: famitone.asm music.ftm third_party/famitone2.s
+.b/music.s .b/music.dmc: music.ftm
 	famitracker music.ftm -export .b/music.txt
 	text2data -ca65 .b/music.txt
+
+.b/sfx.s: sfx.ftm
+	famitracker sfx.ftm -export .b/sfx.nsf
+	nsf2data .b/sfx.nsf -ca65 -ntsc
+
+.b/famitone.o: famitone.asm .b/music.s .b/sfx.s third_party/famitone2.s
 	ca65 -o .b/famitone.o famitone.asm
 
 .b/samples.o: samples.asm .b/music.dmc
