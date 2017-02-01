@@ -251,6 +251,8 @@ HaveDeltaH:
 Collision:
   jsr GainPointsDueToFlyHitByAndSwatter
   jsr ExplodeTheFly
+  lda #SFX_FLY_KILLED
+  jsr SoundPlay
   jmp Return
 Break:
 .endscope
