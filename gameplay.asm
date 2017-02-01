@@ -92,6 +92,7 @@ ChrRamDone:
   jsr PlayerDraw
 
 .scope FadeInFromBlack
+  jsr WaitVblankFlag
   jsr FadeSetFullBlack
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
   ; TODO: Annoyingly, the above call clobbers the ppu_ctrl values.

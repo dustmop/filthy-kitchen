@@ -3,7 +3,7 @@
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
 .export LoadGraphicsCompressed, RenderGraphicsCompressed
-.export EnableNmi, WaitNewFrame, EnableDisplay
+.export EnableNmi, WaitNewFrame, WaitVblankFlag, EnableDisplay
 .export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
 .export PrepareRenderVertical, PrepareRenderHorizontal
@@ -226,6 +226,14 @@ Done:
   sta PPU_CTRL
   sta ppu_ctrl_current
   cli
+  rts
+.endproc
+
+
+.proc WaitVblankFlag
+Wait:
+  bit PPU_STATUS
+  bpl Wait
   rts
 .endproc
 
