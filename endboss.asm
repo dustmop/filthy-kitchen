@@ -11,10 +11,15 @@
 .include "hud_display.h.asm"
 .include "render_action.h.asm"
 .include "object_list.h.asm"
+.include "score_combo.h.asm"
+.include "sound.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
 .importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
+.importzp endboss_iframe
+.importzp player_owns_swatter
+.importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
 
 .importzp which_level
@@ -36,7 +41,7 @@ Okay:
   mov bg_x_scroll, #$00
   mov bg_nt_select, #$00
   ;
-  mov endboss_health, #16
+  mov endboss_health, #10
   mov endboss_h, #$30
   mov endboss_screen, #$01
   mov endboss_state, #0
@@ -53,9 +58,24 @@ Okay:
   rts
 Okay:
 
+.scope BlinkBg
+  lda blink_bg_color
+  beq Break
+  dec blink_bg_color
+  bne Break
+  lda #1
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$3f
+  mov {render_action_addr_low,y}, #$00
+  mov {render_action_data,y}, #$0f
+Break:
+.endscope
+
   lda endboss_state
   beq MovementIntoView
-  bne DriftAndFire
+  cmp #1
+  beq DriftAndFire
+  rts
 
 MovementIntoView:
 .scope MovementIntoView
@@ -117,6 +137,51 @@ Attack:
   ldy #4
   jsr ObjectConstructor
 Next:
+.endscope
+
+.scope Iframe
+  lda endboss_iframe
+  beq CanBeHit
+  dec endboss_iframe
+  jmp Display
+.endscope
+
+CanBeHit:
+.scope CanBeHit
+  ; Is swatter being thrown.
+  ldy player_owns_swatter
+  bmi Break
+  ; Vertical
+  lda object_v,y
+  cmp #$88
+  bge Break
+  ; Horizontal
+  lda object_h,y
+  sec
+  sbc endboss_h
+  bmi Break
+  cmp #$10
+  bge Break
+  ; Hit the boss
+  mov endboss_iframe, #$30
+  lda #SFX_FLY_KILLED
+  jsr SoundPlay
+  lda #10
+  jsr ScoreAddLow
+  dec endboss_health
+  bne Flash
+  ; Boss is dead!
+  mov endboss_state, #2
+  mov endboss_screen, #$01
+  mov endboss_h, #$f0
+Flash:
+  mov blink_bg_color, #2
+  lda #1
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$3f
+  mov {render_action_addr_low,y}, #$00
+  mov {render_action_data,y}, #$16
+Break:
 .endscope
 
 Display:
