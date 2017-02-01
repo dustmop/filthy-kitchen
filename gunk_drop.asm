@@ -10,6 +10,7 @@
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
+.include "sound.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
@@ -17,6 +18,7 @@
 .importzp player_v
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta
+.importzp gloop_sfx
 .importzp values
 
 .import object_data_extend
@@ -37,6 +39,8 @@ GUNK_DROP_FORM_LIMIT = 10
 
 .proc GunkDropExecute
 
+  mov gloop_sfx, #0
+
 .scope FormChange
   lda gunk_drop_form,x
   sta draw_frame
@@ -48,6 +52,10 @@ GUNK_DROP_FORM_LIMIT = 10
   blt AfterMovement
   mov {gunk_drop_inc,x}, #0
   inc gunk_drop_form,x
+  lda gunk_drop_form,x
+  cmp #2
+  bne AfterMovement
+  mov gloop_sfx, #$ff
   jmp AfterMovement
 MoveOkay:
 .endscope
@@ -77,6 +85,8 @@ AfterMovement:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
+  lda #SFX_GOT_HURT
+  jsr SoundPlay
   mov player_injury, #30
   mov player_iframe, #100
   mov player_gravity, #$fe
@@ -108,6 +118,12 @@ Next:
   sta sprite_tile,x
   lda #$03
   sta sprite_attr,x
+
+  ; Only play sound effect if gloop is visible on screen.
+  lda gloop_sfx
+  bpl Return
+  lda #SFX_GLOOP
+  jsr SoundPlay
 
 Return:
   rts

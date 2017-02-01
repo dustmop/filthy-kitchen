@@ -13,6 +13,7 @@
 .include "shared_object_values.asm"
 .include "draw_picture.h.asm"
 .include ".b/pictures.h.asm"
+.include "sound.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
@@ -59,6 +60,10 @@ Okay:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
+  ; Play sound of getting an item
+  lda #SFX_COLLECT_ITEM
+  jsr SoundPlay
+  ; Rest
   mov draw_v, {object_v,x}
   mov draw_h, {object_h,x}
   mov draw_screen, {object_screen,x}

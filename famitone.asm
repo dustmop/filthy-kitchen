@@ -7,6 +7,7 @@
 .export FamiToneSfxPlay
 .export FamiToneSamplePlay
 .export music_data
+.export sfx_data
 
 .import music_samples
 

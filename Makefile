@@ -50,6 +50,7 @@ SRC = gfx.asm \
       msg_catalog.asm \
       flash.asm \
       famitone.asm \
+      sound.asm \
       samples.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o

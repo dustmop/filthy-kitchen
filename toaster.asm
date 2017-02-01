@@ -8,12 +8,14 @@
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
 .include "draw_picture.h.asm"
+.include "sound.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp draw_screen, draw_h, draw_v, draw_frame
 .importzp player_v
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta
+.importzp elec_sfx
 .importzp values
 
 .import object_data_extend
@@ -38,6 +40,8 @@ toaster_in_air   = object_data_extend + $30
 
 .proc ToasterExecute
 
+  mov elec_sfx, #0
+
 .scope CountDown
   lda object_life,x
   cmp #$b0
@@ -47,6 +51,7 @@ toaster_in_air   = object_data_extend + $30
   mov {toaster_in_air,x}, #$ff
   mov {toaster_jump,x}, #$fd
   mov {toaster_jump_low,x}, #$00
+  mov elec_sfx, #$ff
 Next:
 .endscope
 
@@ -81,6 +86,8 @@ Next:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
+  lda #SFX_GOT_HURT
+  jsr SoundPlay
   mov player_injury, #30
   mov player_iframe, #100
   mov player_gravity, #$fe
@@ -116,6 +123,12 @@ DrawReady:
   MovWord draw_sprite_pointer, toaster_sprite_data
   mov draw_palette, #3
   jsr DrawPicture
+
+  lda elec_sfx
+  bpl Return
+  ; Play sound effect of electricity.
+  lda #SFX_ELECTRIC
+  jsr SoundPlay
 
 Return:
   rts

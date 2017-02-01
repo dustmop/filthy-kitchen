@@ -16,6 +16,7 @@
 .include "swatter.h.asm"
 .include "flash.h.asm"
 .include ".b/pictures.h.asm"
+.include "sound.h.asm"
 
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
@@ -224,6 +225,9 @@ MaybeJump:
 Jump:
   mov player_gravity, #$fc
   mov player_gravity_low, #0
+  ; Play sound of jumping
+  lda #SFX_JUMP
+  jsr SoundPlay
 Next:
 .endscope
 
@@ -246,6 +250,9 @@ GroundMovement:
   mov {swatter_speed,x}, #$0
   mov {swatter_speed_low,x}, _
   mov {swatter_v_low,x}, _
+  ; Play sound
+  lda #SFX_THROW_SWATTER
+  jsr SoundPlay
   ; Spawn to the left or right of player.
   bit player_dir
   bpl SpawnToTheRight

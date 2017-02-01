@@ -14,6 +14,7 @@
 .include "score_combo.h.asm"
 .include "shared_object_values.asm"
 .include ".b/trig.h.asm"
+.include "sound.h.asm"
 
 COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
@@ -261,6 +262,8 @@ Break:
   bcc Next
 DidCollide:
   jsr ExplodeTheFly
+  lda #SFX_GOT_HURT
+  jsr SoundPlay
   mov player_injury, #30
   mov player_iframe, #100
   mov player_gravity, #$fe

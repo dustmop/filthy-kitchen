@@ -15,6 +15,7 @@
 .include "render_action.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
+.include "sound.h.asm"
 .include "endboss.h.asm"
 
 .importzp ppu_ctrl_current, buttons_press, lives
@@ -101,6 +102,8 @@ LevelBoss:
 
 TransitionOut:
   jsr FamiToneMusicStop
+  lda #SFX_PRESS_START
+  jsr SoundPlay
   mov outer, #12
 
 OuterLoop:

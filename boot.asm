@@ -63,6 +63,10 @@ Wait1:
   ldy #>music_data
   jsr FamiToneInit
 
+  ldx #<sfx_data
+  ldy #>sfx_data
+  jsr FamiToneSfxInit
+
   ; Exit to the intro
   jmp IntroScreen
 

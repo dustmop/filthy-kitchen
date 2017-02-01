@@ -7,3 +7,4 @@
 .import FamiToneSfxPlay
 .import FamiToneSamplePlay
 .import music_data
+.import sfx_data

@@ -11,6 +11,7 @@
 .include "draw_picture.h.asm"
 .include "flash.h.asm"
 .include ".b/pictures.h.asm"
+.include "sound.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp level_complete
@@ -38,6 +39,9 @@ Okay:
   bcc Next
 DidCollide:
   mov level_complete, #1
+  ; Play sound effect of collecting broom.
+  lda #SFX_COLLECT_ITEM
+  jsr SoundPlay
   jmp Return
 Next:
 .endscope
@@ -126,6 +130,9 @@ Increment:
   mov {object_h,x}, draw_h
   mov {object_screen,x}, draw_screen
   jsr ObjectConstructor
+  ; Play sound of making stars
+  lda #SFX_MAKE_STARS
+  jsr SoundPlay
 Return:
   rts
 .endproc
