@@ -12,12 +12,14 @@
 .include "render_action.h.asm"
 .include "object_list.h.asm"
 .include "score_combo.h.asm"
+.include "famitone.h.asm"
 .include "sound.h.asm"
+.include "marque.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
 .importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
-.importzp endboss_iframe
+.importzp endboss_iframe, endboss_is_dead
 .importzp player_owns_swatter
 .importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
@@ -47,6 +49,7 @@ Okay:
   mov endboss_state, #0
   mov endboss_count, #0
   mov endboss_aggro, #0
+  mov endboss_is_dead, #0
   rts
 .endproc
 
@@ -75,7 +78,16 @@ Break:
   beq MovementIntoView
   cmp #1
   beq DriftAndFire
+BossDead:
+.scope BossDead
+  inc endboss_is_dead
+  lda endboss_is_dead
+  cmp #80
+  bne WaitMore
+  jmp ExitBoss
+WaitMore:
   rts
+.endscope
 
 MovementIntoView:
 .scope MovementIntoView
@@ -245,3 +257,10 @@ Loop:
 
 boss_graphics:
 .include ".b/boss.compressed.asm"
+
+
+ExitBoss:
+  jsr FamiToneMusicStop
+  jsr DisableDisplayAndNmi
+  inc which_level
+  jmp MarqueScreen

@@ -1,4 +1,5 @@
 .export MsgRender
+.export MsgRender2
 .exportzp MSG_HEALTH, MSG_LIVES, MSG_SCORE, MSG_COMBO
 .exportzp MSG_ZERO_SCORE, MSG_ZERO_COMBO, MSG_PRESS, MSG_START
 .exportzp MSG_THE_KITCHEN_IS
@@ -13,6 +14,8 @@
 .exportzp MSG_WARNING
 .exportzp MSG_BOSS_FLY_IS_APPROACHING
 .exportzp MSG_RESOLVE_YOUR_BATTLE
+.exportzp MSG_YOU_DID_IT
+.exportzp MSG_THE_KITCHEN_IS_CLEAN
 
 
 .include "include.branch-macros.asm"
@@ -22,10 +25,18 @@
 .importzp values
 
 
+.segment "BOOT" ; should be in "CODE", but need to save space
+
+
 msg_addr_high = msg_catalog
 msg_addr_low = msg_catalog + 1
 msg_length = msg_catalog + 2
 msg_body = msg_catalog + 3
+
+msg_addr_high2 = msg_catalog2
+msg_addr_low2 = msg_catalog2 + 1
+msg_length2 = msg_catalog2 + 2
+msg_body2 = msg_catalog2 + 3
 
 count = values + $00
 
@@ -51,9 +62,12 @@ MSG_KEEP_GOING_ALMOST  = <( msg_keep_going_almost_there - msg_catalog )
 MSG_GET_COMBO_KILLS    = <( msg_get_combo_kills - msg_catalog )
 MSG_TO_EARN_HIGH       = <( msg_to_earn_high_scores - msg_catalog )
 
-MSG_WARNING                 = <( msg_warning - msg_catalog)
-MSG_BOSS_FLY_IS_APPROACHING = <( msg_boss_fly_is_approaching - msg_catalog )
-MSG_RESOLVE_YOUR_BATTLE     = <( msg_resolve_your_battle - msg_catalog )
+MSG_WARNING                 = <( msg_warning - msg_catalog2 )
+MSG_BOSS_FLY_IS_APPROACHING = <( msg_boss_fly_is_approaching - msg_catalog2 )
+MSG_RESOLVE_YOUR_BATTLE     = <( msg_resolve_your_battle - msg_catalog2 )
+
+MSG_YOU_DID_IT = <( msg_you_did_it - msg_catalog2 )
+MSG_THE_KITCHEN_IS_CLEAN = <( msg_the_kitchen_is_clean - msg_catalog2 )
 
 
 ; X @in  Identifier for the message.
@@ -65,6 +79,23 @@ MSG_RESOLVE_YOUR_BATTLE     = <( msg_resolve_your_battle - msg_catalog )
   mov {render_action_addr_low,y}, {msg_addr_low,x}
 Loop:
   lda msg_body,x
+  sta render_action_data,y
+  iny
+  inx
+  dec count
+  bne Loop
+  rts
+.endproc
+
+
+.proc MsgRender2
+  lda msg_length2,x
+  sta count
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, {msg_addr_high2,x}
+  mov {render_action_addr_low,y}, {msg_addr_low2,x}
+Loop:
+  lda msg_body2,x
   sta render_action_data,y
   iny
   inx
@@ -122,6 +153,9 @@ msg_to_earn_high_scores:
 MsgPosition 16, 6
 .byte 19,"TO EARN HIGH SCORES"
 
+
+msg_catalog2:
+
 msg_warning:
 MsgPosition 12, 12
 .byte 7,"WARNING"
@@ -133,3 +167,12 @@ MsgPosition 14, 4
 msg_resolve_your_battle:
 MsgPosition 16, 6
 .byte 19,"RESOLVE YOUR BATTLE"
+
+msg_you_did_it:
+MsgPosition 13, 10
+.byte 11,"YOU DID IT!"
+
+msg_the_kitchen_is_clean:
+MsgPosition 15, 5
+.byte 21,"THE KITCHEN IS CLEAN!"
+

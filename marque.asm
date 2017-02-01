@@ -42,7 +42,9 @@ inner = values + 5
   beq Level2
   cmp #3
   beq Level3
-  jmp Level4
+  cmp #4
+  beq Level4
+  jmp Level5
 
 Level1:
   ldx #MSG_THE_KITCHEN_IS
@@ -73,11 +75,20 @@ Level3:
 
 Level4:
   ldx #MSG_WARNING
-  jsr MsgRender
+  jsr MsgRender2
   ldx #MSG_BOSS_FLY_IS_APPROACHING
-  jsr MsgRender
+  jsr MsgRender2
   ldx #MSG_RESOLVE_YOUR_BATTLE
-  jsr MsgRender
+  jsr MsgRender2
+  jmp LevelDone
+
+Level5:
+  ldx #MSG_YOU_DID_IT
+  jsr MsgRender2
+  ldx #MSG_THE_KITCHEN_IS_CLEAN
+  jsr MsgRender2
+  lda #0
+  jsr FamiToneMusicPlay
   jmp LevelDone
 
 LevelDone:
@@ -96,6 +107,11 @@ MarqueLoop:
   jsr FamiToneUpdate
   dec inner
   bne MarqueLoop
+
+  lda which_level
+  cmp #5
+  beq MarqueLoop
+
   dec outer
   bpl MarqueLoop
 
