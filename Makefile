@@ -1,10 +1,12 @@
-default: mmc3
+default: unrom
 
-all: a53 mmc3
+all: a53 mmc3 unrom
 
 a53: filthy-kitchen.nes
 
 mmc3: filthy-kitchen-mmc3.nes
+
+unrom: filthy-kitchen-unrom.nes
 
 clean:
 	rm -rf .b/
@@ -301,3 +303,12 @@ filthy-kitchen.nes: $(OBJ) .b/general_a53.o link-a53.cfg
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.1.nl
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.2.nl
 	cp filthy-kitchen.nes.0.nl filthy-kitchen.nes.3.nl
+
+filthy-kitchen-unrom.nes: $(OBJ) .b/general_unrom.o link-unrom.cfg
+	ld65 -o filthy-kitchen-unrom.nes $(OBJ) .b/general_unrom.o \
+            -C link-unrom.cfg -Ln filthy-kitchen-unrom.ln
+	python convertln.py filthy-kitchen-unrom.ln \
+            > filthy-kitchen-unrom.nes.0.nl
+	cp filthy-kitchen-unrom.nes.0.nl filthy-kitchen-unrom.nes.1.nl
+	cp filthy-kitchen-unrom.nes.0.nl filthy-kitchen-unrom.nes.2.nl
+	cp filthy-kitchen-unrom.nes.0.nl filthy-kitchen-unrom.nes.3.nl
