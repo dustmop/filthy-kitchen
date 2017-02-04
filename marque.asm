@@ -120,6 +120,5 @@ TransitionOut:
 
 ExitMarqueScreen:
   jsr DisableDisplayAndNmi
-  mov lives, #3
   jmp GameplayMain
 .endproc

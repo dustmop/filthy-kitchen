@@ -122,11 +122,11 @@ OuterLoop:
 ExitIntroScreen:
   jsr DisableDisplayAndNmi
   mov which_level, #1
+  mov lives, #3
   jmp MarqueScreen
 
 ExitFast:
   jsr DisableDisplayAndNmi
-  mov lives, #3
   jmp GameplayMain
 .endproc
 
