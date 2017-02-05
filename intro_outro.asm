@@ -2,6 +2,7 @@
 .export OutroScreen
 
 .include "include.controller.asm"
+.include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
@@ -26,6 +27,8 @@
 .import title_graphics
 .import game_over_palette
 .import game_over_graphics
+
+MAX_LEVEL = 4
 
 outer        = values + 4
 inner        = values + 5
@@ -59,6 +62,9 @@ special_code = values + 8
   mov code_dist, #0
   mov special_code, _
 
+  mov which_level, #1
+  mov lives, #3
+
   ; Play a song.
   lda #0
   jsr FamiToneMusicPlay
@@ -81,31 +87,31 @@ IntroLoop:
   bne TransitionOut
   ; Build a special code.
   jsr AccumulateSpecialCode
-  ; Select to exit fast to level 9 - debug feature.
-  ;lda buttons_press
-  ;and #BUTTON_SELECT
-  ;bne TransitionFast
+  ; If special code.
+  lda special_code
+  beq IntroLoop
+CodeIsActive:
+  lda buttons_press
+  and #BUTTON_LEFT
+  bne LevelDec
+  lda buttons_press
+  and #BUTTON_RIGHT
+  bne LevelInc
+  beq IntroLoop
+LevelDec:
+  dec which_level
+  bne LevelSet
+  mov which_level, #MAX_LEVEL
+  bpl LevelSet
+LevelInc:
+  inc which_level
+  lda which_level
+  cmp #(MAX_LEVEL + 1)
+  blt LevelSet
+  mov which_level, #1
+LevelSet:
+  jsr RenderLevelSelection
   jmp IntroLoop
-
-TransitionFast:
-  jsr FamiToneMusicStop
-  ; hold A to get level 9
-  lda buttons
-  and #BUTTON_A
-  bne Level4
-  ; hold down to get boss
-  lda buttons
-  and #BUTTON_DOWN
-  bne LevelBoss
-Level2:
-  mov which_level, #2
-  jmp ExitFast
-Level4:
-  mov which_level, #4
-  jmp ExitFast
-LevelBoss:
-  mov which_level, #BOSS_LEVEL
-  jmp ExitFast
 
 TransitionOut:
   jsr FamiToneMusicStop
@@ -128,8 +134,6 @@ OuterLoop:
 
 ExitIntroScreen:
   jsr DisableDisplayAndNmi
-  mov which_level, #1
-  mov lives, #3
   jmp MarqueScreen
 
 ExitFast:
@@ -280,6 +284,9 @@ SpecialCodeComplete:
   lda #SFX_MAKE_STARS
   jsr SoundPlay
   mov special_code, #$ff
+  ldx #MSG_SELECT_LEVEL
+  jsr MsgRender
+  jsr RenderLevelSelection
   rts
 .endproc
 
@@ -297,3 +304,16 @@ KEY_A      = $80
 code_sequence:
 .byte KEY_DOWN, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_B, KEY_A, KEY_DOWN
 CODE_LENGTH = * - code_sequence
+
+
+.proc RenderLevelSelection
+  lda #1
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$22
+  mov {render_action_addr_low,y},  #$73
+  lda which_level
+  clc
+  adc #$30
+  sta render_action_data,y
+  rts
+.endproc

@@ -15,6 +15,7 @@
 .exportzp MSG_RESOLVE_YOUR_BATTLE
 .exportzp MSG_YOU_DID_IT
 .exportzp MSG_THE_KITCHEN_IS_CLEAN
+.exportzp MSG_SELECT_LEVEL
 
 
 .include "include.branch-macros.asm"
@@ -110,6 +111,8 @@ decl_msg MSG_RESOLVE_YOUR_BATTLE,     msg_resolve_your_battle
 decl_msg MSG_YOU_DID_IT,           msg_you_did_it
 decl_msg MSG_THE_KITCHEN_IS_CLEAN, msg_the_kitchen_is_clean
 
+decl_msg MSG_SELECT_LEVEL, msg_select_level
+
 
 .include ".b/hud_msg.asm"
 .include ".b/title_msg.asm"
@@ -170,3 +173,6 @@ msg_the_kitchen_is_clean:
 MsgPosition 15, 5
 .byte 21,"THE KITCHEN IS CLEAN!"
 
+msg_select_level:
+MsgPosition 19, 13
+.byte 5,"LEVEL"

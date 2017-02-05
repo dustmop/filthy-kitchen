@@ -1,5 +1,4 @@
 .import MsgRender
-.import MsgRender2
 .importzp MSG_HEALTH, MSG_LIVES, MSG_SCORE, MSG_COMBO
 .importzp MSG_ZERO_SCORE, MSG_ZERO_COMBO, MSG_PRESS, MSG_START
 .importzp MSG_THE_KITCHEN_IS
@@ -16,3 +15,4 @@
 .importzp MSG_RESOLVE_YOUR_BATTLE
 .importzp MSG_YOU_DID_IT
 .importzp MSG_THE_KITCHEN_IS_CLEAN
+.importzp MSG_SELECT_LEVEL
