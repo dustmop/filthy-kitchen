@@ -1,5 +1,4 @@
 .export MsgRender
-.export MsgRender2
 .exportzp MSG_HEALTH, MSG_LIVES, MSG_SCORE, MSG_COMBO
 .exportzp MSG_ZERO_SCORE, MSG_ZERO_COMBO, MSG_PRESS, MSG_START
 .exportzp MSG_THE_KITCHEN_IS
@@ -23,6 +22,7 @@
 .include "render_action.h.asm"
 
 .importzp values
+.importzp pointer
 
 
 .segment "BOOT" ; should be in "CODE", but need to save space
@@ -33,70 +33,31 @@ msg_addr_low = msg_catalog + 1
 msg_length = msg_catalog + 2
 msg_body = msg_catalog + 3
 
-msg_addr_high2 = msg_catalog2
-msg_addr_low2 = msg_catalog2 + 1
-msg_length2 = msg_catalog2 + 2
-msg_body2 = msg_catalog2 + 3
-
 count = values + $00
 
-
-MSG_HEALTH     = <(msg_health - msg_catalog)
-MSG_LIVES      = <(msg_lives - msg_catalog)
-MSG_SCORE      = <(msg_score - msg_catalog)
-MSG_COMBO      = <(msg_combo - msg_catalog)
-MSG_ZERO_SCORE = <(msg_0000000 - msg_catalog)
-MSG_ZERO_COMBO = <(msg_000 - msg_catalog)
-MSG_PRESS      = <(msg_press - msg_catalog)
-MSG_START      = <(msg_start - msg_catalog)
-
-MSG_THE_KITCHEN_IS = <( msg_the_kitchen_is_so_dirty - msg_catalog )
-MSG_FIND_THE_BROOM = <( msg_find_the_broom - msg_catalog )
-MSG_AND_CLEAN_IT_UP = <( msg_and_clean_it_up - msg_catalog )
-
-MSG_KILL_ALL_THE_FLIES = <( msg_kill_all_the_flies - msg_catalog )
-MSG_WATCH_OUT_FOR      = <( msg_watch_out_for_utensils - msg_catalog )
-MSG_AND_APPLIANCES     = <( msg_and_appliances - msg_catalog )
-
-MSG_KEEP_GOING_ALMOST  = <( msg_keep_going_almost_there - msg_catalog )
-MSG_GET_COMBO_KILLS    = <( msg_get_combo_kills - msg_catalog )
-MSG_TO_EARN_HIGH       = <( msg_to_earn_high_scores - msg_catalog )
-
-MSG_WARNING                 = <( msg_warning - msg_catalog2 )
-MSG_BOSS_FLY_IS_APPROACHING = <( msg_boss_fly_is_approaching - msg_catalog2 )
-MSG_RESOLVE_YOUR_BATTLE     = <( msg_resolve_your_battle - msg_catalog2 )
-
-MSG_YOU_DID_IT = <( msg_you_did_it - msg_catalog2 )
-MSG_THE_KITCHEN_IS_CLEAN = <( msg_the_kitchen_is_clean - msg_catalog2 )
 
 
 ; X @in  Identifier for the message.
 .proc MsgRender
-  lda msg_length,x
+  lda msg_catalog+0,x
+  sta pointer+0
+  lda msg_catalog+1,x
+  sta pointer+1
+  ldy #2
+  lda (pointer),y
   sta count
   jsr AllocateRenderAction
-  mov {render_action_addr_high,y}, {msg_addr_high,x}
-  mov {render_action_addr_low,y}, {msg_addr_low,x}
-Loop:
-  lda msg_body,x
-  sta render_action_data,y
+  tya
+  tax
+  ldy #0
+  mov {render_action_addr_high,x}, {(pointer),y}
   iny
-  inx
-  dec count
-  bne Loop
-  rts
-.endproc
-
-
-.proc MsgRender2
-  lda msg_length2,x
-  sta count
-  jsr AllocateRenderAction
-  mov {render_action_addr_high,y}, {msg_addr_high2,x}
-  mov {render_action_addr_low,y}, {msg_addr_low2,x}
+  mov {render_action_addr_low,x},  {(pointer),y}
+  iny
+  iny
 Loop:
-  lda msg_body2,x
-  sta render_action_data,y
+  lda (pointer),y
+  sta render_action_data,x
   iny
   inx
   dec count
@@ -113,7 +74,43 @@ low = (ypos .mod 8) * $20 + xpos
 .endmacro
 
 
+.macro decl_msg identifier, location
+  identifier = <( * - msg_catalog )
+  .word location
+.endmacro
+
+
 msg_catalog:
+
+decl_msg MSG_HEALTH, msg_health
+decl_msg MSG_LIVES,  msg_lives
+decl_msg MSG_SCORE,  msg_score
+decl_msg MSG_COMBO,  msg_combo
+decl_msg MSG_ZERO_SCORE, msg_0000000
+decl_msg MSG_ZERO_COMBO, msg_000
+decl_msg MSG_PRESS,  msg_press
+decl_msg MSG_START,  msg_start
+
+decl_msg MSG_THE_KITCHEN_IS,  msg_the_kitchen_is_so_dirty
+decl_msg MSG_FIND_THE_BROOM,  msg_find_the_broom
+decl_msg MSG_AND_CLEAN_IT_UP, msg_and_clean_it_up
+
+decl_msg MSG_KILL_ALL_THE_FLIES, msg_kill_all_the_flies
+decl_msg MSG_WATCH_OUT_FOR,      msg_watch_out_for_utensils
+decl_msg MSG_AND_APPLIANCES,     msg_and_appliances
+
+decl_msg MSG_KEEP_GOING_ALMOST, msg_keep_going_almost_there
+decl_msg MSG_GET_COMBO_KILLS,   msg_get_combo_kills
+decl_msg MSG_TO_EARN_HIGH,      msg_to_earn_high_scores
+
+decl_msg MSG_WARNING,                 msg_warning
+decl_msg MSG_BOSS_FLY_IS_APPROACHING, msg_boss_fly_is_approaching
+decl_msg MSG_RESOLVE_YOUR_BATTLE,     msg_resolve_your_battle
+
+decl_msg MSG_YOU_DID_IT,           msg_you_did_it
+decl_msg MSG_THE_KITCHEN_IS_CLEAN, msg_the_kitchen_is_clean
+
+
 .include ".b/hud_msg.asm"
 .include ".b/title_msg.asm"
 
@@ -152,9 +149,6 @@ MsgPosition 14, 8
 msg_to_earn_high_scores:
 MsgPosition 16, 6
 .byte 19,"TO EARN HIGH SCORES"
-
-
-msg_catalog2:
 
 msg_warning:
 MsgPosition 12, 12

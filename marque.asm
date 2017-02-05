@@ -75,18 +75,18 @@ Level3:
 
 Level4:
   ldx #MSG_WARNING
-  jsr MsgRender2
+  jsr MsgRender
   ldx #MSG_BOSS_FLY_IS_APPROACHING
-  jsr MsgRender2
+  jsr MsgRender
   ldx #MSG_RESOLVE_YOUR_BATTLE
-  jsr MsgRender2
+  jsr MsgRender
   jmp LevelDone
 
 Level5:
   ldx #MSG_YOU_DID_IT
-  jsr MsgRender2
+  jsr MsgRender
   ldx #MSG_THE_KITCHEN_IS_CLEAN
-  jsr MsgRender2
+  jsr MsgRender
   lda #1
   jsr FamiToneMusicPlay
   jmp LevelDone
