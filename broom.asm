@@ -156,19 +156,22 @@ broom_animate_v_offset:
 .byte 1
 
 
+OFFSET = 6
+
+
 ; TODO: Pictures can't correctly process broom.
 PICTURE_ID_BROOM = 0
 broom_picture_data:
 .byte $00,$01,$02,$03,$04,$fe,$05,$06,$ff
 broom_sprite_data:
 ;       y,  x, tile
-.byte $00,$0a         ,BROOM_TOP_TILE
-.byte $0a,$08-$08     ,BROOM_MIDDLE_TILE
-.byte $1a,$00-$10+$100,BROOM_GLOW_A_TILE
-.byte $1a,$0a-$18+$100,BROOM_GLOW_B_TILE
-.byte $28,$06-$20+$100,BROOM_GLOW_C_TILE
-.byte $1a,$01         ,BROOM_MOP_LEFT_TILE
-.byte $1a,$09-$08     ,BROOM_MOP_RIGHT_TILE
+.byte $00,$0a    -OFFSET     ,BROOM_TOP_TILE
+.byte $0a,$08-$08-OFFSET+$100,BROOM_MIDDLE_TILE
+.byte $1a,$00-$10-OFFSET+$100,BROOM_GLOW_A_TILE
+.byte $1a,$0a-$18-OFFSET+$100,BROOM_GLOW_B_TILE
+.byte $28,$06-$20-OFFSET+$100,BROOM_GLOW_C_TILE
+.byte $1a,$01    -OFFSET+$100,BROOM_MOP_LEFT_TILE
+.byte $1a,$09-$08-OFFSET+$100,BROOM_MOP_RIGHT_TILE
 
 BROOM_TOP_TILE       = $9d
 BROOM_MIDDLE_TILE    = BROOM_TOP_TILE + 2

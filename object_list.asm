@@ -500,7 +500,7 @@ kind_offset_h:
 .byte $80,      0
 
 kind_bigger_h:
-.byte   0,  0,     $80,    $80,    8,     4,        0,     0,         3,  $80
+.byte   0,  0,     $80,    $80,    8,     4,        0,     8,         3,  $80
 .byte $80,      2
 
 kind_bigger_v:
