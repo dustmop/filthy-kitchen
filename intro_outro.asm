@@ -27,9 +27,11 @@
 .import game_over_palette
 .import game_over_graphics
 
-outer = values + 4
-inner = values + 5
-wings_frame = values + 6
+outer        = values + 4
+inner        = values + 5
+wings_frame  = values + 6
+code_dist    = values + 7
+special_code = values + 8
 
 .segment "CODE"
 
@@ -54,6 +56,9 @@ wings_frame = values + 6
 
   jsr CreateFlyWings
 
+  mov code_dist, #0
+  mov special_code, _
+
   ; Play a song.
   lda #0
   jsr FamiToneMusicPlay
@@ -74,11 +79,13 @@ IntroLoop:
   lda buttons_press
   and #BUTTON_START
   bne TransitionOut
+  ; Build a special code.
+  jsr AccumulateSpecialCode
   ; Select to exit fast to level 9 - debug feature.
   ;lda buttons_press
   ;and #BUTTON_SELECT
   ;bne TransitionFast
-  beq IntroLoop
+  jmp IntroLoop
 
 TransitionFast:
   jsr FamiToneMusicStop
@@ -230,3 +237,63 @@ OutroLoop:
 
   rts
 .endproc
+
+
+.proc AccumulateSpecialCode
+  bit special_code
+  bmi Return
+  ; Check each bit one at a time.
+  mov outer, #8
+  lda buttons_press
+  beq Return
+Loop:
+  lsr a
+  bcs GotButton
+  dec outer
+  beq Return
+  bne Loop
+GotButton:
+  ; If more than one button pressed, exit.
+  bne EraseCode
+  ; Compare the pressed button to the expected sequence.
+  lda buttons_press
+  ldy code_dist
+  cmp code_sequence,y
+  bne EraseCode
+  ; Correct value inputted, advance the code distance.
+  inc code_dist
+  lda code_dist
+  cmp #CODE_LENGTH
+  beq SpecialCodeComplete
+  rts
+EraseCode:
+  mov code_dist, #0
+  ; Special case.
+  lda buttons_press
+  cmp code_sequence+0
+  bne Return
+  ; Start after step 1
+  inc code_dist
+Return:
+  rts
+SpecialCodeComplete:
+  lda #SFX_MAKE_STARS
+  jsr SoundPlay
+  mov special_code, #$ff
+  rts
+.endproc
+
+
+KEY_RIGHT  = 1
+KEY_LEFT   = 2
+KEY_DOWN   = 4
+KEY_UP     = 8
+KEY_START  = $10
+KEY_SELECT = $20
+KEY_B      = $40
+KEY_A      = $80
+
+
+code_sequence:
+.byte KEY_DOWN, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_B, KEY_A, KEY_DOWN
+CODE_LENGTH = * - code_sequence
