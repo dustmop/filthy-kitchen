@@ -33,7 +33,7 @@ adjust_h = values + 1
 diff_h   = values + 2
 is_left  = values + 3
 mask     = values + 4
-base     = values + 5
+index    = values + 5
 
 .import object_data_extend
 fly_direction = object_data_extend + $00
@@ -384,7 +384,7 @@ Return:
 
 .proc SetNewDirection
   mov mask, #$3f
-  mov base, #0
+  mov index, #0
 
 .scope VerticalRestrict
   lda object_v,x
@@ -395,10 +395,11 @@ Return:
   blt Next
 AlwaysMoveDown:
   lsr mask
-  mov base, #$20
+  mov index, #6
   bpl Next
 AlwaysMoveUp:
   lsr mask
+  mov index, #3
 Next:
 .endscope
 
@@ -429,17 +430,12 @@ FarAway:
   bit is_left
   bpl AlwaysMoveLeft
 AlwaysMoveRight:
-  lda base
-  clc
-  adc #$30
-  sta base
+  inc index
   lsr mask
   jmp Next
 AlwaysMoveLeft:
-  lda base
-  clc
-  adc #$10
-  sta base
+  inc index
+  inc index
   lsr mask
 Next:
 .endscope
@@ -447,8 +443,9 @@ Next:
 Choose:
   jsr RandomGet
   and mask
+  ldy index
   clc
-  adc base
+  adc quadrant_to_dir,y
   and #$3f
   sta fly_direction,x
   rts
@@ -466,3 +463,14 @@ fly_animation_sequence:
 .byte FLY_ANIMATE_2
 .byte FLY_ANIMATE_3
 .byte FLY_ANIMATE_2
+
+quadrant_to_dir:
+.byte 0
+.byte $30 ; 1, right
+.byte $10 ; 2, left
+.byte $00 ; 3, up
+.byte $00 ; 4, up/right
+.byte $10 ; 5, up/left
+.byte $20 ; 6, down
+.byte $30 ; 7, down/right
+.byte $20 ; 8, down/left
