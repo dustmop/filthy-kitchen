@@ -97,7 +97,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/fader.o: fader.asm .b/fader_pal.dat
 	ca65 -o .b/fader.o fader.asm -g
 
-.b/endboss.o: endboss.asm .b/boss.compressed.asm
+.b/endboss.o: endboss.asm .b/boss.compressed.asm .b/boss.animate0.asm .b/boss.animate1.asm
 	ca65 -o .b/endboss.o endboss.asm -g
 
 .b/msg_catalog.o: msg_catalog.asm .b/hud_msg.asm .b/title_msg.asm
@@ -202,6 +202,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr boss.png -o .b/boss.o -b 0f
 
+.b/boss2.o: boss2.png
+	mkdir -p .b/
+	makechr boss2.png -o .b/boss2.o -b 0f
+
 .b/bg_pal.o .b/bg_pal.dat: bg_pal.png
 	makechr --makepal bg_pal.png -o .b/bg_pal.o
 	makechr --makepal bg_pal.png -o .b/bg_pal.dat
@@ -268,13 +272,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/resource1.chr.dat .b/boss.graphics.dat .b/boss.palette.dat: \
-            .b/chars.chr.dat .b/hud.o .b/boss.o .b/alpha.o .b/digit.o
-	python merge_chr_nt.py .b/hud.o .b/boss.o -A .b/alpha.o -D .b/digit.o \
-            -c .b/boss.chr.dat -n .b/boss.nametable.dat \
-            -a .b/boss.attribute.dat
-	cat .b/boss.nametable.dat .b/boss.attribute.dat > \
+.b/resource1.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
+            .b/chars.chr.dat .b/hud.o .b/boss.o .b/boss2.o .b/alpha.o .b/digit.o
+	python merge_chr_nt.py .b/hud.o .b/boss.o .b/boss2.o \
+            -A .b/alpha.o -D .b/digit.o \
+            -c .b/boss.chr.dat -n .b/boss%d.nametable.dat \
+            -a .b/boss%d.attribute.dat
+	cat .b/boss01.nametable.dat .b/boss01.attribute.dat > \
             .b/boss.graphics.dat
+	python build_boss_delta.py \
+            .b/boss01.nametable.dat .b/boss02.nametable.dat \
+            -l .b/boss.animate0.asm -r .b/boss.animate1.asm
 	head -c 4096 .b/boss.chr.dat > .b/resource1.chr.dat
 	tail -c 4096 .b/chars.chr.dat >> .b/resource1.chr.dat
 

@@ -2,6 +2,7 @@
 .export EndBossUpdate
 .export EndBossFillGraphics
 .export EndBossSwatterHandle
+.export EndbossAnimation
 
 .include "include.controller.asm"
 .include "include.branch-macros.asm"
@@ -20,6 +21,8 @@
 .importzp endboss_screen, endboss_count, endboss_state
 .importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
 .importzp endboss_iframe, endboss_is_dead
+.importzp endboss_render_animation
+.importzp endboss_render_animation, endboss_render_count
 .importzp player_owns_swatter, player_health, player_h
 .importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
@@ -50,6 +53,8 @@ Okay:
   mov endboss_count, #0
   mov endboss_aggro, #0
   mov endboss_is_dead, #0
+  mov endboss_render_animation, #0
+  mov endboss_render_count, #0
   rts
 .endproc
 
@@ -222,6 +227,20 @@ PlayerOverlap:
 Break:
 .endscope
 
+.scope AnimateWings
+  inc endboss_render_count
+  lda endboss_render_count
+  cmp #4
+  blt Next
+  mov endboss_render_count, #0
+  inc endboss_render_animation
+  lda endboss_render_animation
+  and #1
+  ora #$80
+  sta endboss_render_animation
+Next:
+.endscope
+
   rts
 .endproc
 
@@ -282,3 +301,30 @@ ExitBoss:
   jsr DisableDisplayAndNmi
   inc which_level
   jmp MarqueScreen
+
+
+.segment "BOOT"
+
+
+.proc EndbossAnimation
+  lda endboss_render_animation
+  bpl Return
+  and #$01
+  sta endboss_render_animation
+  beq Render0
+  bne Render1
+Render0:
+  jmp BossAnimateWing0
+Render1:
+  jmp BossAnimateWing1
+Return:
+  rts
+.endproc
+
+
+BossAnimateWing0:
+.include ".b/boss.animate0.asm"
+
+
+BossAnimateWing1:
+.include ".b/boss.animate1.asm"

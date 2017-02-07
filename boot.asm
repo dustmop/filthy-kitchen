@@ -7,6 +7,7 @@
 .include "gfx.h.asm"
 .include "intro_outro.h.asm"
 .include "famitone.h.asm"
+.include "endboss.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
 .importzp player_removed
@@ -86,6 +87,8 @@ NMI:
   jsr LevelDataUpdateScroll
   ; Render changes to the PPU.
   jsr RenderActionApplyAll
+  ; Boss wing animation.
+  jsr EndbossAnimation
   ; Reset ppu pointer.
   lda #0
   sta PPU_ADDR
