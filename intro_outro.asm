@@ -186,6 +186,9 @@ Loop:
   ldx #MEMORY_LAYOUT_NORMAL_POINTER
   jsr MemoryLayoutFillChrRam
 
+  jsr CreateFlyWings
+  jsr SpriteSpaceInit
+
   ; Play a song.
   ;lda #0
   ;jsr FamiToneMusicPlay
@@ -195,6 +198,9 @@ Loop:
 OutroLoop:
   jsr WaitNewFrame
   jsr FamiToneUpdate
+  jsr SpriteSpaceEraseAll
+  jsr SpriteSpaceNext
+  jsr ObjectListUpdate
   jmp OutroLoop
 .endproc
 
