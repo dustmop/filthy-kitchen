@@ -19,7 +19,7 @@
 COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
 
-.importzp player_screen, player_h, player_owns_swatter
+.importzp player_screen, player_h, player_v, player_owns_swatter
 .importzp player_injury, player_iframe, player_gravity, player_gravity_low
 .importzp player_health_delta
 .importzp camera_h, camera_screen
@@ -34,6 +34,7 @@ diff_h   = values + 2
 is_left  = values + 3
 mask     = values + 4
 index    = values + 5
+towards_idx = values + 6
 
 .import object_data_extend
 fly_direction = object_data_extend + $00
@@ -422,6 +423,22 @@ AbsoluteValue:
 Next:
 .endscope
 
+.scope FindVerticalDiff
+  lda is_left
+  and #$01
+  sta towards_idx
+  lda object_v,x
+  sec
+  sbc player_v
+  bmi Next
+  ;
+  lda towards_idx
+  clc
+  adc #2
+  sta towards_idx
+Next:
+.endscope
+
 .scope HorizontalRestrict
   lda diff_h
   cmp #$50
@@ -442,11 +459,18 @@ Next:
 
 Choose:
   jsr RandomGet
+  cmp #$c0
+  bge MoveTowardsPlayer
   and mask
   ldy index
   clc
   adc quadrant_to_dir,y
   and #$3f
+  sta fly_direction,x
+  rts
+MoveTowardsPlayer:
+  ldy towards_idx
+  lda towards_dir,y
   sta fly_direction,x
   rts
 .endproc
@@ -474,3 +498,9 @@ quadrant_to_dir:
 .byte $20 ; 6, down
 .byte $30 ; 7, down/right
 .byte $20 ; 8, down/left
+
+towards_dir:
+.byte $28 ; move down/left
+.byte $38 ; move down/right
+.byte $18 ; move up/left
+.byte $08 ; move up/right
