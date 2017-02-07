@@ -110,7 +110,7 @@ State:
   mov endboss_state, #1
   mov endboss_speed, #$ff
 Next:
-  jmp Display
+  jmp CheckVunerable
 .endscope
 
 DriftAndFire:
@@ -156,6 +156,8 @@ Attack:
 Next:
 .endscope
 
+CheckVunerable:
+
 .scope Iframe
   lda endboss_iframe
   beq CanBeHit
@@ -168,9 +170,12 @@ CanBeHit:
   ; Is swatter being thrown.
   ldy player_owns_swatter
   bmi Break
+  ; Screen
+  lda object_screen,y
+  bne Break
   ; Vertical
   lda object_v,y
-  cmp #$88
+  cmp #$90
   bge Break
   ; Horizontal
   lda object_h,y
