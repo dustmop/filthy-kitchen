@@ -98,6 +98,7 @@ endboss_health: .byte 0
 endboss_aggro: .byte 0
 endboss_speed: .byte 0
 endboss_iframe: .byte 0
+endboss_show_meter: .byte 0
 blink_bg_color: .byte 0
 endboss_is_dead: .byte 0
 endboss_render_animation: .byte 0
@@ -152,7 +153,8 @@ which_level: .byte 0
 .exportzp which_level
 .exportzp endboss_screen, endboss_count, endboss_state
 .exportzp endboss_h, endboss_health
-.exportzp endboss_aggro, endboss_speed, endboss_iframe, endboss_is_dead
+.exportzp endboss_aggro, endboss_speed, endboss_iframe, endboss_show_meter
+.exportzp endboss_is_dead
 .exportzp endboss_render_animation, endboss_render_count
 .exportzp blink_bg_color
 

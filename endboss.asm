@@ -16,24 +16,34 @@
 .include "famitone.h.asm"
 .include "sound.h.asm"
 .include "marque.h.asm"
+.include "include.sprites.asm"
+.include "sprite_space.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
 .importzp endboss_h, endboss_health, endboss_aggro, endboss_speed
-.importzp endboss_iframe, endboss_is_dead
+.importzp endboss_iframe, endboss_show_meter, endboss_is_dead
 .importzp endboss_render_animation
 .importzp endboss_render_animation, endboss_render_count
 .importzp player_owns_swatter, player_health, player_h
 .importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
+.importzp draw_h
 
 .importzp which_level
 .importzp values
 inner = values + $0
 outer = values + $1
+; Reuse
+meter = values + $0
 
 
 BOSS_LEVEL = $04
+
+BOSS_HEALTH_PALETTE = 3
+BOSS_HEALTH_EDGE_TILE = $cf
+BOSS_HEALTH_METER_BASE_TILE = $d1
+BOSS_HEALTH_METER_V = $40
 
 
 .proc EndBossInit
@@ -46,7 +56,7 @@ Okay:
   mov bg_x_scroll, #$00
   mov bg_nt_select, #$00
   ;
-  mov endboss_health, #10
+  mov endboss_health, #12
   mov endboss_h, #$30
   mov endboss_screen, #$01
   mov endboss_state, #0
@@ -186,6 +196,7 @@ CanBeHit:
   bge Break
   ; Hit the boss
   mov endboss_iframe, #$30
+  mov endboss_show_meter, #$50
   lda #SFX_FLY_KILLED
   jsr SoundPlay
   lda #10
@@ -243,6 +254,71 @@ Break:
   and #1
   ora #$80
   sta endboss_render_animation
+Next:
+.endscope
+
+.scope DrawHealthMeter
+  lda endboss_show_meter
+  beq Next
+  dec endboss_show_meter
+
+  jsr EndBossFillMeter
+
+  mov draw_h, endboss_h
+
+  ; left edge
+  jsr SpriteSpaceAllocate
+  lda draw_h
+  sta sprite_h,x
+  lda #BOSS_HEALTH_METER_V
+  sta sprite_v,x
+  lda #BOSS_HEALTH_EDGE_TILE
+  sta sprite_tile,x
+  lda #BOSS_HEALTH_PALETTE
+  sta sprite_attr,x
+
+  lda draw_h
+  clc
+  adc #8
+  sta draw_h
+
+  ldy #0
+MeterDrawLoop:
+  ; meter 0 edge
+  jsr SpriteSpaceAllocate
+  lda draw_h
+  sta sprite_h,x
+  lda #BOSS_HEALTH_METER_V
+  sta sprite_v,x
+  lda meter,y
+  asl a
+  clc
+  adc #BOSS_HEALTH_METER_BASE_TILE
+  sta sprite_tile,x
+  lda #BOSS_HEALTH_PALETTE
+  sta sprite_attr,x
+
+  lda draw_h
+  clc
+  adc #8
+  sta draw_h
+
+  iny
+  cpy #3
+  blt MeterDrawLoop
+MeterDrawDone:
+
+  ; right edge
+  jsr SpriteSpaceAllocate
+  lda draw_h
+  sta sprite_h,x
+  lda #BOSS_HEALTH_METER_V
+  sta sprite_v,x
+  lda #BOSS_HEALTH_EDGE_TILE
+  sta sprite_tile,x
+  lda #(BOSS_HEALTH_PALETTE | $40)
+  sta sprite_attr,x
+
 Next:
 .endscope
 
@@ -333,3 +409,31 @@ BossAnimateWing0:
 
 BossAnimateWing1:
 .include ".b/boss.animate1.asm"
+
+
+.proc EndBossFillMeter
+  ldx #0
+  lda endboss_health
+Loop:
+  cmp #0
+  beq EmptyPiece
+  cmp #4
+  bge FullPiece
+PartialPiece:
+  tay
+  lda #0
+  bpl Assign
+EmptyPiece:
+  ldy #0
+  bpl Assign
+FullPiece:
+  ldy #4
+  sec
+  sbc #4
+Assign:
+  sty meter,x
+  inx
+  cpx #3
+  blt Loop
+  rts
+.endproc
