@@ -109,6 +109,7 @@ LoadBoss:
   mov level_has_entrance_door, #0
   mov level_has_infinite_flies, #0
   mov level_player_start_v, #$a8
+  MovWord level_spawn_pointer, no_spawn
   rts
 
 .endproc
@@ -493,3 +494,6 @@ level3_meta:
 .byte 0, 0
 .byte $a8
 .include ".b/level3_data.asm"
+
+no_spawn:
+.byte $ff,$ff,$ff,$ff
