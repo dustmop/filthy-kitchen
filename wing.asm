@@ -110,7 +110,7 @@ wing_attr_table:
 .byte $00
 
 wing_animation:
-.byte $78
-.byte $7c
-.byte $80
-.byte $7c
+.byte $7a
+.byte $7e
+.byte $82
+.byte $7e

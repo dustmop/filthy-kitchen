@@ -16,6 +16,7 @@
 .exportzp MSG_YOU_DID_IT
 .exportzp MSG_THE_KITCHEN_IS_CLEAN
 .exportzp MSG_SELECT_LEVEL
+.exportzp MSG_COPYRIGHT
 
 
 .include "include.branch-macros.asm"
@@ -112,6 +113,7 @@ decl_msg MSG_YOU_DID_IT,           msg_you_did_it
 decl_msg MSG_THE_KITCHEN_IS_CLEAN, msg_the_kitchen_is_clean
 
 decl_msg MSG_SELECT_LEVEL, msg_select_level
+decl_msg MSG_COPYRIGHT,    msg_copyright
 
 
 .include ".b/hud_msg.asm"
@@ -176,3 +178,7 @@ MsgPosition 15, 5
 msg_select_level:
 MsgPosition 19, 13
 .byte 5,"LEVEL"
+
+msg_copyright:
+MsgPosition 24, 9
+.byte 14, "DUSTMOP # 2016"

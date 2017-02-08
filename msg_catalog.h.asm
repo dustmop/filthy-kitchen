@@ -16,3 +16,4 @@
 .importzp MSG_YOU_DID_IT
 .importzp MSG_THE_KITCHEN_IS_CLEAN
 .importzp MSG_SELECT_LEVEL
+.importzp MSG_COPYRIGHT

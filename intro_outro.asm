@@ -52,6 +52,8 @@ special_code = values + 8
   jsr MsgRender
   ldx #MSG_START
   jsr MsgRender
+  ldx #MSG_COPYRIGHT
+  jsr MsgRender
 
   lda #MEMORY_LAYOUT_BANK_SCREEN_CHR
   ldx #MEMORY_LAYOUT_NORMAL_POINTER
