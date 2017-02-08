@@ -9,6 +9,7 @@
 .segment "CODE"
 
 .proc MaybeDebugToggle
+  rts
   lda buttons_press
   and #BUTTON_SELECT
   beq Return
