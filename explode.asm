@@ -1,4 +1,5 @@
 .export ExplodeExecute
+.export ExplodeDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -13,6 +14,9 @@
 .segment "CODE"
 
 .proc ExplodeExecute
+
+Draw:
+
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x
@@ -56,6 +60,9 @@
 Return:
   rts
 .endproc
+
+
+ExplodeDraw = ExplodeExecute::Draw
 
 
 EXPLODE_ANIMATE_1 = $11

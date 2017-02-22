@@ -1,4 +1,5 @@
 .export GunkDropExecute
+.export GunkDropDraw
 .export gunk_drop_form
 .export gunk_drop_inc
 .export gunk_drop_speed
@@ -43,7 +44,6 @@ GUNK_DROP_FORM_LIMIT = 10
 
 .scope FormChange
   lda gunk_drop_form,x
-  sta draw_frame
   cmp #2
   bge MoveOkay
   inc gunk_drop_inc,x
@@ -96,6 +96,12 @@ DidCollide:
 Next:
 .endscope
 
+
+Draw:
+
+  lda gunk_drop_form,x
+  sta draw_frame
+
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x
@@ -128,6 +134,9 @@ Next:
 Return:
   rts
 .endproc
+
+
+GunkDropDraw = GunkDropExecute::Draw
 
 
 gunk_drop_frames:

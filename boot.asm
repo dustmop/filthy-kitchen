@@ -9,7 +9,8 @@
 .include "famitone.h.asm"
 .include "endboss.h.asm"
 
-.importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
+.importzp bg_x_scroll, bg_y_scroll, main_yield, debug_mode
+.importzp ppu_ctrl_current, ppu_mask_current
 .importzp player_removed
 .import gameplay_palette, graphics0, graphics1
 
@@ -101,6 +102,9 @@ NMI:
   ; Assign ppu control.
   lda ppu_ctrl_current
   sta PPU_CTRL
+  ; Assign ppu mask.
+  lda ppu_mask_current
+  sta PPU_MASK
   pla
   tay
   pla

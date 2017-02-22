@@ -1,5 +1,6 @@
 .import FoodConstructor
 .import FoodExecute
+.import FoodDraw
 
 .import food_kind
 

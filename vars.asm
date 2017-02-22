@@ -88,6 +88,7 @@ draw_frame: .byte 0
 random_value: .byte 0
 spawn_count: .byte 0
 color: .byte 0
+is_paused: .byte 0
 
 ; end boss
 endboss_screen: .byte 0
@@ -141,6 +142,7 @@ which_level: .byte 0
 .exportzp draw_curr_h, draw_curr_v, draw_frame
 .exportzp random_value, debug_mode, render_last
 .exportzp spawn_count, color
+.exportzp is_paused
 .exportzp score_low, score_medium, combo_low, combo_medium
 .exportzp earned_combo_low, earned_combo_medium, earned_combo_count
 .exportzp spawn_left_index, spawn_right_index

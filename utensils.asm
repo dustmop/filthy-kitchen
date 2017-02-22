@@ -1,5 +1,6 @@
 .export UtensilsConstructor
 .export UtensilsExecute
+.export UtensilsDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -74,6 +75,8 @@ DidCollide:
 Next:
 .endscope
 
+Draw:
+
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x
@@ -117,3 +120,6 @@ Next:
 Return:
   rts
 .endproc
+
+
+UtensilsDraw = UtensilsExecute::Draw

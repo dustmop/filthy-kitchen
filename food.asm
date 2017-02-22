@@ -1,5 +1,6 @@
 .export FoodConstructor
 .export FoodExecute
+.export FoodDraw
 
 .export food_kind
 
@@ -99,6 +100,8 @@ Okay:
 Next:
 .endscope
 
+Draw:
+
   ; First part of food appears in the background of the later part.
   jsr SpriteSpaceSetLowPriority
 
@@ -129,6 +132,9 @@ Next:
 Return:
   rts
 .endproc
+
+
+FoodDraw = FoodExecute::Draw
 
 
 food_picture:

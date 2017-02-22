@@ -30,7 +30,7 @@
 
 
 .importzp object_list_head, object_list_tail, camera_h
-.importzp player_v, player_h, player_screen, player_collision_idx
+.importzp player_v, player_h, player_screen, player_collision_idx, is_paused
 .importzp objects_only_draw, draw_frame
 .importzp values
 ; TODO: Circular dependency, bad.
@@ -128,6 +128,8 @@ Loop:
   bge Increment
 Body:
   jsr ObjectExecute
+  bit is_paused
+  bmi Increment
   ; Step forward lifetime
   lda object_life,x
   cmp #$ff
@@ -165,6 +167,9 @@ ClearDecrement:
   ; Retrieve info for the object.
   mov animate_limit, {table_object_animate_limit,y}
   mov num_frames,    {table_object_num_frames,y}
+  ; No animation if paused
+  bit is_paused
+  bmi Next
   ; Animation
   inc object_step,x
   lda object_step,x
@@ -195,27 +200,9 @@ OnlyDraw:
   txa
   pha
   tya
-  cmp #OBJECT_KIND_FLY
-  beq OnlyDrawFly
-  cmp #OBJECT_KIND_SWATTER
-  beq OnlyDrawSwatter
-  cmp #OBJECT_KIND_BROOM
-  beq OnlyDrawBroom
-  cmp #OBJECT_KIND_STAR
-  beq OnlyDrawStar
-  bne OnlyDrawDone
-OnlyDrawSwatter:
-  jsr SwatterDraw
-  jmp OnlyDrawDone
-OnlyDrawFly:
-  jsr FlyDraw
-  jmp OnlyDrawDone
-OnlyDrawBroom:
-  jsr BroomDraw
-  jmp OnlyDrawDone
-OnlyDrawStar:
-  jsr StarDraw
-OnlyDrawDone:
+  asl a
+  tay
+  jsr ObjectDrawFromTable
   pla
   tax
   rts
@@ -226,6 +213,15 @@ OnlyDrawDone:
   lda execute_table+1,y
   pha
   lda execute_table+0,y
+  pha
+  rts
+.endproc
+
+
+.proc ObjectDrawFromTable
+  lda draw_table+1,y
+  pha
+  lda draw_table+0,y
   pha
   rts
 .endproc
@@ -520,3 +516,17 @@ execute_table:
 .word StarExecute-1
 .word WingExecute-1
 .word ToasterExecute-1
+
+draw_table:
+.word SwatterDraw-1
+.word FlyDraw-1
+.word ExplodeDraw-1
+.word PointsDraw-1
+.word FoodDraw-1
+.word DirtDraw-1
+.word UtensilsDraw-1
+.word BroomDraw-1
+.word GunkDropDraw-1
+.word StarDraw-1
+.word WingDraw-1
+.word ToasterDraw-1

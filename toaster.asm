@@ -1,5 +1,6 @@
 .export ToasterConstructor
 .export ToasterExecute
+.export ToasterDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -97,6 +98,8 @@ DidCollide:
 Next:
 .endscope
 
+Draw:
+
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x
@@ -133,6 +136,9 @@ DrawReady:
 Return:
   rts
 .endproc
+
+
+ToasterDraw = ToasterExecute::Draw
 
 
 toaster_jump_animation:

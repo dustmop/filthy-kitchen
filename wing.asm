@@ -1,5 +1,6 @@
 .export WingConstructor
 .export WingExecute
+.export WingDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -101,6 +102,9 @@ Okay:
 Return:
   rts
 .endproc
+
+
+WingDraw = WingExecute
 
 
 wing_attr_table:

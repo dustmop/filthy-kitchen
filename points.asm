@@ -1,4 +1,5 @@
 .export PointsGainAndCreate, PointsExecute
+.export PointsDraw
 .export points_digit_ones, points_digit_tens, points_digit_hundreds
 .export combo_points_low, combo_points_medium
 
@@ -78,10 +79,13 @@ POINTS_STEAK = 11
 
 
 .proc PointsExecute
-  txa
-  pha
 
   dec object_v,x
+
+Draw:
+
+  txa
+  pha
 
   ;
   lda points_digit_ones,x
@@ -140,6 +144,7 @@ Return:
 
 
 PointsExecute_Return = PointsExecute::Return
+PointsDraw = PointsExecute::Draw
 
 
 .proc DrawSingleDigit

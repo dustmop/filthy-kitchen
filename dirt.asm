@@ -1,5 +1,6 @@
 .export DirtConstructor
 .export DirtExecute
+.export DirtDraw
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -167,6 +168,10 @@ DidCollide:
 Next:
 .endscope
 
+
+Draw:
+
+
   ; Draw position.
   mov draw_v, {object_v,x}
   lda object_h,x
@@ -292,3 +297,6 @@ Success:
   sec
   rts
 .endproc
+
+
+DirtDraw = DirtExecute::Draw

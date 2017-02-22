@@ -2,6 +2,7 @@
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
+.include "include.controller.asm"
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
 .include "memory_layout.h.asm"
@@ -30,7 +31,8 @@
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
 
-.importzp bg_x_scroll, bg_y_scroll, main_yield, ppu_ctrl_current, debug_mode
+.importzp bg_x_scroll, bg_y_scroll, main_yield, debug_mode
+.importzp ppu_ctrl_current, ppu_mask_current, is_paused, buttons_press
 .importzp player_removed, lives
 .importzp level_complete, which_level, objects_only_draw
 .importzp combo_low, combo_medium
@@ -66,8 +68,9 @@ ChrRamDone:
   jsr HudMessagesRender
 
   mov objects_only_draw, #0
-  mov combo_low, #0
-  mov combo_medium, #0
+  mov combo_low, _
+  mov combo_medium, _
+  mov is_paused, _
 
   jsr ObjectListInit
   jsr SpriteSpaceInit
@@ -169,6 +172,9 @@ Ready:
 
 HandleEngine:
 
+  jsr CheckPaused
+  bcs EngineReady
+
   DebugModeSetTint red_green
   jsr FlyListUpdate
 
@@ -181,21 +187,21 @@ HandleEngine:
   DebugModeSetTint green_blue
   jsr SpawnOffscreenUpdate
 
-EngineReady:
-
   jsr EndBossUpdate
-
-  DebugModeSetTint green
-  jsr ObjectListUpdate
-
-  DebugModeSetTint red_blue
-  jsr PlayerDraw
 
   DebugModeSetTint red
   jsr FlashEarnedCombo
 
   DebugModeSetTint green
   jsr HealthApplyDelta
+
+EngineReady:
+
+  DebugModeSetTint green
+  jsr ObjectListUpdate
+
+  DebugModeSetTint red_blue
+  jsr PlayerDraw
 
   DebugModeSetTint blue
   jsr FamiToneUpdate
@@ -234,3 +240,45 @@ level_song:
 .byte 2
 .byte 0
 .byte 3
+
+
+.proc CheckPaused
+  bit is_paused
+  bmi PausedYes
+
+  lda buttons_press
+  and #BUTTON_START
+  beq Failure
+
+  ; Enable is_paused
+  mov objects_only_draw, #1
+  lda #1
+  jsr FamiToneMusicPause
+  dec is_paused
+  lda ppu_mask_current
+  ora #PPU_MASK_GRAYSCALE
+  sta ppu_mask_current
+  bne Success
+
+PausedYes:
+  lda buttons_press
+  and #BUTTON_START
+  beq Success
+
+  ; Disable is_paused
+  mov objects_only_draw, #0
+  lda #0
+  jsr FamiToneMusicPause
+  inc is_paused
+  lda ppu_mask_current
+  and #($ff & ~PPU_MASK_GRAYSCALE)
+  sta ppu_mask_current
+  bne Failure
+
+Success:
+  sec
+  rts
+Failure:
+  clc
+  rts
+.endproc

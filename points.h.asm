@@ -1,4 +1,5 @@
 .import PointsGainAndCreate, PointsExecute
+.import PointsDraw
 
 .import combo_points_low
 .import combo_points_medium
