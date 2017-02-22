@@ -76,6 +76,7 @@ ChrRamDone:
   jsr SpriteSpaceInit
   jsr SpawnOffscreenInit
 
+  jsr ComboInit
   jsr LevelLoadInit
   jsr LevelDataFillEntireScreen
   jsr SpawnOffscreenFillEntireScreen

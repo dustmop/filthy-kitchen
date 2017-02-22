@@ -1,6 +1,7 @@
 .export ScoreAddLow
 .export ScoreAddMedium
 .export ScoreAddLowNoRender
+.export ComboInit
 .export ComboAddLow
 .export ComboSetToZero
 .export FlashEarnedCombo
@@ -54,6 +55,16 @@ Return:
   adc score_medium
   sta score_medium
   jsr RenderScore
+  rts
+.endproc
+
+
+.proc ComboInit
+  mov earned_combo_low, #0
+  mov earned_combo_medium, _
+  mov earned_combo_count, _
+  mov combo_low, _
+  mov combo_medium, _
   rts
 .endproc
 
