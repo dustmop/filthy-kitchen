@@ -28,6 +28,8 @@ inner = values + 5
 .segment "CODE"
 
 .proc MarqueScreen
+  jsr WaitVblankFlag
+
   ; Load palette, which is defined in the prologue.
   ldx #<text_palette
   ldy #>text_palette

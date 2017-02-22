@@ -41,6 +41,8 @@ special_code = values + 8
 .segment "CODE"
 
 .proc IntroScreen
+  jsr WaitVblankFlag
+
   ; Load palette, which is defined in the prologue.
   ldx #<title_palette
   ldy #>title_palette
