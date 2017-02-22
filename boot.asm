@@ -5,6 +5,7 @@
 .include "general_mapper.h.asm"
 .include "memory_layout.h.asm"
 .include "gfx.h.asm"
+.include "random.h.asm"
 .include "intro_outro.h.asm"
 .include "famitone.h.asm"
 .include "endboss.h.asm"
@@ -68,6 +69,8 @@ Wait1:
   ldx #<sfx_data
   ldy #>sfx_data
   jsr FamiToneSfxInit
+
+  jsr RandomSeedInit
 
   ; Exit to the intro
   jmp IntroScreen

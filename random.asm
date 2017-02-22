@@ -1,4 +1,5 @@
 .export RandomSeedInit
+.export RandomSeedInc
 .export RandomEntropy
 .export RandomGet
 
@@ -11,6 +12,13 @@
 
 .proc RandomSeedInit
   mov random_value, #$c7
+  rts
+.endproc
+
+
+.proc RandomSeedInc
+  inc random_value
+  jmp RandomAvoidZero
 .endproc
 
 
@@ -18,6 +26,15 @@
   lda random_value
   eor buttons_press
   sta random_value
+  ; fall-through
+.endproc
+
+
+.proc RandomAvoidZero
+  lda random_value
+  bne Return
+  inc random_value
+Return:
   rts
 .endproc
 
@@ -30,6 +47,7 @@
   eor #$1d
 DontXor:
   sta random_value
+  jsr RandomAvoidZero
   tya
   rts
 .endproc

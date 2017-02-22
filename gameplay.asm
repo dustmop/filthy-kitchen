@@ -81,7 +81,6 @@ ChrRamDone:
   jsr SpawnOffscreenFillEntireScreen
   jsr HealthSetMax
 
-  jsr RandomSeedInit
   jsr PlayerInit
   jsr CameraInit
   jsr EndBossInit

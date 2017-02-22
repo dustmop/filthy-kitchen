@@ -6,6 +6,7 @@
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
+.include "random.h.asm"
 .include "general_mapper.h.asm"
 .include "memory_layout.h.asm"
 .include "read_controller.h.asm"
@@ -22,6 +23,7 @@
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
 .importzp which_level
+.importzp main_yield
 .importzp buttons
 .import title_palette
 .import title_graphics
@@ -77,7 +79,7 @@ special_code = values + 8
   jsr Disable8x16
 
 IntroLoop:
-  jsr WaitNewFrame
+  jsr WaitNewFrameWhileIncreasingRandomSeed
   jsr FamiToneUpdate
   jsr SpriteSpaceEraseAll
   jsr SpriteSpaceNext
@@ -190,10 +192,6 @@ Loop:
 
   jsr CreateFlyWings
   jsr SpriteSpaceInit
-
-  ; Play a song.
-  ;lda #0
-  ;jsr FamiToneMusicPlay
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
@@ -323,5 +321,16 @@ CODE_LENGTH = * - code_sequence
   clc
   adc #$30
   sta render_action_data,y
+  rts
+.endproc
+
+
+.proc WaitNewFrameWhileIncreasingRandomSeed
+  mov main_yield, #0
+WaitLoop:
+  jsr RandomSeedInc
+  bit main_yield
+  bpl WaitLoop
+  mov main_yield, #0
   rts
 .endproc
