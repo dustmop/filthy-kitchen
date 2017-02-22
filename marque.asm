@@ -48,6 +48,8 @@ inner = values + 5
   jsr RenderLevel
   jsr RenderLives
 
+  jsr WaitNewFrame
+
   lda which_level
   cmp #1
   beq Level1

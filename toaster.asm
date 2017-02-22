@@ -43,6 +43,13 @@ toaster_in_air   = object_data_extend + $30
 
   mov elec_sfx, #0
 
+.scope MaybeDespawn
+  jsr ObjectOffscreenDespawn
+  bcc Okay
+  rts
+Okay:
+.endscope
+
 .scope CountDown
   lda object_life,x
   cmp #$b0

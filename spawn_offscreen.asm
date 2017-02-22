@@ -13,6 +13,9 @@
 
 delta_h = values + $00
 new_index = values + $01
+leftmost_w = values + $02
+leftmost_h = values + $03
+leftmost_idx = values + $04
 
 .export offscreen_things
 offscreen_things = $400
@@ -138,10 +141,18 @@ Failure:
 
 
 .proc AllocateAndConstruct
-  ;
-  jsr ObjectAllocate
-  bcc Failure
+  ; Point to id
   iny
+  ; Allocate an object.
+  jsr ObjectAllocate
+  bcs Allocated
+  ; Allocation failed, check if this is the broom.
+  lda (level_spawn_pointer),y ; id
+  cmp #OBJECT_KIND_BROOM
+  bne Failure
+  ; If it is, usurp the left-most object.
+  jsr GetLeftmostObject
+Allocated:
   lda (level_spawn_pointer),y ; id
   and #$0f
   sta object_kind,x
@@ -173,5 +184,40 @@ Success:
   rts
 Failure:
   clc
+  rts
+.endproc
+
+
+.proc GetLeftmostObject
+  ldx #0
+  lda object_kind,x
+  cmp #$ff
+  beq Found
+  mov {leftmost_w}, {object_screen,x}
+  mov {leftmost_h}, {object_h,x}
+  stx leftmost_idx
+  inx
+Loop:
+  lda object_kind,x
+  cmp #$ff
+  beq Found
+  lda object_screen,x
+  cmp leftmost_w
+  blt NewLeftmost
+  bne Increment
+  lda object_h,x
+  cmp leftmost_h
+  blt NewLeftmost
+  bge Increment
+NewLeftmost:
+  mov {leftmost_w}, {object_screen,x}
+  mov {leftmost_h}, {object_h,x}
+  stx leftmost_idx
+Increment:
+  inx
+  cpx #$10
+  bne Loop
+  ldx leftmost_idx
+Found:
   rts
 .endproc
