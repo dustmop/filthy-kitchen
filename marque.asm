@@ -48,7 +48,7 @@ inner = values + 5
   jsr RenderLevel
   jsr RenderLives
 
-  jsr WaitNewFrame
+  jsr WaitVblankFlag
 
   lda which_level
   cmp #1
