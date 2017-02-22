@@ -17,3 +17,5 @@
 .importzp MSG_THE_KITCHEN_IS_CLEAN
 .importzp MSG_SELECT_LEVEL
 .importzp MSG_COPYRIGHT
+.importzp MSG_MARQUE_LEVEL
+.importzp MSG_MARQUE_LIVES

@@ -90,7 +90,7 @@ SetZero:
   lda #4
   jsr AllocateRenderAction
   mov {render_action_addr_high,y}, #$20
-  mov {render_action_addr_low,y}, #$73
+  mov {render_action_addr_low,y}, #$72
   lda score_medium
   jsr NumberToDigits
   sta render_action_data+1,y

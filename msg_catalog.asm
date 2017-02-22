@@ -17,6 +17,8 @@
 .exportzp MSG_THE_KITCHEN_IS_CLEAN
 .exportzp MSG_SELECT_LEVEL
 .exportzp MSG_COPYRIGHT
+.exportzp MSG_MARQUE_LEVEL
+.exportzp MSG_MARQUE_LIVES
 
 
 .include "include.branch-macros.asm"
@@ -88,7 +90,7 @@ decl_msg MSG_HEALTH, msg_health
 decl_msg MSG_LIVES,  msg_lives
 decl_msg MSG_SCORE,  msg_score
 decl_msg MSG_COMBO,  msg_combo
-decl_msg MSG_ZERO_SCORE, msg_0000000
+decl_msg MSG_ZERO_SCORE, msg_000000
 decl_msg MSG_ZERO_COMBO, msg_000
 decl_msg MSG_PRESS,  msg_press
 decl_msg MSG_START,  msg_start
@@ -115,64 +117,67 @@ decl_msg MSG_THE_KITCHEN_IS_CLEAN, msg_the_kitchen_is_clean
 decl_msg MSG_SELECT_LEVEL, msg_select_level
 decl_msg MSG_COPYRIGHT,    msg_copyright
 
+decl_msg MSG_MARQUE_LIVES, msg_marque_lives
+decl_msg MSG_MARQUE_LEVEL, msg_marque_level
+
 
 .include ".b/hud_msg.asm"
 .include ".b/title_msg.asm"
 
 msg_the_kitchen_is_so_dirty:
-MsgPosition 12, 4
+MsgPosition 15, 4
 .byte 24,"THE KITCHEN IS SO DIRTY!"
 
 msg_find_the_broom:
-MsgPosition 14, 9
+MsgPosition 17, 9
 .byte 14,"FIND THE BROOM"
 
 msg_and_clean_it_up:
-MsgPosition 16, 8
+MsgPosition 19, 8
 .byte 16,"AND CLEAN IT UP!"
 
 msg_kill_all_the_flies:
-MsgPosition 12, 7
+MsgPosition 15, 7
 .byte 19,"KILL ALL THE FLIES!"
 
 msg_watch_out_for_utensils:
-MsgPosition 14, 5
+MsgPosition 17, 5
 .byte 22,"WATCH OUT FOR UTENSILS"
 
 msg_and_appliances:
-MsgPosition 16, 9
+MsgPosition 19, 9
 .byte 14,"AND APPLIANCES"
 
 msg_keep_going_almost_there:
-MsgPosition 12, 4
+MsgPosition 15, 4
 .byte 23,"KEEP GOING ALMOST THERE"
 
 msg_get_combo_kills:
-MsgPosition 14, 8
+MsgPosition 17, 8
 .byte 15,"GET COMBO KILLS"
 
 msg_to_earn_high_scores:
-MsgPosition 16, 6
+MsgPosition 19, 6
 .byte 19,"TO EARN HIGH SCORES"
 
 msg_warning:
-MsgPosition 12, 12
+MsgPosition 15, 12
 .byte 7,"WARNING"
 
 msg_boss_fly_is_approaching:
-MsgPosition 14, 4
+MsgPosition 17, 4
 .byte 23,"BOSS FLY IS APPROACHING"
 
 msg_resolve_your_battle:
-MsgPosition 16, 6
+MsgPosition 19, 6
 .byte 19,"RESOLVE YOUR BATTLE"
 
 msg_you_did_it:
-MsgPosition 13, 10
+MsgPosition 15, 10
 .byte 11,"YOU DID IT!"
 
 msg_the_kitchen_is_clean:
-MsgPosition 15, 5
+MsgPosition 17, 5
 .byte 21,"THE KITCHEN IS CLEAN!"
 
 msg_select_level:
@@ -182,3 +187,11 @@ MsgPosition 19, 13
 msg_copyright:
 MsgPosition 24, 9
 .byte 14, "DUSTMOP # 2016"
+
+msg_marque_lives:
+MsgPosition  2, 8
+.byte 5, "LIVES"
+
+msg_marque_level:
+MsgPosition 11, 13
+.byte 5, "LEVEL"

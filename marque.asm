@@ -10,6 +10,7 @@
 .include "sprite_space.h.asm"
 .include "gameplay.h.asm"
 .include "render_action.h.asm"
+.include "score_combo.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
 
@@ -34,6 +35,18 @@ inner = values + 5
 
   jsr SpriteSpaceEraseAllAndSpriteZero
   jsr ClearBothNametables
+
+  ldx #MSG_SCORE
+  jsr MsgRender
+  ldx #MSG_MARQUE_LIVES
+  jsr MsgRender
+  ldx #MSG_MARQUE_LEVEL
+  jsr MsgRender
+  ldx #MSG_ZERO_SCORE
+  jsr MsgRender
+  jsr RenderScore
+  jsr RenderLevel
+  jsr RenderLives
 
   lda which_level
   cmp #1
@@ -100,7 +113,7 @@ LevelDone:
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay
 
   mov outer, #$0
-  mov inner, #$50
+  mov inner, #$90
 
 MarqueLoop:
   jsr WaitNewFrame
@@ -121,4 +134,28 @@ TransitionOut:
 ExitMarqueScreen:
   jsr DisableDisplayAndNmi
   jmp GameplayMain
+.endproc
+
+
+.proc RenderLives
+  lda #1
+  jsr AllocateRenderAction
+  RenderActionSetYX 3, 10
+  lda lives
+  clc
+  adc #$30
+  sta render_action_data+0,y
+  rts
+.endproc
+
+
+.proc RenderLevel
+  lda #1
+  jsr AllocateRenderAction
+  RenderActionSetYX 11, 19
+  lda which_level
+  clc
+  adc #$30
+  sta render_action_data+0,y
+  rts
 .endproc
