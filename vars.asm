@@ -38,6 +38,7 @@ level_has_entrance_door: .byte 0
 level_has_infinite_flies: .byte 0
 level_player_start_v: .byte 0
 level_complete: .byte 0
+level_bank: .byte 0
 level_data_pointer: .word 0
 level_chunk_pointer: .word 0
 level_table_of_contents_pointer: .word 0
@@ -152,6 +153,7 @@ which_level: .byte 0
 .exportzp level_data_pointer, level_chunk_pointer
 .exportzp level_table_of_contents_pointer, level_spawn_pointer
 .exportzp level_complete
+.exportzp level_bank
 .exportzp which_level
 .exportzp endboss_screen, endboss_count, endboss_state
 .exportzp endboss_h, endboss_health

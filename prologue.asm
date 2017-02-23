@@ -71,6 +71,4 @@ boss_chr_data:
 title_chr_data:
 .incbin ".b/resource2.chr.dat"
 
-.segment "CHRDATA3"
 
-.byte $03

@@ -8,6 +8,8 @@
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "endboss.h.asm"
+.include "memory_layout.h.asm"
+.include "general_mapper.h.asm"
 
 .importzp ppu_ctrl_current
 .importzp NMI_pointer
@@ -18,6 +20,7 @@
 .importzp level_table_of_contents_pointer, level_spawn_pointer
 .importzp level_max_screen, level_has_entrance_door, level_has_infinite_flies
 .importzp level_player_start_v
+.importzp level_bank
 .importzp which_level
 .import collision_map
 
@@ -43,7 +46,7 @@ debug_12_target   = $612
 debug_13_strip_id = $613
 
 
-.segment "CODE"
+.segment "BOOT"
 
 
 ;LevelClearData
@@ -80,6 +83,7 @@ Load1:
   mov level_has_entrance_door, level1_meta+0
   mov level_has_infinite_flies, level1_meta+1
   mov level_player_start_v, level1_meta+2
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
   rts
 
 Load2:
@@ -91,6 +95,7 @@ Load2:
   mov level_has_entrance_door, level2_meta+0
   mov level_has_infinite_flies, level2_meta+1
   mov level_player_start_v, level2_meta+2
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
   rts
 
 Load3:
@@ -102,6 +107,7 @@ Load3:
   mov level_has_entrance_door, level3_meta+0
   mov level_has_infinite_flies, level3_meta+1
   mov level_player_start_v, level3_meta+2
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
   rts
 
 LoadBoss:
@@ -110,6 +116,7 @@ LoadBoss:
   mov level_has_infinite_flies, #0
   mov level_player_start_v, #$a8
   MovWord level_spawn_pointer, no_spawn
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
   rts
 
 .endproc
@@ -120,6 +127,7 @@ LoadBoss:
 ; input X: Action kind, 1..4 for nt, 5 for attr, 6 for collision
 ; output Y: Strip id
 .proc LevelDataGetStripId
+  jsr SetLevelBank
 chunk_id = strip_id
   mov high_byte, #0
   ; Get chunk_id.
@@ -145,6 +153,7 @@ chunk_id = strip_id
   ; Get strip id.
   lda (pointer),y
   tay
+  jsr RevertLevelBank
   rts
 .endproc
 
@@ -159,6 +168,7 @@ chunk_id = strip_id
   jsr EndBossFillGraphics
   rts
 Normal:
+  jsr SetLevelBank
   jsr PrepareRenderVertical
   ldy #0
 Loop:
@@ -166,12 +176,14 @@ Loop:
   iny
   cpy #FILL_LOOKAHEAD
   bne Loop
+  jsr RevertLevelBank
   rts
 .endproc
 
 
 ;LevelDataUpdateScroll
 .proc LevelDataUpdateScroll
+  jsr SetLevelBank
   ; If no action, exit.
   lda NMI_SCROLL_action
   beq Return
@@ -221,6 +233,7 @@ Acknowledge:
   mov NMI_SCROLL_action, #0
 
 Return:
+  jsr RevertLevelBank
   rts
 .endproc
 
@@ -478,7 +491,38 @@ Loop:
 .endproc
 
 
-.segment "LEVEL"
+.proc SetLevelBank
+  txa
+  pha
+  tya
+  pha
+  lda level_bank
+  jsr GeneralMapperPrg8000ToC000
+  pla
+  tay
+  pla
+  tax
+  rts
+.endproc
+
+
+.proc RevertLevelBank
+  txa
+  pha
+  tya
+  pha
+  lda #MEMORY_LAYOUT_BANK_MAIN_CODE
+  jsr GeneralMapperPrg8000ToC000
+  pla
+  tay
+  pla
+  tax
+  rts
+.endproc
+
+
+
+.segment "LEVEL1"
 
 level1_meta:
 .byte $80, 0
@@ -497,3 +541,10 @@ level3_meta:
 
 no_spawn:
 .byte $ff,$ff,$ff,$ff
+
+
+.segment "LEVEL0"
+
+level4_meta:
+.byte 0, 0
+.byte $a8
