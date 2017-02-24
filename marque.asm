@@ -50,7 +50,7 @@ inner = values + 5
   jsr RenderLevel
   jsr RenderLives
 
-  jsr WaitVblankFlag
+  jsr RenderActionApplyAll
 
   lda which_level
   cmp #1
