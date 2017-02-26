@@ -1,6 +1,8 @@
 .export MarqueScreen
 
 .include "include.controller.asm"
+.include "include.const.asm"
+.include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "gfx.h.asm"
@@ -40,16 +42,19 @@ inner = values + 5
 
   ldx #MSG_SCORE
   jsr MsgRender
-  ldx #MSG_MARQUE_LIVES
-  jsr MsgRender
-  ldx #MSG_MARQUE_LEVEL
-  jsr MsgRender
   ldx #MSG_ZERO_SCORE
   jsr MsgRender
   jsr RenderScore
-  jsr RenderLevel
+  ldx #MSG_MARQUE_LIVES
+  jsr MsgRender
   jsr RenderLives
-
+  lda which_level
+  cmp #MAX_LEVEL
+  bge :+
+  ldx #MSG_MARQUE_LEVEL
+  jsr MsgRender
+  jsr RenderLevel
+:
   jsr RenderActionApplyAll
 
   lda which_level
