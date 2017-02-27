@@ -12,7 +12,7 @@
 .include "gfx.h.asm"
 .include "msg_catalog.h.asm"
 
-SPRITE_0_TILE = $b1
+SPRITE_0_TILE = $af
 
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
 

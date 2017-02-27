@@ -25,6 +25,8 @@ num_tiles = values + $00
 tile_0 = values + $01
 tile_1 = values + $02
 tile_2 = values + $03
+dirt_draw_attr = values + $04
+dirt_draw_counter = values + $05
 
 .import object_data_extend
 dirt_kind = object_data_extend + $00
@@ -46,10 +48,9 @@ DIRTY_SINK_TILE_1 = $8b
 
 DIRTY_PILE_TILE_0 = $97
 DIRTY_PILE_TILE_1 = $99
-DIRTY_PILE_TILE_2 = $9b
 
-DIRTY_SPIT_TILE_0 = $cb
-DIRTY_SPIT_TILE_1 = $cd
+DIRTY_SPIT_TILE_0 = $c9
+DIRTY_SPIT_TILE_1 = $cb
 
 
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
@@ -170,7 +171,8 @@ Next:
 
 
 Draw:
-
+  mov dirt_draw_attr, #$03
+  mov dirt_draw_counter, #$00
 
   ; Draw position.
   mov draw_v, {object_v,x}
@@ -181,7 +183,7 @@ Draw:
   lda object_screen,x
   sbc camera_screen
   sta draw_screen
-  bne Return
+  jne Return
 
   lda dirt_kind,x
   cmp #DIRT_KIND_SINK
@@ -209,7 +211,8 @@ DirtyPile:
   mov num_tiles, #3
   mov tile_0, #DIRTY_PILE_TILE_0
   mov tile_1, #DIRTY_PILE_TILE_1
-  mov tile_2, #DIRTY_PILE_TILE_2
+  mov tile_2, #DIRTY_PILE_TILE_0
+  mov dirt_draw_counter, #$81
   jmp DrawIt
 DirtySpit:
   lda draw_h
@@ -230,13 +233,24 @@ DrawLoop:
   sta sprite_h,x
   lda tile_0,y
   sta sprite_tile,x
-  lda #$03
+  lda dirt_draw_attr
   sta sprite_attr,x
 
   dec num_tiles
   beq Return
 
   iny
+
+  bit dirt_draw_counter
+  bpl :+
+  dec dirt_draw_counter
+  bmi :+
+  ;
+  lda dirt_draw_attr
+  ora #$40
+  sta dirt_draw_attr
+  dec draw_h
+:
 
   lda draw_h
   clc
