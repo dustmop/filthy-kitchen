@@ -47,6 +47,7 @@ SRC = gfx.asm \
       star.asm \
       wing.asm \
       toaster.asm \
+      sploosh.asm \
       random.asm \
       health.asm \
       msg_catalog.asm \

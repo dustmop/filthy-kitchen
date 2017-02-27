@@ -9,6 +9,7 @@
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
 .include "object_list.h.asm"
+.include "sploosh.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
 .include "sound.h.asm"
@@ -33,6 +34,8 @@ GUNK_DROP_0_TILE = $91
 GUNK_DROP_1_TILE = $93
 GUNK_DROP_2_TILE = $95
 GUNK_DROP_FORM_LIMIT = 10
+
+SPLOOSH_V = $ba
 
 
 .segment "CODE"
@@ -76,7 +79,32 @@ MoveOkay:
 AfterMovement:
 
 .scope CollisionWithBackground
-  ; TODO
+  lda object_v,x
+  cmp #SPLOOSH_V
+  blt Next
+  ; sploosh
+  mov draw_v, #SPLOOSH_V
+  lda object_h,x
+  sec
+  sbc #4
+  sta draw_h
+  lda object_screen,x
+  sbc #0
+  sta draw_screen
+  jsr ObjectFree
+  jsr ObjectAllocate
+  bcc Next
+  mov {object_kind,x}, #(OBJECT_KIND_SPLOOSH | OBJECT_IS_NEW)
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  mov {object_life,x}, #15
+  mov {object_step,x}, #0
+  mov {object_frame,x}, _
+  mov draw_frame, #0
+  jsr SplooshExecute
+  rts
+Next:
 .endscope
 
 .scope CollisionWithPlayer
