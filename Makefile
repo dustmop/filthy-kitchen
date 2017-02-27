@@ -168,11 +168,13 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/hud_nomsg.png -b 000000 -m .b/hud_msg.asm
 
 .b/title.chr.dat .b/title.palette.dat .b/title.graphics.dat .b/game_over.graphics.dat: \
-            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png .b/title_chars.o .b/alpha.o .b/digit.o .b/punc.o .b/title_pal.o
+            merge_chr_nt.py .b/title_nomsg.png .b/game_over_nomsg.png one.png .b/title_chars.o .b/alpha.o .b/digit.o .b/punc.o .b/title_pal.o
 	mkdir -p .b/
 	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
 	makechr .b/game_over_nomsg.png -o .b/game_over.o -p .b/title_pal.o
-	python merge_chr_nt.py .b/title.o .b/game_over.o .b/title_chars.o \
+	#makechr one.png -o .b/one.o
+	python merge_chr_nt.py .b/title.o .b/game_over.o \
+            .b/title_chars.o \
             -A .b/alpha.o \
             -D .b/digit.o \
             -P .b/punc.o \

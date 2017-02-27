@@ -20,6 +20,9 @@ draw_tile = values + 3
 wing_attr = object_data_extend + $00
 
 
+WING_BASE_TILE = $8c
+
+
 .segment "CODE"
 
 
@@ -114,7 +117,7 @@ wing_attr_table:
 .byte $00
 
 wing_animation:
-.byte $7a
-.byte $7e
-.byte $82
-.byte $7e
+.byte WING_BASE_TILE + 0
+.byte WING_BASE_TILE + 4
+.byte WING_BASE_TILE + 8
+.byte WING_BASE_TILE + 4
