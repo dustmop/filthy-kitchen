@@ -19,3 +19,4 @@
 .importzp MSG_COPYRIGHT
 .importzp MSG_MARQUE_LEVEL
 .importzp MSG_MARQUE_LIVES
+.importzp MSG_DEMO

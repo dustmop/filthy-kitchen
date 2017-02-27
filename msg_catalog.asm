@@ -19,6 +19,7 @@
 .exportzp MSG_COPYRIGHT
 .exportzp MSG_MARQUE_LEVEL
 .exportzp MSG_MARQUE_LIVES
+.exportzp MSG_DEMO
 
 
 .include "include.branch-macros.asm"
@@ -120,6 +121,8 @@ decl_msg MSG_COPYRIGHT,    msg_copyright
 decl_msg MSG_MARQUE_LIVES, msg_marque_lives
 decl_msg MSG_MARQUE_LEVEL, msg_marque_level
 
+decl_msg MSG_DEMO, msg_demo
+
 
 .include ".b/hud_msg.asm"
 .include ".b/title_msg.asm"
@@ -195,3 +198,7 @@ MsgPosition  2, 8
 msg_marque_level:
 MsgPosition 11, 13
 .byte 5, "LEVEL"
+
+msg_demo:
+MsgPosition 16, 14
+.byte 4, "DEMO"
