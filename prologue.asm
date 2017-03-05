@@ -57,11 +57,12 @@ game_over_graphics:
 
 
 .segment "CHRDATA0"
-.export gameplay_chr_data
-gameplay_chr_data:
+.export gameplay0_chr_data
+gameplay0_chr_data:
 .incbin ".b/resource0.chr.dat"
 
-_reserved_1:
+.export gameplay1_chr_data
+gameplay1_chr_data:
 .incbin ".b/resource1.chr.dat"
 
 .export chars_chr_data

@@ -1,6 +1,7 @@
 .export MemoryLayoutInit
 .export MemoryLayoutFillChrRam
-.exportzp GAMEPLAY_MEMORY_LAYOUT
+.exportzp GAMEPLAY0_MEMORY_LAYOUT
+.exportzp GAMEPLAY1_MEMORY_LAYOUT
 .exportzp BOSS_MEMORY_LAYOUT
 .exportzp TITLE_MEMORY_LAYOUT
 
@@ -11,7 +12,8 @@
 
 .importzp memory_layout_index
 .importzp pointer
-.import gameplay_chr_data, chars_chr_data, boss_chr_data, title_chr_data
+.import gameplay0_chr_data, gameplay1_chr_data, chars_chr_data, boss_chr_data
+.import title_chr_data
 
 MEMORY_LAYOUT_BANK_GAMEPLAY_CHR = 0
 MEMORY_LAYOUT_BANK_SCREEN_CHR = 1
@@ -20,9 +22,10 @@ MEMORY_LAYOUT_BANK_MAIN_CODE = 2
 MEMORY_LAYOUT_BANK_LEVEL0 = 1
 MEMORY_LAYOUT_BANK_LEVEL1 = 2
 
-GAMEPLAY_MEMORY_LAYOUT = <(gameplay_info - all_memory_layout_info)
-BOSS_MEMORY_LAYOUT     = <(boss_info - all_memory_layout_info)
-TITLE_MEMORY_LAYOUT    = <(title_info - all_memory_layout_info)
+GAMEPLAY0_MEMORY_LAYOUT = <(gameplay0_info - all_memory_layout_info)
+GAMEPLAY1_MEMORY_LAYOUT = <(gameplay1_info - all_memory_layout_info)
+BOSS_MEMORY_LAYOUT      = <(boss_info - all_memory_layout_info)
+TITLE_MEMORY_LAYOUT     = <(title_info - all_memory_layout_info)
 
 
 .segment "BOOT"
@@ -78,9 +81,18 @@ Done:
 
 all_memory_layout_info:
 
-gameplay_info:
+gameplay0_info:
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word gameplay_chr_data ; pointer
+.word gameplay0_chr_data ; pointer
+.byte $00, $00 ; ppu addr
+.byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
+.word chars_chr_data ; pointer
+.byte $10, $00 ; ppu addr
+.byte $ff
+
+gameplay1_info:
+.byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
+.word gameplay1_chr_data ; pointer
 .byte $00, $00 ; ppu addr
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
 .word chars_chr_data ; pointer

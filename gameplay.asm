@@ -48,13 +48,17 @@ GameplayMain:
   lda which_level
   cmp #BOSS_LEVEL
   beq BossChrRam
-NormalChrRam:
-  ; Load chr-ram from prg bank 0.
-  ldx #GAMEPLAY_MEMORY_LAYOUT
+  cmp #1
+  bne LaterChrRam
+FirstChrRam:
+  ldx #GAMEPLAY0_MEMORY_LAYOUT
+  jsr MemoryLayoutFillChrRam
+  jmp ChrRamDone
+LaterChrRam:
+  ldx #GAMEPLAY1_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam
   jmp ChrRamDone
 BossChrRam:
-  ; Load chr-ram from prg bank 0.
   ldx #BOSS_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam
 ChrRamDone:

@@ -67,6 +67,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             .b/resource0.chr.dat \
             .b/resource1.chr.dat \
             .b/resource2.chr.dat \
+            .b/resource3.chr.dat \
+            .b/resource4.chr.dat \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
@@ -255,28 +257,31 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -A .b/alpha.o -D .b/digit.o \
             -o .b/level1_data.asm -c .b/merged_1.chr.dat -x .b/hud.%s.dat
 
-.b/level2_data.asm .b/merged_1_to_2.chr.dat:\
-            build_level.py .b/merged_1.chr.dat bg2.png meta2.png .b/bg_pal.o
+.b/level2_data.asm .b/merged_2.chr.dat:\
+            build_level.py .b/hud.o bg2.png meta2.png .b/bg_pal.o \
+            .b/alpha.o .b/digit.o
 	python build_level.py -b bg2.png -m meta2.png -l 2 \
-            -p .b/bg_pal.o -i .b/merged_1.chr.dat \
-            -o .b/level2_data.asm -c .b/merged_1_to_2.chr.dat
+            -p .b/bg_pal.o -i .b/hud.o \
+            -A .b/alpha.o -D .b/digit.o \
+            -o .b/level2_data.asm -c .b/merged_2.chr.dat
 
-.b/level3_data.asm .b/merged_1_to_3.chr.dat:\
-            build_level.py .b/merged_1_to_2.chr.dat bg3.png meta3.png \
+.b/level3_data.asm .b/merged_2_to_3.chr.dat:\
+            build_level.py .b/merged_2.chr.dat bg3.png meta3.png \
                 .b/bg_pal.o
 	python build_level.py -b bg3.png -m meta3.png -l 3 \
-            -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
-            -o .b/level3_data.asm -c .b/merged_1_to_3.chr.dat
+            -p .b/bg_pal.o -i .b/merged_2.chr.dat \
+            -o .b/level3_data.asm -c .b/merged_2_to_3.chr.dat
 
 .b/resource0.chr.dat .b/resource2.chr.dat .b/resource.palette.dat: \
-            .b/chars.chr.dat .b/merged_1_to_3.chr.dat .b/bg_pal.dat
-	head -c 4096 .b/merged_1_to_3.chr.dat > .b/resource0.chr.dat
+            .b/chars.chr.dat .b/merged_1.chr.dat .b/bg_pal.dat
+	head -c 4096 .b/merged_1.chr.dat > .b/resource0.chr.dat
 	tail -c 4096 .b/chars.chr.dat > .b/resource2.chr.dat
 	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/resource1.chr.dat:
-	dd if=/dev/zero of=.b/resource1.chr.dat bs=4096 count=1
+.b/resource1.chr.dat: \
+            .b/merged_2_to_3.chr.dat
+	head -c 4096 .b/merged_2_to_3.chr.dat > .b/resource1.chr.dat
 
 .b/resource3.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
             .b/chars.chr.dat .b/hud.o .b/boss.o .b/boss2.o .b/alpha.o .b/digit.o
