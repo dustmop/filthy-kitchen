@@ -13,6 +13,7 @@ decompress_count: .byte 0
 sfx_num: .byte 0
 gloop_sfx: .byte 0
 elec_sfx: .byte 0
+memory_layout_index: .byte 0
 
 ; nmi
 NMI_SCROLL_target: .byte 0
@@ -122,6 +123,7 @@ which_level: .byte 0
 .exportzp decompress_count, decompress_limit
 .exportzp sfx_num, gloop_sfx, elec_sfx
 .exportzp bg_x_scroll, bg_y_scroll, bg_nt_select
+.exportzp memory_layout_index
 .exportzp buttons, buttons_last, buttons_press
 .exportzp player_v, player_h, player_h_low, player_screen, player_dir
 .exportzp player_gravity, player_gravity_low, player_render_v, player_render_h

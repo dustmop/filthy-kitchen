@@ -115,8 +115,7 @@ Level5:
 
 LevelDone:
 
-  lda #MEMORY_LAYOUT_BANK_SCREEN_CHR
-  ldx #MEMORY_LAYOUT_NORMAL_POINTER
+  ldx #TITLE_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam
 
   jsr EnableNmiThenWaitNewFrameThenEnableDisplay

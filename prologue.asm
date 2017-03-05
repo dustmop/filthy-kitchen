@@ -57,18 +57,25 @@ game_over_graphics:
 
 
 .segment "CHRDATA0"
-.export chr_data
-chr_data:
+.export gameplay_chr_data
+gameplay_chr_data:
 .incbin ".b/resource0.chr.dat"
 
-.segment "CHRDATA1"
-.export boss_chr_data
-boss_chr_data:
+_reserved_1:
 .incbin ".b/resource1.chr.dat"
 
+.export chars_chr_data
+chars_chr_data:
+.incbin ".b/resource2.chr.dat"
+
+.export boss_chr_data
+boss_chr_data:
+.incbin ".b/resource3.chr.dat"
+
 .segment "CHRDATA2"
+
 .export title_chr_data
 title_chr_data:
-.incbin ".b/resource2.chr.dat"
+.incbin ".b/resource4.chr.dat"
 
 

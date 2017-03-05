@@ -50,14 +50,12 @@ GameplayMain:
   beq BossChrRam
 NormalChrRam:
   ; Load chr-ram from prg bank 0.
-  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
-  ldx #MEMORY_LAYOUT_NORMAL_POINTER
+  ldx #GAMEPLAY_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam
   jmp ChrRamDone
 BossChrRam:
   ; Load chr-ram from prg bank 0.
-  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
-  ldx #MEMORY_LAYOUT_BOSS_POINTER
+  ldx #BOSS_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam
 ChrRamDone:
 

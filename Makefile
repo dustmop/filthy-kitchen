@@ -268,14 +268,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -p .b/bg_pal.o -i .b/merged_1_to_2.chr.dat \
             -o .b/level3_data.asm -c .b/merged_1_to_3.chr.dat
 
-.b/resource0.chr.dat .b/resource.palette.dat: \
+.b/resource0.chr.dat .b/resource2.chr.dat .b/resource.palette.dat: \
             .b/chars.chr.dat .b/merged_1_to_3.chr.dat .b/bg_pal.dat
 	head -c 4096 .b/merged_1_to_3.chr.dat > .b/resource0.chr.dat
-	tail -c 4096 .b/chars.chr.dat >> .b/resource0.chr.dat
+	tail -c 4096 .b/chars.chr.dat > .b/resource2.chr.dat
 	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/resource1.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
+.b/resource1.chr.dat:
+	dd if=/dev/zero of=.b/resource1.chr.dat bs=4096 count=1
+
+.b/resource3.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
             .b/chars.chr.dat .b/hud.o .b/boss.o .b/boss2.o .b/alpha.o .b/digit.o
 	python merge_chr_nt.py .b/hud.o .b/boss.o .b/boss2.o \
             -A .b/alpha.o -D .b/digit.o \
@@ -286,12 +289,13 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_boss_delta.py \
             .b/boss01.nametable.dat .b/boss02.nametable.dat \
             -l .b/boss.animate0.asm -r .b/boss.animate1.asm
-	head -c 4096 .b/boss.chr.dat > .b/resource1.chr.dat
-	tail -c 4096 .b/chars.chr.dat >> .b/resource1.chr.dat
+	head -c 4096 .b/boss.chr.dat > .b/resource3.chr.dat
 
-.b/resource2.chr.dat: .b/title.chr.dat
-	head -c 4096 .b/title.chr.dat > .b/resource2.chr.dat
-	head -c 4096 .b/title.chr.dat >> .b/resource2.chr.dat
+.b/resource4.chr.dat: .b/title.chr.dat
+	head -c 4096 .b/title.chr.dat > .b/resource4.chr.dat
+
+.b/resource5.chr.dat:
+	dd if=/dev/zero of=.b/resource5.chr.dat bs=4096 count=1
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

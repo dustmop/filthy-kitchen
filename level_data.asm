@@ -543,8 +543,8 @@ no_spawn:
 .byte $ff,$ff,$ff,$ff
 
 
-.segment "LEVEL0"
-
-level4_meta:
-.byte 0, 0
-.byte $a8
+;.segment "LEVEL0"
+;
+;level4_meta:
+;.byte 0,0
+;.byte $a8

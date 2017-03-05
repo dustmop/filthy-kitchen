@@ -8,7 +8,7 @@
 first = values + 0
 second = values + 1
 
-.segment "BOOT" ; should be in "CODE", but need to save space
+.segment "CODE"
 
 
 .proc ReadController
