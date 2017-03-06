@@ -1,4 +1,5 @@
 import argparse
+import math
 
 
 class GraphicsCompressor(object):
@@ -31,7 +32,7 @@ class GraphicsCompressor(object):
     self.new_literal(byte)
 
   def inc_state(self, byte):
-    if byte == chr(ord(self.prev) + 1):
+    if ord(byte) == ord(self.prev) + 1:
       self.size += 1
       return
     self.flush()
@@ -43,7 +44,7 @@ class GraphicsCompressor(object):
       self.state = 'same'
       self.size = 2
       self.buffer = bytearray([self.prev])
-    elif byte == chr(ord(self.prev) + 1):
+    elif ord(byte) == ord(self.prev) + 1:
       self.pull_one_flush()
       self.state = 'inc'
       self.size = 2
@@ -88,29 +89,49 @@ class GraphicsCompressor(object):
     return accum
 
 
+def trim_ending(data):
+  i = len(data) - 1
+  while i > 0:
+    if ord(data[i]) != 0:
+      end = int(math.ceil((i + 1) / 32.0) * 32 + 1)
+      return data[0:end]
+    i -= 1
+  return data
+
+
 def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('input')
   parser.add_argument('-o', dest='output')
   parser.add_argument('-n', dest='no_null', action='store_true')
+  parser.add_argument('-t', dest='trim', action='store_true')
   args = parser.parse_args()
   fp = open(args.input, 'r')
   content = fp.read()
   fp.close()
+  if args.trim:
+    content = trim_ending(content)
   compressor = GraphicsCompressor()
   compressor.compress(content)
   fout = open(args.output, 'w')
+  count = 0
   for kind, size, data in compressor.commands:
     if kind == 'same':
       fout.write('.byte $%02x\n' % (0x80 | size))
+      count += 1
     elif kind == 'inc':
       fout.write('.byte $%02x\n' % (0x40 | size))
+      count += 1
     elif kind == 'literal':
       fout.write('.byte $%02x\n' % (0x00 | size))
+      count += 1
     fout.write('.byte %s\n' % ','.join('$%02x' % b for b in data))
+    count += len(data)
     fout.write('\n')
   if not args.no_null:
     fout.write('.byte $00\n')
+    count += 1
+  fout.write('; %d\n' % count)
   fout.close()
 
 

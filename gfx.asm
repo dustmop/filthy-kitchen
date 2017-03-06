@@ -2,7 +2,7 @@
 
 .export ClearBothNametables
 .export LoadGraphicsNt0, LoadGraphicsNt1, LoadPalette, LoadSpritelist
-.export LoadGraphicsCompressed, RenderGraphicsCompressed
+.export LoadChrRamCompressed, LoadGraphicsCompressed, RenderGraphicsCompressed
 .export EnableNmi, WaitNewFrame, WaitVblankFlag, EnableDisplay
 .export EnableNmiThenWaitNewFrameThenEnableDisplay
 .export DisableDisplay, DisableDisplayAndNmi, TintApplyToPpuMask
@@ -76,6 +76,14 @@ Loop:
   mov decompress_limit, #$ff
   mov PPU_ADDR, #$20
   mov PPU_ADDR, #$00
+  jmp Decompressor
+.endproc
+
+
+.proc LoadChrRamCompressed
+  stx pointer+0
+  sty pointer+1
+  mov decompress_limit, #$ff
   jmp Decompressor
 .endproc
 

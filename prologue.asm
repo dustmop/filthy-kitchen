@@ -57,26 +57,26 @@ game_over_graphics:
 
 
 .segment "CHRDATA0"
+
 .export gameplay0_chr_data
 gameplay0_chr_data:
-.incbin ".b/resource0.chr.dat"
+.include ".b/resource0.compress.asm"
 
 .export gameplay1_chr_data
 gameplay1_chr_data:
-.incbin ".b/resource1.chr.dat"
+.include ".b/resource1.compress.asm"
 
 .export chars_chr_data
 chars_chr_data:
-.incbin ".b/resource2.chr.dat"
+.include ".b/resource2.compress.asm"
 
 .export boss_chr_data
 boss_chr_data:
-.incbin ".b/resource3.chr.dat"
+.include ".b/resource3.compress.asm"
+
 
 .segment "CHRDATA2"
 
 .export title_chr_data
 title_chr_data:
-.incbin ".b/resource4.chr.dat"
-
-
+.include ".b/resource4.compress.asm"

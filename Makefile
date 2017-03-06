@@ -65,11 +65,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	ca65 -o $@ $< -g
 
 .b/prologue.o: prologue.asm \
-            .b/resource0.chr.dat \
-            .b/resource1.chr.dat \
-            .b/resource2.chr.dat \
-            .b/resource3.chr.dat \
-            .b/resource4.chr.dat \
+            .b/resource0.compress.asm \
+            .b/resource1.compress.asm \
+            .b/resource2.compress.asm \
+            .b/resource3.compress.asm \
+            .b/resource4.compress.asm \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
@@ -300,8 +300,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 .b/resource4.chr.dat: .b/title.chr.dat
 	head -c 4096 .b/title.chr.dat > .b/resource4.chr.dat
 
-.b/resource5.chr.dat:
-	dd if=/dev/zero of=.b/resource5.chr.dat bs=4096 count=1
+.b/resource0.compress.asm .b/resource1.compress.asm .b/resource2.compress.asm .b/resource3.compress.asm .b/resource4.compress.asm: .b/resource0.chr.dat .b/resource1.chr.dat .b/resource2.chr.dat .b/resource3.chr.dat .b/resource4.chr.dat graphics_compress.py
+	python graphics_compress.py .b/resource0.chr.dat \
+            -o .b/resource0.compress.asm -t
+	python graphics_compress.py .b/resource1.chr.dat \
+            -o .b/resource1.compress.asm -t
+	python graphics_compress.py .b/resource2.chr.dat \
+            -o .b/resource2.compress.asm -t
+	python graphics_compress.py .b/resource3.chr.dat \
+            -o .b/resource3.compress.asm -t
+	python graphics_compress.py .b/resource4.chr.dat \
+            -o .b/resource4.compress.asm -t
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

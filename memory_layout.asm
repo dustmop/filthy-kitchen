@@ -9,6 +9,7 @@
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
 .include "general_mapper.h.asm"
+.include "gfx.h.asm"
 
 .importzp memory_layout_index
 .importzp pointer
@@ -68,7 +69,9 @@ Loop:
   inx
   stx memory_layout_index
   ; load $1000
-  jsr LoadChrRam
+  ldx pointer+0
+  ldy pointer+1
+  jsr LoadChrRamCompressed
   ldx memory_layout_index
   bne Loop
 Done:
@@ -118,17 +121,28 @@ title_info:
 .byte $ff
 
 
-;X = $80 or $a0
-.proc LoadChrRam
-  ldx #$10
-  ldy #0
-Loop:
-  lda (pointer),y
-  sta PPU_DATA
-  iny
-  bne Loop
-  inc pointer+1
-  dex
-  bne Loop
-  rts
-.endproc
+;.proc MemoryLayoutLoadNametable
+;  ; Also contains GFX.
+;  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
+;  jsr GeneralMapperPrg8000ToC000
+;  jsr LoadGraphicsCompressed
+;  lda #MEMORY_LAYOUT_BANK_MAIN_CODE
+;  jsr GeneralMapperPrg8000ToC000
+;  rts
+;.endproc
+
+
+;;X = $80 or $a0
+;.proc LoadChrRam
+;  ldx #$10
+;  ldy #0
+;Loop:
+;  lda (pointer),y
+;  sta PPU_DATA
+;  iny
+;  bne Loop
+;  inc pointer+1
+;  dex
+;  bne Loop
+;  rts
+;.endproc
