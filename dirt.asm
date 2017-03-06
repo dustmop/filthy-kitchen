@@ -11,9 +11,8 @@
 .include "gunk_drop.h.asm"
 .include "sound.h.asm"
 .include "random.h.asm"
+.include "move_trig.h.asm"
 
-.import trig_movement
-.import trig_lookup
 .importzp camera_h, camera_screen
 .importzp player_health_delta
 .importzp draw_screen, draw_h, draw_v
@@ -146,8 +145,16 @@ Next:
 
 SpitHandler:
 .scope SpitHandler
-  jsr ApplyMovement
-  jsr ApplyMovement
+  jsr MovementTrig
+  jsr MovementTrig
+  lda object_v,x
+  cmp #$f0
+  blt Okay
+DestroyIt:
+  jsr ObjectFree
+  clc
+  rts
+Okay:
 .endscope
 
 Later:
@@ -265,52 +272,6 @@ Return:
 .endproc
 
 
-.proc ApplyMovement
-  ldy dirt_direction,x
-  lda trig_lookup,y
-  tay
-HorizontalDelta:
-  lda trig_movement,y
-  clc
-  adc dirt_h_low,x
-  sta dirt_h_low,x
-  iny
-  lda trig_movement,y
-  bmi ToTheLeft
-ToTheRight:
-  adc object_h,x
-  sta object_h,x
-  lda object_screen,x
-  adc #0
-  sta object_screen,x
-  jmp VerticalDelta
-ToTheLeft:
-  adc object_h,x
-  sta object_h,x
-  lda object_screen,x
-  adc #$ff
-  sta object_screen,x
-VerticalDelta:
-  iny
-  lda trig_movement,y
-  clc
-  adc dirt_v_low,x
-  sta dirt_v_low,x
-  iny
-  lda trig_movement,y
-  adc object_v,x
-  sta object_v,x
-  cmp #$f0
-  bge Failure
-  blt Success
-Failure:
-  jsr ObjectFree
-  clc
-  rts
-Success:
-  sec
-  rts
-.endproc
 
 
 DirtDraw = DirtExecute::Draw

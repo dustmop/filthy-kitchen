@@ -13,8 +13,8 @@
 .include "points.h.asm"
 .include "score_combo.h.asm"
 .include "shared_object_values.asm"
-.include ".b/trig.h.asm"
 .include "sound.h.asm"
+.include "move_trig.h.asm"
 
 COLLISION_SWATTER_FLY_H_HITBOX = 10
 COLLISION_SWATTER_FLY_V_HITBOX = 10
@@ -37,10 +37,10 @@ index    = values + 5
 towards_idx = values + 6
 
 .import object_data_extend
-fly_direction = object_data_extend + $00
-fly_v_low     = object_data_extend + $10
-fly_h_low     = object_data_extend + $20
-fly_step      = object_data_extend + $30
+fly_step      = object_data_extend + $00
+fly_direction = object_data_extend + $10
+fly_v_low     = object_data_extend + $20
+fly_h_low     = object_data_extend + $30
 
 
 .segment "CODE"
@@ -114,44 +114,13 @@ FLY_MAX_V = $b0
 Next:
 .endscope
 
-.scope Movement
+.scope FlyMovement
   ldy fly_direction,x
   bmi Wait
-  lda trig_lookup,y
-  tay
-HorizontalDelta:
-  lda trig_movement,y
-  clc
-  adc fly_h_low,x
-  sta fly_h_low,x
-  iny
-  lda trig_movement,y
-  bmi ToTheLeft
-ToTheRight:
-  adc object_h,x
-  sta object_h,x
-  lda object_screen,x
-  adc #0
-  sta object_screen,x
-  jmp VerticalDelta
-ToTheLeft:
-  adc object_h,x
-  sta object_h,x
-  lda object_screen,x
-  adc #$ff
-  sta object_screen,x
-VerticalDelta:
-  iny
-  lda trig_movement,y
-  clc
-  adc fly_v_low,x
-  sta fly_v_low,x
-  iny
-  lda trig_movement,y
-  adc object_v,x
-  sta object_v,x
+  jsr MovementTrig
 CheckOverflow:
   ; check overflow when moving up
+  lda object_v,x
   cmp #FLY_MIN_V
   blt MoveUpUnderflow
   ; check overflow when moving down

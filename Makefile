@@ -54,7 +54,8 @@ SRC = gfx.asm \
       flash.asm \
       famitone.asm \
       sound.asm \
-      samples.asm
+      samples.asm \
+      move_trig.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
@@ -326,7 +327,7 @@ filthy-kitchen.nes: $(OBJ) .b/general_a53.o link-a53.cfg
 
 filthy-kitchen-unrom.nes: $(OBJ) .b/general_unrom.o link-unrom.cfg
 	ld65 -o filthy-kitchen-unrom.nes $(OBJ) .b/general_unrom.o \
-            -C link-unrom.cfg -Ln filthy-kitchen-unrom.ln
+            -C link-unrom.cfg -Ln filthy-kitchen-unrom.ln -m map
 	python convertln.py filthy-kitchen-unrom.ln \
             > filthy-kitchen-unrom.nes.0.nl
 	cp filthy-kitchen-unrom.nes.0.nl filthy-kitchen-unrom.nes.1.nl
