@@ -40,6 +40,9 @@ text_palette:
 .incbin ".b/text_pal.dat"
 .incbin ".b/sprite_pal.dat"
 
+
+.segment "GFX0"
+
 title_graphics:
 .include ".b/title.compressed.asm"
 
@@ -56,7 +59,7 @@ game_over_graphics:
 .word 0
 
 
-.segment "CHRDATA0"
+.segment "GFX0"
 
 .export gameplay0_chr_data
 gameplay0_chr_data:
@@ -75,7 +78,7 @@ boss_chr_data:
 .include ".b/resource3.compress.asm"
 
 
-.segment "CHRDATA2"
+.segment "GFX2"
 
 .export title_chr_data
 title_chr_data:

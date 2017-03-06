@@ -11,6 +11,7 @@
 .include "include.sys.asm"
 .include "gfx.h.asm"
 .include "msg_catalog.h.asm"
+.include "memory_layout.h.asm"
 
 SPRITE_0_TILE = $b5
 
@@ -95,7 +96,7 @@ Done:
   jsr PrepareRenderHorizontal
   ldx #<hud_data
   ldy #>hud_data
-  jsr LoadGraphicsCompressed
+  jsr MemoryLayoutLoadNametable
   ; Set attributes.
   lda #$55
   jmp HudApplyAttributes
@@ -133,6 +134,8 @@ AttributeLoop:
   rts
 .endproc
 
+
+.segment "GFX0"
 
 hud_data:
 .include ".b/hud.compressed.asm"

@@ -1,5 +1,6 @@
 .export MemoryLayoutInit
 .export MemoryLayoutFillChrRam
+.export MemoryLayoutLoadNametable
 .exportzp GAMEPLAY0_MEMORY_LAYOUT
 .exportzp GAMEPLAY1_MEMORY_LAYOUT
 .exportzp BOSS_MEMORY_LAYOUT
@@ -13,8 +14,12 @@
 
 .importzp memory_layout_index
 .importzp pointer
+.importzp values
 .import gameplay0_chr_data, gameplay1_chr_data, chars_chr_data, boss_chr_data
 .import title_chr_data
+
+preserve_x = values + $00
+preserve_y = values + $01
 
 MEMORY_LAYOUT_BANK_GAMEPLAY_CHR = 0
 MEMORY_LAYOUT_BANK_SCREEN_CHR = 1
@@ -121,15 +126,19 @@ title_info:
 .byte $ff
 
 
-;.proc MemoryLayoutLoadNametable
-;  ; Also contains GFX.
-;  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
-;  jsr GeneralMapperPrg8000ToC000
-;  jsr LoadGraphicsCompressed
-;  lda #MEMORY_LAYOUT_BANK_MAIN_CODE
-;  jsr GeneralMapperPrg8000ToC000
-;  rts
-;.endproc
+.proc MemoryLayoutLoadNametable
+  stx preserve_x
+  sty preserve_y
+  ; Also contains GFX.
+  lda #MEMORY_LAYOUT_BANK_GAMEPLAY_CHR
+  jsr GeneralMapperPrg8000ToC000
+  ldx preserve_x
+  ldy preserve_y
+  jsr LoadGraphicsCompressed
+  lda #MEMORY_LAYOUT_BANK_MAIN_CODE
+  jsr GeneralMapperPrg8000ToC000
+  rts
+.endproc
 
 
 ;;X = $80 or $a0

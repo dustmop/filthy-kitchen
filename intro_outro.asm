@@ -50,7 +50,7 @@ special_code = values + 8
 
   ldx #<title_graphics
   ldy #>title_graphics
-  jsr LoadGraphicsCompressed
+  jsr MemoryLayoutLoadNametable
 
   ldx #MSG_DEMO
   jsr MsgRender
@@ -187,7 +187,7 @@ Loop:
 
   ldx #<game_over_graphics
   ldy #>game_over_graphics
-  jsr LoadGraphicsCompressed
+  jsr MemoryLayoutLoadNametable
 
   ldx #TITLE_MEMORY_LAYOUT
   jsr MemoryLayoutFillChrRam

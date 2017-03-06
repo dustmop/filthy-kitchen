@@ -1,5 +1,6 @@
 .import MemoryLayoutInit
 .import MemoryLayoutFillChrRam
+.import MemoryLayoutLoadNametable
 
 MEMORY_LAYOUT_BANK_GAMEPLAY_CHR = 0
 MEMORY_LAYOUT_BANK_SCREEN_CHR = 1

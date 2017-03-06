@@ -18,6 +18,7 @@
 .include "marque.h.asm"
 .include "include.sprites.asm"
 .include "sprite_space.h.asm"
+.include "memory_layout.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
@@ -330,7 +331,7 @@ Next:
   jsr PrepareRenderHorizontal
   ldx #<boss_graphics
   ldy #>boss_graphics
-  jsr LoadGraphicsCompressed
+  jsr MemoryLayoutLoadNametable
   lda #$ff
   jsr HudApplyAttributes
   jsr RemoveLeftBackground
@@ -373,15 +374,18 @@ Loop:
 .endproc
 
 
-boss_graphics:
-.include ".b/boss.compressed.asm"
-
-
 ExitBoss:
   jsr FamiToneMusicStop
   jsr DisableDisplayAndNmi
   inc which_level
   jmp MarqueScreen
+
+
+.segment "GFX0"
+
+
+boss_graphics:
+.include ".b/boss.compressed.asm"
 
 
 .segment "BOOT"
