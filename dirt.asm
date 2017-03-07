@@ -5,6 +5,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
@@ -42,14 +43,6 @@ DIRT_KIND_PUDDLE = 3
 DIRT_KIND_SPIT = 4
 
 
-DIRTY_SINK_TILE_0 = $89
-DIRTY_SINK_TILE_1 = $8b
-
-DIRTY_PILE_TILE_0 = $9d
-DIRTY_PILE_TILE_1 = $9f
-
-DIRTY_SPIT_TILE_0 = $cf
-DIRTY_SPIT_TILE_1 = $d1
 
 
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72

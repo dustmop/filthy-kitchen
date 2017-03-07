@@ -5,6 +5,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "sprite_space.h.asm"
 .include "object_list.h.asm"
 .include "shared_object_values.asm"
@@ -153,13 +154,8 @@ Success:
 .endproc
 
 
-STAR_ANIMATE_0 = $af
-STAR_ANIMATE_1 = STAR_ANIMATE_0 + 2
-STAR_ANIMATE_2 = STAR_ANIMATE_0 + 4
-
-
 star_animation_sequence:
-.byte STAR_ANIMATE_0
-.byte STAR_ANIMATE_1
-.byte STAR_ANIMATE_2
-.byte STAR_ANIMATE_1
+.byte STAR_ANIMATE_0_TILE
+.byte STAR_ANIMATE_1_TILE
+.byte STAR_ANIMATE_2_TILE
+.byte STAR_ANIMATE_1_TILE

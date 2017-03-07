@@ -4,6 +4,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "sprite_space.h.asm"
 .include "object_list.h.asm"
 .include "shared_object_values.asm"
@@ -65,12 +66,8 @@ Return:
 SplooshDraw = SplooshExecute::Draw
 
 
-SPLOOSH_ANIMATE_1 = $97
-SPLOOSH_ANIMATE_2 = $99
-SPLOOSH_ANIMATE_3 = $9b
-
 
 sploosh_animation_sequence:
-.byte SPLOOSH_ANIMATE_1
-.byte SPLOOSH_ANIMATE_2
-.byte SPLOOSH_ANIMATE_3
+.byte SPLOOSH_ANIMATE_1_TILE
+.byte SPLOOSH_ANIMATE_2_TILE
+.byte SPLOOSH_ANIMATE_3_TILE

@@ -5,6 +5,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
@@ -173,10 +174,3 @@ broom_sprite_data:
 .byte $19,$01    -OFFSET+$100,BROOM_MOP_LEFT_TILE
 .byte $19,$09-$08-OFFSET+$100,BROOM_MOP_RIGHT_TILE
 
-BROOM_TOP_TILE       = $a1
-BROOM_MIDDLE_TILE    = BROOM_TOP_TILE + 2
-BROOM_GLOW_A_TILE    = BROOM_TOP_TILE + 4
-BROOM_GLOW_B_TILE    = BROOM_TOP_TILE + 6
-BROOM_GLOW_C_TILE    = BROOM_TOP_TILE + 8
-BROOM_MOP_LEFT_TILE  = BROOM_TOP_TILE + 10
-BROOM_MOP_RIGHT_TILE = BROOM_TOP_TILE + 12

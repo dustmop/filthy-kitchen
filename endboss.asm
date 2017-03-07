@@ -8,6 +8,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
+.include "include.tiles.asm"
 .include "gfx.h.asm"
 .include "hud_display.h.asm"
 .include "render_action.h.asm"
@@ -42,8 +43,6 @@ meter = values + $0
 BOSS_LEVEL = $04
 
 BOSS_HEALTH_PALETTE = 3
-BOSS_HEALTH_EDGE_TILE = $d3
-BOSS_HEALTH_METER_BASE_TILE = $d5
 BOSS_HEALTH_METER_V = $40
 
 

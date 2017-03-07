@@ -8,6 +8,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sploosh.h.asm"
 .include "sprite_space.h.asm"
@@ -30,9 +31,6 @@ gunk_drop_speed     = object_data_extend + $20
 gunk_drop_speed_low = object_data_extend + $30
 
 
-GUNK_DROP_0_TILE = $91
-GUNK_DROP_1_TILE = $93
-GUNK_DROP_2_TILE = $95
 GUNK_DROP_FORM_LIMIT = 10
 
 SPLOOSH_V = $ba

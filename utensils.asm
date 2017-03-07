@@ -5,6 +5,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
@@ -20,9 +21,6 @@
 
 .import object_data_extend
 
-
-UTENSILS_TILE_LEFT = $8d
-UTENSILS_TILE_RIGHT = $8f
 
 
 .segment "CODE"

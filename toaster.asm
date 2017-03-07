@@ -5,6 +5,7 @@
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
+.include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
@@ -192,13 +193,3 @@ toaster_sprite_data:
 .byte $00,$08-$08     ,ELEC_JUMP2_TILE+2
 .byte $10,$00-$10+$100,TOASTER_JUMP2_TILE
 .byte $10,$08-$18+$100,TOASTER_JUMP2_TILE+2
-
-
-TOASTER_SIT_TILE = $b7
-TOASTER_JUMP0_TILE = $c3
-
-TOASTER_JUMP1_TILE = $c7
-ELEC_JUMP1_TILE = $bb
-
-TOASTER_JUMP2_TILE = $cb
-ELEC_JUMP2_TILE = $bf
