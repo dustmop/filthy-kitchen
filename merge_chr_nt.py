@@ -124,15 +124,32 @@ def insert_pad(data, padding):
   return make
 
 
-def merge_objects(input_files, alpha_obj, digit_obj, punc_obj, out_chr_name,
-                  out_palette_name, out_nt_tmpl, out_attr_tmpl):
+def add_charset_padding(padding, charset):
+  for ch in charset:
+    padding.append([ord(ch), 1])
+  return padding
+
+
+def insert_chr_data_from_charset(data, alpha_obj, charset):
+  alpha_chr = get_bytes(alpha_obj, 'chr')
+  for ch in charset:
+    n = ord(ch)
+    k = n - 0x41
+    data = data[:0x10 * n] + alpha_chr[k*0x10:k*0x10+0x10] + data[0x10 * n:]
+  return data
+
+
+def merge_objects(input_files, alpha_obj, digit_obj, punc_obj, charset,
+                  out_chr_name, out_palette_name, out_nt_tmpl, out_attr_tmpl):
   padding = []
   if punc_obj:
     padding.append([0x20,  4])
   if digit_obj:
     padding.append([0x30, 10])
-  if alpha_obj:
+  if alpha_obj and not charset:
     padding.append([0x41, 26])
+  if alpha_obj and charset:
+    padding = add_charset_padding(padding, charset)
   filename = input_files[0]
   if filename.endswith('.o'):
     obj = parse_object_file(filename)
@@ -163,8 +180,10 @@ def merge_objects(input_files, alpha_obj, digit_obj, punc_obj, out_chr_name,
     data = data[:0x200] + get_bytes(punc_obj, 'chr')[:0x40] + data[0x200:]
   if digit_obj:
     data = data[:0x300] + get_bytes(digit_obj, 'chr')[:0xa0] + data[0x300:]
-  if alpha_obj:
+  if alpha_obj and not charset:
     data = data[:0x410] + get_bytes(alpha_obj, 'chr')[:0x1a0] + data[0x410:]
+  if alpha_obj and charset:
+    data = insert_chr_data_from_charset(data, alpha_obj, charset)
   data = data + bytearray([0] * (0x2000 - len(data)))
   if out_chr_name:
     save_output(out_chr_name, data)
@@ -184,12 +203,13 @@ def parse_object_file(filename):
 
 
 def process(input_files, alpha_input_file, digits_input_file, punc_input_file,
-            out_chr_name, out_palette_name, out_nt_tmpl, out_attr_tmpl):
+            charset, out_chr_name, out_palette_name, out_nt_tmpl,
+            out_attr_tmpl):
   alpha_obj = parse_object_file(alpha_input_file)
   digit_obj = parse_object_file(digits_input_file)
   punc_obj = parse_object_file(punc_input_file)
-  merge_objects(input_files, alpha_obj, digit_obj, punc_obj, out_chr_name,
-                out_palette_name, out_nt_tmpl, out_attr_tmpl)
+  merge_objects(input_files, alpha_obj, digit_obj, punc_obj, charset,
+                out_chr_name, out_palette_name, out_nt_tmpl, out_attr_tmpl)
 
 
 def run():
@@ -201,10 +221,11 @@ def run():
   parser.add_argument('-a', dest='attribute')
   parser.add_argument('-A', dest='alpha')
   parser.add_argument('-D', dest='digits')
+  parser.add_argument('-C', dest='charset')
   parser.add_argument('-P', dest='punc')
   args = parser.parse_args()
-  process(args.input, args.alpha, args.digits, args.punc, args.chr,
-          args.palette, args.nametable, args.attribute)
+  process(args.input, args.alpha, args.digits, args.punc, args.charset,
+          args.chr, args.palette, args.nametable, args.attribute)
 
 
 if __name__ == '__main__':

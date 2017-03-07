@@ -256,6 +256,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_level.py -b bg1.png -m meta1.png -l 1 \
             -p .b/bg_pal.o -i .b/hud.o \
             -A .b/alpha.o -D .b/digit.o \
+            -C ABCEHILMORSTV \
             -o .b/level1_data.asm -c .b/merged_1.chr.dat -x .b/hud.%s.dat
 
 .b/level2_data.asm .b/merged_2.chr.dat:\
@@ -264,6 +265,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_level.py -b bg2.png -m meta2.png -l 2 \
             -p .b/bg_pal.o -i .b/hud.o \
             -A .b/alpha.o -D .b/digit.o \
+            -C ABCEHILMORSTV \
             -o .b/level2_data.asm -c .b/merged_2.chr.dat
 
 .b/level3_data.asm .b/merged_2_to_3.chr.dat:\

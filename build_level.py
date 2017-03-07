@@ -42,7 +42,8 @@ def copy_file(source, destination):
 
 
 def process(bg_image, meta_image, level_num, palette, include,
-            alpha_file, digit_file, output_text, output_chr, output_extra):
+            alpha_file, digit_file, charset, output_text, output_chr,
+            output_extra):
   tmp_dir = tempfile.mkdtemp()
   # Split the background image into individual screens.
   split_screens = os.path.join(tmp_dir, 'screen%d.png')
@@ -66,6 +67,8 @@ def process(bg_image, meta_image, level_num, palette, include,
     args += ['-A', alpha_file]
   if digit_file:
     args += ['-D', digit_file]
+  if charset:
+    args += ['-C', charset]
   args += ['-c', chr_built, '-n', nt_built, '-a', attr_built]
   cmd = 'python merge_chr_nt.py %s' % ' '.join(args)
   run_command(cmd)
@@ -98,13 +101,14 @@ def run():
   parser.add_argument('-i', dest='include') # .o to merge
   parser.add_argument('-A', dest='alpha_file')
   parser.add_argument('-D', dest='digit_file')
+  parser.add_argument('-C', dest='charset')
   parser.add_argument('-o', dest='output_text')
   parser.add_argument('-c', dest='output_chr')
   parser.add_argument('-x', dest='output_extra') #
   args = parser.parse_args()
   process(args.bg_image, args.meta_image, args.level_num,
           args.palette, args.include, args.alpha_file, args.digit_file,
-          args.output_text, args.output_chr, args.output_extra)
+          args.charset, args.output_text, args.output_chr, args.output_extra)
 
 
 if __name__ == '__main__':
