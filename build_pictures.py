@@ -4,6 +4,7 @@ import tempfile
 import os
 import subprocess
 from makechr import chr_data
+import sys
 
 RED  = (0xff,0,0)
 BLUE = (0,0,0xff)
@@ -228,7 +229,11 @@ def extract_sprites(filename, chr_map):
   for k, spr in enumerate(sprites_extracted):
     spr[0] = spr[0] + 1
     orig_tile = spr[1] / 2
-    result = xlat[orig_tile]
+    try:
+      result = xlat[orig_tile]
+    except KeyError:
+      sys.stderr.write('y=%d, x=%d\n' % (spr[0], spr[3]))
+      raise
     spr[1] = result[0] * 2 + 1
     spr[2] = result[1] | spr[2]
   return sprites_extracted, origins

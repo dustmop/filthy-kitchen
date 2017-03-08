@@ -22,8 +22,8 @@
 .importzp player_v, player_h, player_h_low, player_on_ground, player_screen
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
-.importzp player_animate, player_injury, player_iframe, player_health
-.importzp player_removed
+.importzp player_animate, player_injury, player_iframe, player_throw
+.importzp player_health, player_removed
 .importzp buttons, buttons_press
 .importzp level_max_screen
 .importzp draw_screen
@@ -58,6 +58,9 @@ PLAYER_STATE_HURT     = 4
 PLAYER_STATE_DEAD     = 5
 PLAYER_STATE_WALKING  = 8
 
+THROW_START_TIME = 14
+THROW_WAKEUP_FRAMES = 4
+
 ;DrawPicture   values + $00
 draw_tile    = values + $01
 draw_attr    = values + $02
@@ -79,6 +82,7 @@ ClearLoop:
   rts
 .endproc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .proc PlayerInit
   mov player_v, level_player_start_v
@@ -90,6 +94,7 @@ ClearLoop:
   rts
 .endproc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .proc PlayerUpdate
   ; If removed
@@ -218,63 +223,33 @@ Jump:
 Next:
 .endscope
 
+  ; No jmp comes to this label.
 GroundMovement:
-  ; Check if B is being pressed. If so, throw a swatter.
+
+  ; B throws the swatter.
 .scope HandleThrow
+  lda player_throw
+  beq MaybeBegin
+  dec player_throw
+  lda player_throw
+  cmp #(THROW_START_TIME - THROW_WAKEUP_FRAMES)
+  bne Next
+  ; Throw the swatter finally.
+  jsr SpawnSwatter
+  jmp Next
+MaybeBegin:
+  ; Check if B is being pressed. If so, begin to throw the swatter.
   lda buttons_press
   and #BUTTON_B
   beq Next
   ; Only throw if the swatter is being held by the player.
   lda player_owns_swatter
   bpl Next
-  ; Success. Allocate and construct the object.
-  jsr ObjectAllocate
-  bcc Next
-  stx player_owns_swatter
-  jsr ObjectConstructor
-  mov {object_kind,x}, #OBJECT_KIND_SWATTER
-  mov {object_screen,x}, player_screen
-  mov {swatter_speed,x}, #$0
-  mov {swatter_speed_low,x}, _
-  mov {swatter_v_low,x}, _
-  ; Play sound
-  lda #SFX_THROW_SWATTER
-  jsr SoundPlay
-  ; Spawn to the left or right of player.
-  bit player_dir
-  bpl SpawnToTheRight
-SpawnToTheLeft:
-  lda player_h
-  sec
-  sbc #$0c
-  sta object_h,x
-  lda object_screen,x
-  sbc #0
-  sta object_screen,x
-  jmp SetVerticalPos
-SpawnToTheRight:
-  lda player_h
-  clc
-  adc #$0c
-  sta object_h,x
-  lda object_screen,x
-  adc #0
-  sta object_screen,x
-SetVerticalPos:
-  lda player_v
-  clc
-  adc #$08
-  sta object_v,x
-Speed:
-  bit player_dir
-  bpl FacingRight
-FacingLeft:
-  lda #($100 - SWATTER_MAX_SPEED)
-  jmp HaveSpeed
-FacingRight:
-  lda #SWATTER_MAX_SPEED
-HaveSpeed:
-  sta swatter_speed,x
+  ; Only throw if a throw has not already started.
+  lda player_throw
+  bne Next
+  ; Success, begin throw.
+  mov player_throw, #THROW_START_TIME
 Next:
 .endscope
 
@@ -346,6 +321,7 @@ Next:
   rts
 .endproc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; A = speed_low
 ; X = speed_high
@@ -380,6 +356,7 @@ Return:
   rts
 .endproc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .proc PlayerDraw
   mov draw_attr, #0
@@ -396,6 +373,33 @@ Return:
   cmp #$f8
   bge Next
   mov draw_attr, #$20
+Next:
+.endscope
+
+.scope ThrowAddition
+  lda player_throw
+  beq Next
+  ; Throw is happening.
+  lda player_state
+  cmp #PLAYER_STATE_WALKING
+  bne PickFrame
+  ; When walking, clear the animate step so that we draw the throw animation.
+  mov player_animate, #0
+PickFrame:
+  lda player_throw
+  cmp #(THROW_START_TIME - THROW_WAKEUP_FRAMES + 1)
+  blt ThrowFrame1
+ThrowFrame0:
+  lda player_animate
+  clc
+  adc #(12 * 8)
+  sta player_animate
+  bpl Next
+ThrowFrame1:
+  lda player_animate
+  clc
+  adc #(24 * 8)
+  sta player_animate
 Next:
 .endscope
 
@@ -478,6 +482,62 @@ Visible:
   rts
 .endproc
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.proc SpawnSwatter
+  ; Allocate and construct the object.
+  jsr ObjectAllocate
+  bcc Return
+  stx player_owns_swatter
+  jsr ObjectConstructor
+  mov {object_kind,x}, #OBJECT_KIND_SWATTER
+  mov {object_screen,x}, player_screen
+  mov {swatter_speed,x}, #$0
+  mov {swatter_speed_low,x}, _
+  mov {swatter_v_low,x}, _
+  ; Play sound
+  lda #SFX_THROW_SWATTER
+  jsr SoundPlay
+  ; Spawn to the left or right of player.
+  bit player_dir
+  bpl SpawnToTheRight
+SpawnToTheLeft:
+  lda player_h
+  sec
+  sbc #$0c
+  sta object_h,x
+  lda object_screen,x
+  sbc #0
+  sta object_screen,x
+  jmp SetVerticalPos
+SpawnToTheRight:
+  lda player_h
+  clc
+  adc #$0c
+  sta object_h,x
+  lda object_screen,x
+  adc #0
+  sta object_screen,x
+SetVerticalPos:
+  lda player_v
+  clc
+  adc #$08
+  sta object_v,x
+Speed:
+  bit player_dir
+  bpl FacingRight
+FacingLeft:
+  lda #($100 - SWATTER_MAX_SPEED)
+  jmp HaveSpeed
+FacingRight:
+  lda #SWATTER_MAX_SPEED
+HaveSpeed:
+  sta swatter_speed,x
+Return:
+  rts
+.endproc
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 player_animation_id:
 ; PLAYER_STATE_STANDING
@@ -500,6 +560,47 @@ player_animation_id:
 .byte PICTURE_ID_PLAYER_WALK0_RIGHT, PICTURE_ID_PLAYER_WALK0_LEFT
 .byte PICTURE_ID_PLAYER_WALK2_RIGHT, PICTURE_ID_PLAYER_WALK2_LEFT
 
+; THROWING_0_STANDING
+.byte PICTURE_ID_THROW_0_STAND_RIGHT, PICTURE_ID_THROW_0_STAND_LEFT
+; PLAYER_STATE_DUCKING
+.byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
+; PLAYER_STATE_IN_AIR
+.byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT;
+.byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT;
+; padding
+.byte 0, 0
+.byte 0, 0
+; PLAYER_STATE_WALKING
+.byte PICTURE_ID_THROW_0_WALK_RIGHT, PICTURE_ID_THROW_0_WALK_LEFT
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+
+; THROWING_1_STANDING
+.byte PICTURE_ID_THROW_1_STAND_RIGHT, PICTURE_ID_THROW_1_STAND_LEFT
+; PLAYER_STATE_DUCKING
+.byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
+; PLAYER_STATE_IN_AIR
+.byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT;
+.byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT;
+; padding
+.byte 0, 0
+.byte 0, 0
+; THROWING_1_WALKING
+.byte PICTURE_ID_THROW_1_WALK_RIGHT, PICTURE_ID_THROW_1_WALK_LEFT;
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+
+
 swatter_animation_id:
 ; PLAYER_STATE_STANDING
 .byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT
@@ -520,6 +621,27 @@ swatter_animation_id:
 .byte PICTURE_ID_SWATTER_RIGHT,    PICTURE_ID_SWATTER_LEFT
 .byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
 .byte PICTURE_ID_SWATTER_UP,       PICTURE_ID_SWATTER_UP
+
+; PLAYER_STATE_STANDING
+.byte PICTURE_ID_SWATTER_UP_LEFT,   PICTURE_ID_SWATTER_UP_RIGHT
+; PLAYER_STATE_DUCKING
+.byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT;
+; PLAYER_STATE_IN_AIR, TODO
+.byte PICTURE_ID_SWATTER_DOWN_RIGHT, PICTURE_ID_SWATTER_DOWN_LEFT;
+.byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT;
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT;
+; padding
+.byte 0, 0
+.byte 0, 0
+; PLAYER_STATE_WALKING
+.byte PICTURE_ID_SWATTER_UP_LEFT,   PICTURE_ID_SWATTER_UP_RIGHT
+.byte 0, 0
+.byte 0, 0
+.byte 0, 0
+
 
 swatter_animation_h:
 ; PLAYER_STATE_STANDING
@@ -542,6 +664,27 @@ swatter_animation_h:
 .byte   5, $fb
 .byte   6, $fa
 
+; PLAYER_STATE_STANDING
+.byte  $f1, $0f
+; PLAYER_STATE_DUCKING
+.byte  14, $f2;
+; PLAYER_STATE_IN_AIR
+.byte $ff, $01;
+.byte $fa, $06;
+; PLAYER_STATE_HURT
+.byte $f3, $0e;
+; PLAYER_STATE_DEAD
+.byte $f3, $0e;
+; padding
+.byte   0, 0;
+.byte   0, 0;
+; PLAYER_STATE_WALKING
+.byte  $f1, $0f
+.byte   0, 0;
+.byte   0, 0;
+.byte   0, 0;
+
+
 swatter_animation_v:
 ; PLAYER_STATE_STANDING
 .byte   9, 9
@@ -562,3 +705,23 @@ swatter_animation_v:
 .byte  16, 16
 .byte   9, 9
 .byte   4, 4
+
+; PLAYER_STATE_STANDING
+.byte   5, 5
+; PLAYER_STATE_DUCKING
+.byte  10, 10;
+; PLAYER_STATE_IN_AIR
+.byte $12, $12;
+.byte $f7, $f7;
+; PLAYER_STATE_HURT
+.byte   8, 8;
+; PLAYER_STATE_DEAD
+.byte   8, 8;
+; padding
+.byte   0, 0
+.byte   0, 0
+; PLAYER_STATE_WALKING
+.byte   5, 5
+.byte   0, 0
+.byte   0, 0
+.byte   0, 0

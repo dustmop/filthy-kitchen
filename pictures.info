@@ -27,11 +27,23 @@ player_walk1_left  @ 96,80
 player_walk2_right @ 96,104
 player_walk2_left  @ 96,128
 
-player_duck_right  @ 48,72
-player_duck_left   @ 48,120
+player_duck_right  @ 48,64
+player_duck_left   @ 48,104
 
 player_jump_right  @ 148,8
 player_jump_left   @ 148,32
+
+throw_0_stand_right @ 48,144
+throw_0_stand_left  @ 48,192
+
+throw_1_stand_right @ 48,168
+throw_1_stand_left  @ 48,224
+
+throw_0_walk_right @ 96,160
+throw_0_walk_left  @ 96,208
+
+throw_1_walk_right @ 96,184
+throw_1_walk_left  @ 96,238
 
 .merge 2
 player_fall_head_right @ 148,128
