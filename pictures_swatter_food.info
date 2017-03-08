@@ -1,0 +1,35 @@
+swatter_picture_data:
+
+swatter_right      @ 16,8
+swatter_up_right   @ 16,33
+swatter_up         @ 16,58
+swatter_up_left    @ 16,79
+swatter_left       @ 16,105
+swatter_down_left  @ 16,132
+swatter_down       @ 16,157
+swatter_down_right @ 16,180
+
+swatter_sprite_data:
+.flush
+
+
+food_picture_data:
+
+.merge 2
+food_apple_inner @ 184,143
+food_apple_outer @ 184,168
+
+.merge 2
+food_steak_inner @ 184,189
+food_steak_outer @ 184,216
+
+.merge 2
+food_ice_cream_inner @ 208,144
+food_ice_cream_outer @ 208,168
+
+.merge 2
+food_grapes_inner @ 208,192
+food_grapes_outer @ 208,216
+
+food_sprite_data:
+.flush

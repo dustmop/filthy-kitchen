@@ -1,0 +1,49 @@
+
+player_picture_data:
+
+player_stand_right @ 48,8
+player_stand_left  @ 48,32
+
+player_walk0_right @ 96,8
+player_walk0_left  @ 96,32
+
+player_walk1_right @ 96,56
+player_walk1_left  @ 96,80
+
+player_walk2_right @ 96,104
+player_walk2_left  @ 96,128
+
+player_duck_right  @ 48,64
+player_duck_left   @ 48,104
+
+player_jump_right  @ 140,8
+player_jump_left   @ 140,32
+
+throw_0_stand_right @ 48,144
+throw_0_stand_left  @ 48,192
+
+throw_1_stand_right @ 48,168
+throw_1_stand_left  @ 48,224
+
+throw_0_walk_right @ 96,160
+throw_0_walk_left  @ 96,208
+
+throw_1_walk_right @ 96,184
+throw_1_walk_left  @ 96,238
+
+.merge 2
+player_fall_head_right @ 20,208
+player_fall_right  @ 136,56 + 4,0
+
+.merge 2
+player_fall_head_left  @ 20,232
+player_fall_left   @ 140,88
+
+player_hurt_right @ 176,8
+player_hurt_left  @ 176,32
+
+player_dead_right @ 176,56
+player_dead_left  @ 176,80
+
+player_sprite_data:
+.flush

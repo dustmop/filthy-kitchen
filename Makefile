@@ -154,9 +154,17 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	printf ".byte \04480,\04424,\044c0\n\n" >> .b/boss.compressed.asm
 	cat .b/boss.compressed-main.asm >> .b/boss.compressed.asm
 
-.b/pictures.asm .b/pictures.h.asm: pictures.png pictures.info .b/chars.chr.dat build_pictures.py
-	python build_pictures.py -i pictures.info -p pictures.png \
-            -c .b/chars.chr.dat -o .b/pictures.asm -header .b/pictures.h.asm
+.b/pictures.asm .b/pictures.h.asm: pictures_player.png pictures_swatter_food.png pictures_player.info pictures_swatter_food.info .b/chars.chr.dat build_pictures.py
+	python build_pictures.py -c .b/chars.chr.dat \
+            -i pictures_player.info -p pictures_player.png \
+            -o .b/pictures_player.asm -header .b/pictures_player.h.asm
+	python build_pictures.py -c .b/chars.chr.dat \
+            -i pictures_swatter_food.info -p pictures_swatter_food.png \
+            -o .b/pictures_swatter_food.asm -header .b/pictures_swatter_food.h.asm
+	cat .b/pictures_player.asm .b/pictures_swatter_food.asm > \
+            .b/pictures.asm
+	cat .b/pictures_player.h.asm .b/pictures_swatter_food.h.asm > \
+            .b/pictures.h.asm
 
 .b/title_nomsg.png .b/title_msg.asm: extract_msg.py title.png alpha.png digit.png
 	python extract_msg.py title.png -A alpha.png -D digit.png \

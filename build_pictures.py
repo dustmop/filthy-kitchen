@@ -208,6 +208,7 @@ def extract_sprites(filename, chr_map):
   # Run makechr to create spritelist.
   cmd = ['makechr', '-s', '-b', '39=34', '-t', 'free-8x16', tmpfile, '-l',
          '-o', outpattern, '--allow-overflow', 's', '--free-zone-view', tmpzone]
+  print cmd
   p = subprocess.Popen(' '.join(cmd), shell=True)
   p.communicate()
   # Extract data created by makechr.
