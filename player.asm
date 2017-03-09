@@ -54,9 +54,10 @@ LEVEL_MAX_H = $ef
 PLAYER_STATE_STANDING = 0
 PLAYER_STATE_DUCKING  = 1
 PLAYER_STATE_IN_AIR   = 2
-PLAYER_STATE_HURT     = 4
-PLAYER_STATE_DEAD     = 5
-PLAYER_STATE_WALKING  = 8
+PLAYER_STATE_WALKING  = 4
+
+PLAYER_STATE_HURT     = $80
+PLAYER_STATE_DEAD     = $81
 
 THROW_START_TIME = 14
 THROW_WAKEUP_FRAMES = 4
@@ -392,13 +393,13 @@ PickFrame:
 ThrowFrame0:
   lda player_animate
   clc
-  adc #(12 * 8)
+  adc #(8 * 8)
   sta player_animate
   bpl Next
 ThrowFrame1:
   lda player_animate
   clc
-  adc #(24 * 8)
+  adc #(16 * 8)
   sta player_animate
 Next:
 .endscope
@@ -425,9 +426,13 @@ Next:
   jsr SpriteSpaceEnsure
 
   mov draw_palette, draw_attr
+
   MovWord draw_picture_pointer, swatter_picture_data
   MovWord draw_sprite_pointer, swatter_sprite_data
 
+  lda player_state
+  bmi DrawInjury
+DrawNormal:
   lda swatter_animation_id,y
   sta draw_picture_id
 
@@ -441,6 +446,24 @@ Next:
   adc player_render_v
   sta draw_v
 
+  jmp DrawIt
+DrawInjury:
+  asl tmp
+  rol a
+  tay
+  lda swatter_injury_animation_id,y
+  sta draw_picture_id
+
+  lda swatter_injury_animation_h,y
+  clc
+  adc player_render_h
+  sta draw_h
+
+  lda swatter_injury_animation_v,y
+  clc
+  adc player_render_v
+  sta draw_v
+DrawIt:
   jsr DrawPicture
 
   jsr SpriteSpaceRelax
@@ -475,8 +498,22 @@ Visible:
   lda draw_attr
   ora #$1
   sta draw_palette
+
+  lda player_state
+  bmi DrawInjury
+DrawNormal:
   MovWord draw_picture_pointer, player_picture_data
   MovWord draw_sprite_pointer, player_sprite_data
+  jmp DrawIt
+DrawInjury:
+  asl tmp
+  rol a
+  tay
+  lda player_injury_animation_id,y
+  sta draw_picture_id
+  MovWord draw_picture_pointer, player_injury_picture_data
+  MovWord draw_sprite_pointer, player_injury_sprite_data
+DrawIt:
   jsr DrawPicture
 
   rts
@@ -547,13 +584,6 @@ player_animation_id:
 ; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT
 .byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT
-; padding
-.byte 0, 0
-.byte 0, 0
 ; PLAYER_STATE_WALKING
 .byte PICTURE_ID_PLAYER_WALK0_RIGHT, PICTURE_ID_PLAYER_WALK0_LEFT
 .byte PICTURE_ID_PLAYER_WALK1_RIGHT, PICTURE_ID_PLAYER_WALK1_LEFT
@@ -565,15 +595,8 @@ player_animation_id:
 ; PLAYER_STATE_DUCKING
 .byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
 ; PLAYER_STATE_IN_AIR
-.byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT;
-.byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT;
-; padding
-.byte 0, 0
-.byte 0, 0
+.byte PICTURE_ID_THROW_0_JUMP_RIGHT, PICTURE_ID_THROW_0_JUMP_LEFT;
+.byte PICTURE_ID_THROW_0_FALL_RIGHT, PICTURE_ID_THROW_0_FALL_LEFT;
 ; PLAYER_STATE_WALKING
 .byte PICTURE_ID_THROW_0_WALK_RIGHT, PICTURE_ID_THROW_0_WALK_LEFT
 .byte 0, 0
@@ -585,15 +608,8 @@ player_animation_id:
 ; PLAYER_STATE_DUCKING
 .byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
 ; PLAYER_STATE_IN_AIR
-.byte PICTURE_ID_PLAYER_JUMP_RIGHT, PICTURE_ID_PLAYER_JUMP_LEFT;
-.byte PICTURE_ID_PLAYER_FALL_RIGHT, PICTURE_ID_PLAYER_FALL_LEFT;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT;
-; padding
-.byte 0, 0
-.byte 0, 0
+.byte PICTURE_ID_THROW_1_JUMP_RIGHT, PICTURE_ID_THROW_1_JUMP_LEFT;
+.byte PICTURE_ID_THROW_1_FALL_RIGHT, PICTURE_ID_THROW_1_FALL_LEFT;
 ; THROWING_1_WALKING
 .byte PICTURE_ID_THROW_1_WALK_RIGHT, PICTURE_ID_THROW_1_WALK_LEFT;
 .byte 0, 0
@@ -606,16 +622,9 @@ swatter_animation_id:
 .byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT
 ; PLAYER_STATE_DUCKING
 .byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT
-; PLAYER_STATE_IN_AIR, TODO
+; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_SWATTER_DOWN_RIGHT, PICTURE_ID_SWATTER_DOWN_LEFT
 .byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
-; padding
-.byte 0, 0
-.byte 0, 0
 ; PLAYER_STATE_WALKING
 .byte PICTURE_ID_SWATTER_UP_RIGHT, PICTURE_ID_SWATTER_UP_LEFT
 .byte PICTURE_ID_SWATTER_RIGHT,    PICTURE_ID_SWATTER_LEFT
@@ -623,21 +632,14 @@ swatter_animation_id:
 .byte PICTURE_ID_SWATTER_UP,       PICTURE_ID_SWATTER_UP
 
 ; PLAYER_STATE_STANDING
-.byte PICTURE_ID_SWATTER_UP_LEFT,   PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; PLAYER_STATE_DUCKING
-.byte PICTURE_ID_SWATTER_UP_RIGHT,   PICTURE_ID_SWATTER_UP_LEFT;
-; PLAYER_STATE_IN_AIR, TODO
-.byte PICTURE_ID_SWATTER_DOWN_RIGHT, PICTURE_ID_SWATTER_DOWN_LEFT;
-.byte PICTURE_ID_SWATTER_UP,         PICTURE_ID_SWATTER_UP;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT;
-; PLAYER_STATE_HURT
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT;
-; padding
-.byte 0, 0
-.byte 0, 0
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+; PLAYER_STATE_IN_AIR
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; PLAYER_STATE_WALKING
-.byte PICTURE_ID_SWATTER_UP_LEFT,   PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 .byte 0, 0
 .byte 0, 0
 .byte 0, 0
@@ -651,13 +653,6 @@ swatter_animation_h:
 ; PLAYER_STATE_IN_AIR
 .byte $ff, $01
 .byte $fa, $06
-; PLAYER_STATE_HURT
-.byte $f3, $0e
-; PLAYER_STATE_DEAD
-.byte $f3, $0e
-; padding
-.byte   0, 0
-.byte   0, 0
 ; PLAYER_STATE_WALKING
 .byte   5, $fb
 .byte   1, $ff
@@ -669,15 +664,8 @@ swatter_animation_h:
 ; PLAYER_STATE_DUCKING
 .byte  14, $f2;
 ; PLAYER_STATE_IN_AIR
-.byte $ff, $01;
-.byte $fa, $06;
-; PLAYER_STATE_HURT
-.byte $f3, $0e;
-; PLAYER_STATE_DEAD
-.byte $f3, $0e;
-; padding
-.byte   0, 0;
-.byte   0, 0;
+.byte $f2, $0e;
+.byte $f1, $0f;
 ; PLAYER_STATE_WALKING
 .byte  $f1, $0f
 .byte   0, 0;
@@ -693,13 +681,6 @@ swatter_animation_v:
 ; PLAYER_STATE_IN_AIR
 .byte $12, $12
 .byte $f7, $f7
-; PLAYER_STATE_HURT
-.byte   8, 8
-; PLAYER_STATE_DEAD
-.byte   8, 8
-; padding
-.byte   0, 0
-.byte   0, 0
 ; PLAYER_STATE_WALKING
 .byte   9, 9
 .byte  16, 16
@@ -711,17 +692,35 @@ swatter_animation_v:
 ; PLAYER_STATE_DUCKING
 .byte  10, 10;
 ; PLAYER_STATE_IN_AIR
-.byte $12, $12;
-.byte $f7, $f7;
-; PLAYER_STATE_HURT
-.byte   8, 8;
-; PLAYER_STATE_DEAD
-.byte   8, 8;
-; padding
-.byte   0, 0
-.byte   0, 0
+.byte $02, $02;
+.byte $01, $01;
 ; PLAYER_STATE_WALKING
 .byte   5, 5
 .byte   0, 0
 .byte   0, 0
 .byte   0, 0
+
+
+player_injury_animation_id:
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_HURT_RIGHT, PICTURE_ID_PLAYER_HURT_LEFT
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_PLAYER_DEAD_RIGHT, PICTURE_ID_PLAYER_DEAD_LEFT
+
+swatter_injury_animation_id:
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+; PLAYER_STATE_HURT
+.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+
+swatter_injury_animation_h:
+; PLAYER_STATE_HURT
+.byte $f3, $0e
+; PLAYER_STATE_DEAD
+.byte $f3, $0e
+
+swatter_injury_animation_v:
+; PLAYER_STATE_HURT
+.byte   8, 8
+; PLAYER_STATE_DEAD
+.byte   8, 8

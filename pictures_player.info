@@ -31,6 +31,28 @@ throw_0_walk_left  @ 96,208
 throw_1_walk_right @ 96,184
 throw_1_walk_left  @ 96,238
 
+throw_0_jump_right @ 140,120
+throw_1_jump_right @ 140,144
+
+throw_0_jump_left  @ 140,168
+throw_1_jump_left  @ 140,200
+
+.merge 2
+throw_0_fall_head_right @ 220,8
+throw_0_fall_right @ 180,112
+
+.merge 2
+throw_1_fall_head_right @ 220,32
+throw_1_fall_right @ 180,144
+
+.merge 2
+throw_0_fall_head_left @ 220,56
+throw_0_fall_left  @ 180,176
+
+.merge 2
+throw_1_fall_head_left @ 220,80
+throw_1_fall_left  @ 180,208
+
 .merge 2
 player_fall_head_right @ 20,208
 player_fall_right  @ 136,56 + 4,0
@@ -39,11 +61,17 @@ player_fall_right  @ 136,56 + 4,0
 player_fall_head_left  @ 20,232
 player_fall_left   @ 140,88
 
+player_sprite_data:
+.flush
+
+
+player_injury_picture_data:
+
 player_hurt_right @ 176,8
 player_hurt_left  @ 176,32
 
 player_dead_right @ 176,56
 player_dead_left  @ 176,80
 
-player_sprite_data:
+player_injury_sprite_data:
 .flush

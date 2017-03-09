@@ -103,7 +103,9 @@ def parse_info(filename):
   fp = open(filename, 'r')
   content = fp.read()
   fp.close()
+  line_num = 0
   for line in content.split('\n'):
+    line_num += 1
     if not line:
       continue
     if line.endswith(':'):
@@ -206,8 +208,9 @@ def extract_sprites(filename, chr_map):
   origins = process_origins(filename, tmpfile)
   outpattern = os.path.join(tmpdir, '%s.dat')
   # Run makechr to create spritelist.
-  cmd = ['makechr', '-s', '-b', '39=34', '-t', 'free-8x16', tmpfile, '-l',
-         '-o', outpattern, '--allow-overflow', 's', '--free-zone-view', tmpzone]
+  cmd = ['makechr', '-s', '-b', '39=34', '-t', 'free-8x16', tmpfile,
+         '-o', outpattern, '--allow-overflow', 's', '--free-zone-view', tmpzone,
+         '--lock-sprite-flips']
   print cmd
   p = subprocess.Popen(' '.join(cmd), shell=True)
   p.communicate()
@@ -257,6 +260,7 @@ def sprite_to_rect(sprite):
 
 def derive_pictures(sprites, info_collection):
   available = set(range(0, len(sprites)))
+  removed = set()
   for info in info_collection:
     if info.skip():
       continue
