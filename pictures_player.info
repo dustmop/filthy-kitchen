@@ -1,8 +1,8 @@
 
 player_picture_data:
 
-player_stand_right @ 48,8
-player_stand_left  @ 48,32
+player_stand_right @ 56,8
+player_stand_left  @ 56,32
 
 player_walk0_right @ 96,8
 player_walk0_left  @ 96,32
@@ -13,17 +13,14 @@ player_walk1_left  @ 96,80
 player_walk2_right @ 96,104
 player_walk2_left  @ 96,128
 
-player_duck_right  @ 48,64
-player_duck_left   @ 48,104
-
 player_jump_right  @ 140,8
 player_jump_left   @ 140,32
 
-throw_0_stand_right @ 48,144
-throw_0_stand_left  @ 48,192
+throw_0_stand_right @ 56,144
+throw_0_stand_left  @ 56,192
 
-throw_1_stand_right @ 48,168
-throw_1_stand_left  @ 48,224
+throw_1_stand_right @ 56,168
+throw_1_stand_left  @ 56,224
 
 throw_0_walk_right @ 96,160
 throw_0_walk_left  @ 96,208
@@ -38,31 +35,54 @@ throw_0_jump_left  @ 140,168
 throw_1_jump_left  @ 140,200
 
 .merge 2
-throw_0_fall_head_right @ 220,8
-throw_0_fall_right @ 180,112
-
-.merge 2
-throw_1_fall_head_right @ 220,32
-throw_1_fall_right @ 180,144
-
-.merge 2
-throw_0_fall_head_left @ 220,56
-throw_0_fall_left  @ 180,176
-
-.merge 2
-throw_1_fall_head_left @ 220,80
-throw_1_fall_left  @ 180,208
-
-.merge 2
-player_fall_head_right @ 20,208
+player_fall_head_right @ 220,8
 player_fall_right  @ 136,56 + 4,0
 
 .merge 2
-player_fall_head_left  @ 20,232
+throw_0_fall_head_right @ 220,32
+throw_0_fall_right @ 180,112
+
+.merge 2
+throw_1_fall_head_right @ 220,56
+throw_1_fall_right @ 180,144
+
+.merge 2
+player_fall_head_left  @ 220,80
 player_fall_left   @ 140,88
+
+.merge 2
+throw_0_fall_head_left  @ 220,104
+throw_0_fall_left  @ 180,176
+
+.merge 2
+throw_1_fall_head_left @ 220,128
+throw_1_fall_left  @ 180,208
 
 player_sprite_data:
 .flush
+
+
+
+player_duck_picture_data:
+
+player_duck_right  @ 52,64
+player_duck_left   @ 52,104
+
+.merge 2
+throw_0_duck_head_right @ 8,184
+throw_0_duck_right @ 8,24
+
+throw_1_duck_right @ 8,64
+
+.merge 2
+throw_0_duck_head_left @ 8,200
+throw_0_duck_left  @ 8,104
+
+throw_1_duck_left @ 8,144
+
+player_duck_sprite_data:
+.flush
+
 
 
 player_injury_picture_data:

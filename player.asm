@@ -419,12 +419,26 @@ Next:
 .scope SwatterDraw
   lda player_owns_swatter
   bpl Next
+
+  ; If ducking and throwing, don't ensure swatter if in the foreground.
+  lda player_state
+  cmp #PLAYER_STATE_DUCKING
+  bne InFront
+  lda player_throw
+  cmp #(THROW_START_TIME - THROW_WAKEUP_FRAMES + 1)
+  blt InFront
+InBackground:
+  jsr SpriteSpaceSetLowPriority
+  jmp DrawAssignment
+
+InFront:
   ; Ensure that the swatter is drawn above the player by using indexes 4 and 8.
   ldx #$08
   jsr SpriteSpaceEnsure
   ldx #$04
   jsr SpriteSpaceEnsure
 
+DrawAssignment:
   mov draw_palette, draw_attr
 
   MovWord draw_picture_pointer, swatter_picture_data
@@ -501,9 +515,15 @@ Visible:
 
   lda player_state
   bmi DrawInjury
+  cmp #PLAYER_STATE_DUCKING
+  beq DrawDuck
 DrawNormal:
   MovWord draw_picture_pointer, player_picture_data
   MovWord draw_sprite_pointer, player_sprite_data
+  jmp DrawIt
+DrawDuck:
+  MovWord draw_picture_pointer, player_duck_picture_data
+  MovWord draw_sprite_pointer, player_duck_sprite_data
   jmp DrawIt
 DrawInjury:
   asl tmp
@@ -593,7 +613,7 @@ player_animation_id:
 ; THROWING_0_STANDING
 .byte PICTURE_ID_THROW_0_STAND_RIGHT, PICTURE_ID_THROW_0_STAND_LEFT
 ; PLAYER_STATE_DUCKING
-.byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
+.byte PICTURE_ID_THROW_0_DUCK_RIGHT, PICTURE_ID_THROW_0_DUCK_LEFT
 ; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_THROW_0_JUMP_RIGHT, PICTURE_ID_THROW_0_JUMP_LEFT;
 .byte PICTURE_ID_THROW_0_FALL_RIGHT, PICTURE_ID_THROW_0_FALL_LEFT;
@@ -606,7 +626,7 @@ player_animation_id:
 ; THROWING_1_STANDING
 .byte PICTURE_ID_THROW_1_STAND_RIGHT, PICTURE_ID_THROW_1_STAND_LEFT
 ; PLAYER_STATE_DUCKING
-.byte PICTURE_ID_PLAYER_DUCK_RIGHT, PICTURE_ID_PLAYER_DUCK_LEFT;
+.byte PICTURE_ID_THROW_1_DUCK_RIGHT, PICTURE_ID_THROW_1_DUCK_LEFT;
 ; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_THROW_1_JUMP_RIGHT, PICTURE_ID_THROW_1_JUMP_LEFT;
 .byte PICTURE_ID_THROW_1_FALL_RIGHT, PICTURE_ID_THROW_1_FALL_LEFT;
@@ -634,7 +654,7 @@ swatter_animation_id:
 ; PLAYER_STATE_STANDING
 .byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 ; PLAYER_STATE_DUCKING
-.byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
+.byte PICTURE_ID_SWATTER_NO_WIRE_UP_LEFT, PICTURE_ID_SWATTER_NO_WIRE_UP_RIGHT
 ; PLAYER_STATE_IN_AIR
 .byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
 .byte PICTURE_ID_SWATTER_UP_LEFT, PICTURE_ID_SWATTER_UP_RIGHT
@@ -660,9 +680,9 @@ swatter_animation_h:
 .byte   6, $fa
 
 ; PLAYER_STATE_STANDING
-.byte  $f1, $0f
+.byte $f1, $0f
 ; PLAYER_STATE_DUCKING
-.byte  14, $f2;
+.byte $f6, $0a
 ; PLAYER_STATE_IN_AIR
 .byte $f2, $0e;
 .byte $f1, $0f;
@@ -690,7 +710,7 @@ swatter_animation_v:
 ; PLAYER_STATE_STANDING
 .byte   5, 5
 ; PLAYER_STATE_DUCKING
-.byte  10, 10;
+.byte   4, 4
 ; PLAYER_STATE_IN_AIR
 .byte $02, $02;
 .byte $01, $01;

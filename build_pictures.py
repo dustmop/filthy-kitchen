@@ -200,6 +200,7 @@ def process_origins(filename, outfile):
   return origins
 
 def extract_sprites(filename, chr_map):
+  has_err = False
   tmpdir = tempfile.mkdtemp()
   tmpfile = os.path.join(tmpdir, 'pictures.png')
   tmpzone = os.path.join(tmpdir, 'free-zone.png')
@@ -220,15 +221,19 @@ def extract_sprites(filename, chr_map):
   spritelist_filename = outpattern.replace('%s', 'spritelist')
   sprites_extracted = read_spritelist(spritelist_filename)
   # Build tile number translator.
+  EMPTY_TILE = ([0]*32)
   xlat = {}
   for c in xrange(chr_extracted.size() / 2):
     upper = chr_extracted.get(c*2)
     lower = chr_extracted.get(c*2+1)
     bytes = upper.low + upper.hi + lower.low + lower.hi
+    if bytes == EMPTY_TILE:
+      continue
     try:
       xlat[c] = chr_map[str(bytearray(bytes))]
     except KeyError:
-      print 'Failed at %d' % c*2
+      sys.stderr.write('Failed at $%02x from %s\n' % (c*2, chr_filename))
+      has_err = True
   # Exchange tile numbers.
   for k, spr in enumerate(sprites_extracted):
     spr[0] = spr[0] + 1
@@ -240,6 +245,8 @@ def extract_sprites(filename, chr_map):
       raise
     spr[1] = result[0] * 2 + 1
     spr[2] = result[1] | spr[2]
+  if has_err:
+    sys.exit(1)
   return sprites_extracted, origins
 
 def combine_info_with_origins(info_collection, origins):

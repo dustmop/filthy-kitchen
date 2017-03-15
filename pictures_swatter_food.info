@@ -9,6 +9,9 @@ swatter_down_left  @ 16,132
 swatter_down       @ 16,157
 swatter_down_right @ 16,180
 
+swatter_no_wire_up_right @ 56,33
+swatter_no_wire_up_left  @ 56,79
+
 swatter_sprite_data:
 .flush
 

@@ -15,9 +15,9 @@
 .importzp sprite_space_force, sprite_space_force2, sprite_space_force3
 .importzp values
 
-max_idx    = values + $01
-first_idx  = values + $02
-second_idx = values + $03
+max_idx    = values + $04
+first_idx  = values + $05
+second_idx = values + $06
 
 
 NUM_RESERVED = 8

@@ -123,7 +123,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/chars.chr.dat: chars.png
 	mkdir -p .b/
-	makechr chars.png -o .b/chars.%s.dat -s -b 34=0f -t 8x16 \
+	makechr chars.png -o .b/chars.%s.dat -s -t 8x16 \
             --allow-overflow s
 
 .b/title_chars.o: title_chars.png
