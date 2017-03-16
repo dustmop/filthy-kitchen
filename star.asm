@@ -78,7 +78,7 @@ Next:
   ldy draw_frame
   lda star_animation_sequence,y
   sta sprite_tile,x
-  lda #$01
+  lda star_attr_sequence,y
   sta sprite_attr,x
 
   lda draw_h
@@ -95,7 +95,8 @@ Next:
   sta sprite_h,x
   lda star_animation_sequence,y
   sta sprite_tile,x
-  lda #$c1
+  lda star_attr_sequence,y
+  eor #$c0
   sta sprite_attr,x
 
 Return:
@@ -159,3 +160,10 @@ star_animation_sequence:
 .byte STAR_ANIMATE_1_TILE
 .byte STAR_ANIMATE_2_TILE
 .byte STAR_ANIMATE_1_TILE
+
+
+star_attr_sequence:
+.byte 1
+.byte 1
+.byte 1
+.byte $81
