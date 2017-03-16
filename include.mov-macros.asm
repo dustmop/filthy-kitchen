@@ -1,5 +1,9 @@
 .macro mov dst,src
-.if (.not .xmatch({src}, _))
+.if .xmatch({src}, x)
+  txa
+.elseif .xmatch({src}, y)
+  tya
+.elseif (.not .xmatch({src}, _))
   lda src
 .endif
   sta dst

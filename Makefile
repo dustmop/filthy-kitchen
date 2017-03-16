@@ -55,7 +55,8 @@ SRC = gfx.asm \
       famitone.asm \
       sound.asm \
       samples.asm \
-      move_trig.asm
+      move_trig.asm \
+      dynamic_star_loader.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
@@ -73,7 +74,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             .b/resource5.compress.asm \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
-            .b/game_over.compressed.asm
+            .b/game_over.compressed.asm \
+            .b/stars.chr.dat
 	ca65 -o .b/prologue.o prologue.asm -g
 
 .b/general_mmc3.o: general_mmc3.asm
@@ -319,6 +321,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/resource5.chr.dat: .b/title.chr.dat
 	head -c 4096 .b/title.chr.dat > .b/resource5.chr.dat
+
+.b/stars.chr.dat: chars_stars.png
+	makechr chars_stars.png -o .b/stars.%s.dat -s -b 34 -r 0 -t 8x16
 
 .b/resource0.compress.asm .b/resource1.compress.asm .b/resource2.compress.asm .b/resource3.compress.asm .b/resource4.compress.asm .b/resource5.compress.asm: .b/resource0.chr.dat .b/resource1.chr.dat .b/resource2.chr.dat .b/resource3.chr.dat .b/resource4.chr.dat .b/resource5.chr.dat graphics_compress.py
 	python graphics_compress.py .b/resource0.chr.dat \

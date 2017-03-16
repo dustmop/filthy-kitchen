@@ -30,7 +30,7 @@
 .importzp pointer
 
 
-.segment "BOOT" ; should be in "CODE", but need to save space
+.segment "CODE"
 
 
 msg_addr_high = msg_catalog

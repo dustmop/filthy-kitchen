@@ -29,6 +29,7 @@
 .include "random.h.asm"
 .include "health.h.asm"
 .include "msg_catalog.h.asm"
+.include "dynamic_star_loader.h.asm"
 .include "famitone.h.asm"
 
 .importzp bg_x_scroll, bg_y_scroll, main_yield, debug_mode
@@ -150,24 +151,29 @@ GameplayLoop:
   DebugModeSetTint 0
   jsr HudSplitWait
 
+  ; If broom has not yet been touched by player, skip the next section.
   lda level_complete
   beq HandleEngine
 
+  ; Paused gameplay as part of the level outro.
 .scope LevelEnding
+  ; Broom has been touched by the player.
   inc level_complete
   lda level_complete
-  beq IsZero
+  ; If time = $48, destroy the bloom and explode it into stars.
   cmp #$48
   beq DestroyBroom
+  ; If time = $c0, exit gameplay, disable the screen, go to marque.
   cmp #$c0
   bne Ready
   jmp GameplayExit
-IsZero:
-  mov level_complete, #1
-  jmp Ready
 DestroyBroom:
   jsr BroomExplodeIntoStars
 Ready:
+  ; Dynamic star loading.
+  ldx level_complete
+  jsr DynamicStarsLoad
+  ; Engine will ignore every object behavior except for drawing.
   mov objects_only_draw, #1
   bne EngineReady
 .endscope

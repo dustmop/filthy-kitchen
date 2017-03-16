@@ -87,3 +87,7 @@ boss_bg_chr_data:
 .export title_bg_chr_data
 title_bg_chr_data:
 .include ".b/resource5.compress.asm"
+
+.export stars_chr_data
+stars_chr_data:
+.incbin ".b/stars.chr.dat", $00, $60
