@@ -70,6 +70,7 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             .b/resource2.compress.asm \
             .b/resource3.compress.asm \
             .b/resource4.compress.asm \
+            .b/resource5.compress.asm \
             .b/bg_pal.dat .b/sprite_pal.dat .b/text_pal.dat \
             .b/title.palette.dat .b/title.compressed.asm \
             .b/game_over.compressed.asm
@@ -123,7 +124,11 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/chars.chr.dat: chars.png
 	mkdir -p .b/
-	makechr chars.png -o .b/chars.%s.dat -s -t 8x16 \
+	makechr chars.png -o .b/chars.%s.dat -s -t 8x16 --allow-overflow s
+
+.b/chars_boss.chr.dat: chars_boss.png
+	mkdir -p .b/
+	makechr chars_boss.png -o .b/chars_boss.%s.dat -s -t 8x16 \
             --allow-overflow s
 
 .b/title_chars.o: title_chars.png
@@ -283,18 +288,23 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -p .b/bg_pal.o -i .b/merged_2.chr.dat \
             -o .b/level3_data.asm -c .b/merged_2_to_3.chr.dat
 
-.b/resource0.chr.dat .b/resource2.chr.dat .b/resource.palette.dat: \
-            .b/chars.chr.dat .b/merged_1.chr.dat .b/bg_pal.dat
-	head -c 4096 .b/merged_1.chr.dat > .b/resource0.chr.dat
-	tail -c 4096 .b/chars.chr.dat > .b/resource2.chr.dat
+.b/resource.palette.dat: .b/bg_pal.dat .b/chars.palette.dat
 	head -c 16 .b/bg_pal.dat > .b/resource.palette.dat
 	tail -c 16 .b/chars.palette.dat >> .b/resource.palette.dat
 
-.b/resource1.chr.dat: \
-            .b/merged_2_to_3.chr.dat
+.b/resource0.chr.dat: .b/merged_1.chr.dat
+	head -c 4096 .b/merged_1.chr.dat > .b/resource0.chr.dat
+
+.b/resource1.chr.dat: .b/merged_2_to_3.chr.dat
 	head -c 4096 .b/merged_2_to_3.chr.dat > .b/resource1.chr.dat
 
-.b/resource3.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
+.b/resource2.chr.dat: .b/chars.chr.dat
+	tail -c 4096 .b/chars.chr.dat > .b/resource2.chr.dat
+
+.b/resource3.chr.dat: .b/chars_boss.chr.dat
+	tail -c 4096 .b/chars_boss.chr.dat > .b/resource3.chr.dat
+
+.b/resource4.chr.dat .b/boss.graphics.dat .b/boss.palette.dat .b/boss.animate0.asm .b/boss.animate1.asm: \
             .b/chars.chr.dat .b/hud.o .b/boss.o .b/boss2.o .b/alpha.o .b/digit.o
 	python merge_chr_nt.py .b/hud.o .b/boss.o .b/boss2.o \
             -A .b/alpha.o -D .b/digit.o \
@@ -305,12 +315,12 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python build_boss_delta.py \
             .b/boss01.nametable.dat .b/boss02.nametable.dat \
             -l .b/boss.animate0.asm -r .b/boss.animate1.asm
-	head -c 4096 .b/boss.chr.dat > .b/resource3.chr.dat
+	head -c 4096 .b/boss.chr.dat > .b/resource4.chr.dat
 
-.b/resource4.chr.dat: .b/title.chr.dat
-	head -c 4096 .b/title.chr.dat > .b/resource4.chr.dat
+.b/resource5.chr.dat: .b/title.chr.dat
+	head -c 4096 .b/title.chr.dat > .b/resource5.chr.dat
 
-.b/resource0.compress.asm .b/resource1.compress.asm .b/resource2.compress.asm .b/resource3.compress.asm .b/resource4.compress.asm: .b/resource0.chr.dat .b/resource1.chr.dat .b/resource2.chr.dat .b/resource3.chr.dat .b/resource4.chr.dat graphics_compress.py
+.b/resource0.compress.asm .b/resource1.compress.asm .b/resource2.compress.asm .b/resource3.compress.asm .b/resource4.compress.asm .b/resource5.compress.asm: .b/resource0.chr.dat .b/resource1.chr.dat .b/resource2.chr.dat .b/resource3.chr.dat .b/resource4.chr.dat .b/resource5.chr.dat graphics_compress.py
 	python graphics_compress.py .b/resource0.chr.dat \
             -o .b/resource0.compress.asm -t
 	python graphics_compress.py .b/resource1.chr.dat \
@@ -321,6 +331,8 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
             -o .b/resource3.compress.asm -t
 	python graphics_compress.py .b/resource4.chr.dat \
             -o .b/resource4.compress.asm -t
+	python graphics_compress.py .b/resource5.chr.dat \
+            -o .b/resource5.compress.asm -t
 
 .b/trig.o .b/trig.h.asm: build_trig.py
 	mkdir -p .b/

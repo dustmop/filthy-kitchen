@@ -11,17 +11,29 @@
 .include "include.sys.asm"
 .include "include.tiles.asm"
 .include "gfx.h.asm"
+.include "endboss.h.asm"
 .include "msg_catalog.h.asm"
 .include "memory_layout.h.asm"
 
 
+.importzp which_level
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
 
 .segment "CODE"
 
 .proc HudSplitAssign
-  mov sprite_v+$00   , #$22
+  lda which_level
+  cmp #BOSS_LEVEL
+  beq Boss
+Normal:
+  mov sprite_v+$00   , #$21
   mov sprite_tile+$00, #SPRITE_0_TILE
+  mov sprite_attr+$00, #$60
+  mov sprite_h+$00   , #$76
+  rts
+Boss:
+  mov sprite_v+$00   , #$22
+  mov sprite_tile+$00, #SPRITE_0_FOR_BOSS_TILE
   mov sprite_attr+$00, #$20
   mov sprite_h+$00   , #$76
   rts

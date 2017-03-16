@@ -61,25 +61,29 @@ game_over_graphics:
 
 .segment "GFX0"
 
-.export gameplay0_chr_data
-gameplay0_chr_data:
+.export gameplay0_bg_chr_data
+gameplay0_bg_chr_data:
 .include ".b/resource0.compress.asm"
 
-.export gameplay1_chr_data
-gameplay1_chr_data:
+.export gameplay1_bg_chr_data
+gameplay1_bg_chr_data:
 .include ".b/resource1.compress.asm"
 
-.export chars_chr_data
-chars_chr_data:
+.export chars_spr_chr_data
+chars_spr_chr_data:
 .include ".b/resource2.compress.asm"
 
-.export boss_chr_data
-boss_chr_data:
+.export chars_boss_spr_chr_data
+chars_boss_spr_chr_data:
 .include ".b/resource3.compress.asm"
+
+.export boss_bg_chr_data
+boss_bg_chr_data:
+.include ".b/resource4.compress.asm"
 
 
 .segment "GFX2"
 
-.export title_chr_data
-title_chr_data:
-.include ".b/resource4.compress.asm"
+.export title_bg_chr_data
+title_bg_chr_data:
+.include ".b/resource5.compress.asm"

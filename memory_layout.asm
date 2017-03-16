@@ -15,8 +15,10 @@
 .importzp memory_layout_index
 .importzp pointer
 .importzp values
-.import gameplay0_chr_data, gameplay1_chr_data, chars_chr_data, boss_chr_data
-.import title_chr_data
+.import gameplay0_bg_chr_data, gameplay1_bg_chr_data
+.import chars_spr_chr_data, chars_boss_spr_chr_data
+.import boss_bg_chr_data
+.import title_bg_chr_data
 
 preserve_x = values + $00
 preserve_y = values + $01
@@ -91,37 +93,37 @@ all_memory_layout_info:
 
 gameplay0_info:
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word gameplay0_chr_data ; pointer
+.word gameplay0_bg_chr_data ; pointer
 .byte $00, $00 ; ppu addr
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word chars_chr_data ; pointer
+.word chars_spr_chr_data ; pointer
 .byte $10, $00 ; ppu addr
 .byte $ff
 
 gameplay1_info:
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word gameplay1_chr_data ; pointer
+.word gameplay1_bg_chr_data ; pointer
 .byte $00, $00 ; ppu addr
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word chars_chr_data ; pointer
+.word chars_spr_chr_data ; pointer
 .byte $10, $00 ; ppu addr
 .byte $ff
 
 boss_info:
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word boss_chr_data ; pointer
+.word boss_bg_chr_data ; pointer
 .byte $00, $00 ; ppu addr
 .byte MEMORY_LAYOUT_BANK_GAMEPLAY_CHR ; bank_num
-.word chars_chr_data ; pointer
+.word chars_boss_spr_chr_data ; pointer
 .byte $10, $00 ; ppu addr
 .byte $ff
 
 title_info:
 .byte MEMORY_LAYOUT_BANK_SCREEN_CHR ; bank_num
-.word title_chr_data ; pointer
+.word title_bg_chr_data ; pointer
 .byte $00, $00 ; ppu addr
 .byte MEMORY_LAYOUT_BANK_SCREEN_CHR ; bank_num
-.word title_chr_data ; pointer
+.word title_bg_chr_data ; pointer
 .byte $10, $00 ; ppu addr
 .byte $ff
 
