@@ -29,6 +29,7 @@
 .import title_graphics
 .import game_over_palette
 .import game_over_graphics
+.import RESET
 
 MAX_LEVEL = 4
 
@@ -203,7 +204,14 @@ OutroLoop:
   jsr SpriteSpaceEraseAll
   jsr SpriteSpaceNext
   jsr ObjectListUpdate
-  jmp OutroLoop
+  jsr ReadController
+  ; Start to exit normally.
+  lda buttons_press
+  and #BUTTON_START
+  beq OutroLoop
+TransitionToReset:
+  jsr FamiToneMusicStop
+  jmp RESET
 .endproc
 
 

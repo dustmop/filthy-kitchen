@@ -22,6 +22,7 @@
 .importzp buttons
 .import gameplay_palette
 .import text_palette
+.import RESET
 
 outer = values + 4
 inner = values + 5
@@ -123,6 +124,12 @@ LevelDone:
   mov outer, #$0
   mov inner, #$90
 
+  lda which_level
+  cmp #5
+  bne :+
+  mov inner, #1
+:
+
 MarqueLoop:
   jsr WaitNewFrame
   jsr FamiToneUpdate
@@ -131,7 +138,7 @@ MarqueLoop:
 
   lda which_level
   cmp #5
-  beq MarqueLoop
+  beq MaybeTestController
 
   dec outer
   bpl MarqueLoop
@@ -142,6 +149,16 @@ TransitionOut:
 ExitMarqueScreen:
   jsr DisableDisplayAndNmi
   jmp GameplayMain
+
+MaybeTestController:
+  mov inner, #1
+  jsr ReadController
+  lda buttons_press
+  and #BUTTON_START
+  beq MarqueLoop
+TransitionToReset:
+  jsr FamiToneMusicStop
+  jmp RESET
 .endproc
 
 
