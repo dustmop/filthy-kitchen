@@ -37,6 +37,9 @@ ELEC_JUMP1_TILE    = TOASTER_SIT_TILE + $04
 TOASTER_JUMP2_TILE = TOASTER_SIT_TILE + $14
 ELEC_JUMP2_TILE    = TOASTER_SIT_TILE + $08
 
+DIRTY_TRASH_TILE_0 = $f9
+DIRTY_TRASH_TILE_1 = $fb
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SPRITE_0_FOR_BOSS_TILE = $af

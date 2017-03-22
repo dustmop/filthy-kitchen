@@ -23,7 +23,7 @@
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
 .importzp player_animate, player_injury, player_iframe, player_throw
-.importzp player_health, player_removed
+.importzp player_health, player_removed, player_just_landed
 .importzp buttons, buttons_press
 .importzp level_max_screen
 .importzp draw_screen
@@ -157,8 +157,15 @@ NotOnGround:
   jmp Next
 IsOnGround:
   sta player_v
+  ; Check if player just landed
+  mov player_just_landed, #$00
+  lda player_gravity
+  beq SetGravityZero
+  mov player_just_landed, #$ff
+SetGravityZero:
   mov is_on_ground, #$00
-  mov player_gravity, #$00
+  mov player_gravity, _
+  mov player_gravity_low, _
 Next:
 .endscope
   ; Check if injured.

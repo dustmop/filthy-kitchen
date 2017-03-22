@@ -18,7 +18,7 @@
 .importzp player_health_delta
 .importzp draw_screen, draw_h, draw_v
 .importzp player_injury, player_iframe, player_gravity
-.importzp player_gravity_low, player_health_delta
+.importzp player_gravity_low, player_health_delta, player_just_landed
 .importzp values
 
 num_tiles = values + $00
@@ -41,8 +41,7 @@ DIRT_KIND_SPLOTCH = 1
 DIRT_KIND_PILE = 2
 DIRT_KIND_PUDDLE = 3
 DIRT_KIND_SPIT = 4
-
-
+DIRT_KIND_TRASH = 5
 
 
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
@@ -157,7 +156,13 @@ Later:
   bne Next
   jsr ObjectCollisionWithPlayer
   bcc Next
+
 DidCollide:
+  lda dirt_kind,x
+  cmp #DIRT_KIND_TRASH
+  beq CollisionWithTrash
+
+CollisionHurts:
   lda #SFX_GOT_HURT
   jsr SoundPlay
   mov player_injury, #30
@@ -166,6 +171,15 @@ DidCollide:
   mov player_gravity_low, #$00
   dec player_health_delta
   dec player_health_delta
+  jmp Next
+
+CollisionWithTrash:
+  bit player_just_landed
+  bpl Next
+  ; Player came down from a jump and landed on trash can.
+  lda #SFX_GLOOP
+  jsr SoundPlay
+
 Next:
 .endscope
 
@@ -192,6 +206,8 @@ Draw:
   beq DirtyPile
   cmp #DIRT_KIND_SPIT
   beq DirtySpit
+  cmp #DIRT_KIND_TRASH
+  beq DirtyTrash
   rts
 
 DirtySink:
@@ -222,6 +238,19 @@ DirtySpit:
   mov num_tiles, #2
   mov tile_0, #DIRTY_SPIT_TILE_0
   mov tile_1, #DIRTY_SPIT_TILE_1
+  jmp DrawIt
+DirtyTrash:
+  lda draw_v
+  clc
+  adc #16
+  sta draw_v
+  lda draw_h
+  clc
+  adc #5
+  sta draw_h
+  mov num_tiles, #2
+  mov tile_0, #DIRTY_TRASH_TILE_0
+  mov tile_1, #DIRTY_TRASH_TILE_1
 
 DrawIt:
   ldy #0
