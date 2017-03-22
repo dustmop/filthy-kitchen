@@ -144,7 +144,7 @@ AttributeLoop:
 .endproc
 
 
-.segment "GFX0"
+.segment "DAT0"
 
 hud_data:
 .include ".b/hud.compressed.asm"

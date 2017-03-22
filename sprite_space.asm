@@ -26,7 +26,7 @@ SPRITE_SPACE_ROTATE = $34
 SPRITE_SPACE_NEXT   = $5c
 
 
-.segment "BOOT" ; should be in "CODE", but need to save space
+.segment "CODE"
 
 
 .proc SpriteSpaceInit

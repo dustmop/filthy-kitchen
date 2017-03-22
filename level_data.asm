@@ -1,6 +1,7 @@
 .export LevelClearData
 .export LevelLoadInit
 .export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
+.export SetLevelBank, RevertLevelBank
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -79,11 +80,11 @@ Load1:
   MovWord level_chunk_pointer, level1_chunk
   MovWord level_spawn_pointer, level1_spawn
   MovWord level_table_of_contents_pointer, level1_table_of_contents
-  mov level_max_screen, level1_last_screen
+  mov level_max_screen, #LEVEL1_LAST_SCREEN
   mov level_has_entrance_door, level1_meta+0
   mov level_has_infinite_flies, level1_meta+1
   mov level_player_start_v, level1_meta+2
-  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
   rts
 
 Load2:
@@ -91,11 +92,11 @@ Load2:
   MovWord level_chunk_pointer, level2_chunk
   MovWord level_spawn_pointer, level2_spawn
   MovWord level_table_of_contents_pointer, level2_table_of_contents
-  mov level_max_screen, level2_last_screen
+  mov level_max_screen, #LEVEL2_LAST_SCREEN
   mov level_has_entrance_door, level2_meta+0
   mov level_has_infinite_flies, level2_meta+1
   mov level_player_start_v, level2_meta+2
-  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
   rts
 
 Load3:
@@ -103,11 +104,11 @@ Load3:
   MovWord level_chunk_pointer, level3_chunk
   MovWord level_spawn_pointer, level3_spawn
   MovWord level_table_of_contents_pointer, level3_table_of_contents
-  mov level_max_screen, level3_last_screen
+  mov level_max_screen, #LEVEL3_LAST_SCREEN
   mov level_has_entrance_door, level3_meta+0
   mov level_has_infinite_flies, level3_meta+1
   mov level_player_start_v, level3_meta+2
-  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
   rts
 
 LoadBoss:
@@ -116,7 +117,7 @@ LoadBoss:
   mov level_has_infinite_flies, #0
   mov level_player_start_v, #$a8
   MovWord level_spawn_pointer, no_spawn
-  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL0
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
   rts
 
 .endproc
@@ -521,27 +522,24 @@ Loop:
 .endproc
 
 
-
-.segment "LEVEL1"
-
 level1_meta:
-.byte $80, 0
-.byte $b8
-.include ".b/level1_data.asm"
+.byte $80, 0, $b8
 
 level2_meta:
-.byte 0, 0
-.byte $a8
-.include ".b/level2_data.asm"
+.byte 0, 0, $a8
 
 level3_meta:
-.byte 0, 0
-.byte $a8
+.byte 0, 0, $a8
+
+
+.segment "DAT2"
+
+.include ".b/level1_data.asm"
+.include ".b/level2_data.asm"
 .include ".b/level3_data.asm"
 
 no_spawn:
 .byte $ff,$ff,$ff,$ff
-
 
 ;.segment "LEVEL0"
 ;

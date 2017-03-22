@@ -10,6 +10,7 @@
 .importzp spawn_left_index, spawn_right_index
 .importzp camera_h, camera_screen, values
 .importzp level_spawn_pointer
+.import SetLevelBank, RevertLevelBank
 
 delta_h = values + $00
 new_index = values + $01
@@ -21,7 +22,7 @@ leftmost_idx = values + $04
 offscreen_things = $400
 
 
-.segment "CODE"
+.segment "BOOT"
 
 
 .proc SpawnOffscreenInit
@@ -38,6 +39,7 @@ Loop:
 
 
 .proc SpawnOffscreenFillEntireScreen
+  jsr SetLevelBank
   mov camera_h, #$10
   mov camera_screen, #$ff
 Loop:
@@ -49,13 +51,17 @@ Loop:
   bne Loop
   mov camera_h, #$00
   mov camera_screen, _
+  jsr RevertLevelBank
   rts
 .endproc
 
 
 .proc SpawnOffscreenUpdate
+  jsr SetLevelBank
   jsr SpawnOffscreenToRight
-  jmp SpawnOffscreenToLeft
+  jsr SpawnOffscreenToLeft
+  jsr RevertLevelBank
+  rts
 .endproc
 
 
@@ -174,7 +180,9 @@ Allocated:
   lsr a
   .endrepeat
   tay
+  jsr RevertLevelBank
   jsr ObjectConstructor
+  jsr SetLevelBank
 Success:
   ldy new_index
   tya

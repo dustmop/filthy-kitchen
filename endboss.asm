@@ -380,7 +380,7 @@ ExitBoss:
   jmp MarqueScreen
 
 
-.segment "GFX0"
+.segment "DAT0"
 
 
 boss_graphics:

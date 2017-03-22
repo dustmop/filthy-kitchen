@@ -7,7 +7,7 @@
 FT_SFX_CH0 = 0
 
 
-.segment "BOOT" ; should be in "CODE", but need to save space
+.segment "CODE"
 
 .proc SoundPlay
   sta sfx_num

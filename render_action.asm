@@ -23,7 +23,7 @@ RENDER_ACTION_HEADER_SIZE = 3
 ; 3: buffer data, of size given at (0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.segment "BOOT" ; should be in "CODE", but need to save space
+.segment "BOOT"
 
 ;AllocateRenderAction
 ; Allocate a RenderAction object, returning its index to the caller.

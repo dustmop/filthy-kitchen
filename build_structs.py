@@ -166,8 +166,7 @@ class LevelDataBuilder(object):
     if not level:
       raise RuntimeError('Need level, got %s' % level)
     fp = open(output_file, 'w')
-    fp.write('level%s_last_screen:\n' % level)
-    fp.write('.byte %d\n' % (self.last_screen,))
+    fp.write('LEVEL%s_LAST_SCREEN = %s\n' % (level, self.last_screen))
     fp.write('\n')
     fp.write('level%s_data:\n' % level)
     self.write_slices(fp, self.level_data, 8)

@@ -380,6 +380,8 @@ Failure:
 .endproc
 
 
+.segment "BOOT"
+
 .proc ObjectAllocate
   ; Check if the list is totally empty. If so, fail to allocate.
   ldx object_list_head
@@ -406,6 +408,8 @@ Failure:
   rts
 .endproc
 
+
+.segment "CODE"
 
 .proc ObjectConstructor
   lda #0
