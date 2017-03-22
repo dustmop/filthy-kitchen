@@ -72,13 +72,17 @@ player_duck_left   @ 52,104
 throw_0_duck_head_right @ 8,184
 throw_0_duck_right @ 8,24
 
-throw_1_duck_right @ 8,64
+.concat 2
+throw_1_duck_no_hand_right @ 8,64
+throw_1_duck_right @ 135,232 + 0,18
 
 .merge 2
-throw_0_duck_head_left @ 8,200
+throw_0_duck_head_left @ 8,216
 throw_0_duck_left  @ 8,104
 
-throw_1_duck_left @ 8,144
+.concat 2
+throw_1_duck_no_hand_left @ 8,144
+throw_1_duck_left @ 175,232 + 0,38
 
 player_duck_sprite_data:
 .flush

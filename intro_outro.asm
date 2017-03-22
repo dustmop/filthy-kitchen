@@ -32,6 +32,7 @@
 .import RESET
 
 MAX_LEVEL = 4
+NUM_TIMES_TO_FLASH = 12
 
 outer        = values + 4
 inner        = values + 5
@@ -125,7 +126,7 @@ TransitionOut:
   jsr FamiToneMusicStop
   lda #SFX_PRESS_START
   jsr SoundPlay
-  mov outer, #12
+  mov outer, #NUM_TIMES_TO_FLASH
 
 OuterLoop:
   jsr ClearPressStart

@@ -23,9 +23,10 @@ SIZE_ID_MULTIPLE = 3
 
 class PictureInfo(object):
   def __init__(self, identifier, origin_y, origin_x, mod_y=None, mod_x=None,
-               is_flush=False, merge_count=None):
+               is_flush=False, merge_count=None, merge_kind=None):
     self.is_flush = is_flush
     self.merge_count = merge_count
+    self.merge_kind = merge_kind
     self.identifier = identifier
     self.upcase = identifier.upper() if identifier else None
     self.origin_y = origin_y
@@ -36,6 +37,7 @@ class PictureInfo(object):
     self.target_x = None
     self.picture = None
     self.sprite_list = None
+    self.distance = None
 
   def skip(self):
     return self.origin_x is None or self.origin_y is None
@@ -115,11 +117,17 @@ def parse_info(filename):
     if line == '.flush':
       info_collection.append(PictureInfo(None, None, None, is_flush=True))
       continue
-    if line.startswith('.merge'):
-      param = int(line.split(' ')[1])
-      info_collection.append(PictureInfo(None, None, None, merge_count=param))
+    if line.startswith('.merge') or line.startswith('.concat'):
+      pieces = line.split(' ')
+      kind, count = (pieces[0][1:], int(pieces[1]))
+      info_collection.append(PictureInfo(None, None, None, merge_count=count,
+                                         merge_kind=kind))
       continue
-    identifier, params = line.split('@')
+    try:
+      identifier, params = line.split('@')
+    except ValueError:
+      print line_num
+      raise
     mod_y, mod_x = (0,0)
     if '+' in params:
       params, mod = params.split('+')
@@ -332,36 +340,42 @@ def build_data(info_collection):
       x_displace += 8
     sprite_list.append(DRAW_PICTURE_DONE)
     info.sprite_list = sprite_list
-    info.distance = sprite_distance
     sprite_distance += len(info.sprite_list)
   return built_sprite_data
 
 
 def apply_merges(info_collection):
   merge_count = None
+  merge_kind = None
   accum = []
   value = None
+  delta = None
+  curr_distance = 0
   for info in info_collection:
+    info.distance = curr_distance
     if not info.merge_count is None:
       merge_count = info.merge_count
+      merge_kind = info.merge_kind
       accum = []
       continue
     if merge_count:
-      if info.identifier:
-        if merge_count > 1:
-          info.identifier = None
-          value = info.distance
-        else:
-          info.distance = value
+      if info.identifier and merge_count > 1:
+        info.identifier = None
       if info.sprite_list:
         accum += info.sprite_list
         merge_count -= 1
         if merge_count > 0:
           info.origin_x, info.origin_y, info.sprite_list = (None, None, None)
           if accum[-1] == DRAW_PICTURE_DONE:
-            accum[-1] = DRAW_PICTURE_APPEND
+            if merge_kind == 'merge':
+              accum[-1] = DRAW_PICTURE_APPEND
+            else:
+              accum = accum[:-1]
         else:
           info.sprite_list, accum, merge_count = (accum, [], None)
+    curr_distance += len(info.sprite_list or [])
+    if info.is_flush:
+      curr_distance = 0
 
 
 def produce_output(info_collection, built_sprite_data,
