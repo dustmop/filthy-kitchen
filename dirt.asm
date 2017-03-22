@@ -32,8 +32,9 @@ dirt_draw_counter = values + $05
 dirt_kind = object_data_extend + $00
 dirt_step = object_data_extend + $10
 dirt_direction = dirt_step
-dirt_h_low = object_data_extend + $20
-dirt_v_low = object_data_extend + $30
+dirt_h_low = object_data_extend + $20 ; only used by spit
+dirt_v_low = object_data_extend + $30 ; only used by spit
+dirt_shake = object_data_extend + $20 ; only used by trash
 
 
 DIRT_KIND_SINK = 0
@@ -58,6 +59,8 @@ GUNK_DROP_LIFE = 65
   beq WallSplotch
   cmp #DIRT_KIND_SPIT
   beq Spit
+  cmp #DIRT_KIND_TRASH
+  beq Trash
   rts
 WallSplotch:
   lda #DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V
@@ -71,6 +74,9 @@ Spit:
   clc
   adc #36
   sta dirt_direction,x
+  rts
+Trash:
+  mov {dirt_shake,x}, #0
   rts
 .endproc
 
@@ -133,6 +139,18 @@ Return:
 Next:
 .endscope
 
+.scope TrashShake
+  lda dirt_kind,x
+  cmp #DIRT_KIND_TRASH
+  bne Next
+ ;
+  lda dirt_shake,x
+  beq Next
+  dec dirt_shake,x
+
+Next:
+.endscope
+
   jmp Later
 
 SpitHandler:
@@ -177,8 +195,7 @@ CollisionWithTrash:
   bit player_just_landed
   bpl Next
   ; Player came down from a jump and landed on trash can.
-  lda #SFX_GLOOP
-  jsr SoundPlay
+  mov {dirt_shake,x}, #15
 
 Next:
 .endscope
@@ -240,7 +257,15 @@ DirtySpit:
   mov tile_1, #DIRTY_SPIT_TILE_1
   jmp DrawIt
 DirtyTrash:
-  lda draw_v
+  lda dirt_shake,x
+  beq TrashNoShake
+  lsr a
+  lsr a
+  tay
+  lda shake_offset_v,y
+TrashNoShake:
+  clc
+  adc draw_v
   clc
   adc #16
   sta draw_v
@@ -248,9 +273,13 @@ DirtyTrash:
   clc
   adc #5
   sta draw_h
+  bcs SkipTrash
   mov num_tiles, #2
   mov tile_0, #DIRTY_TRASH_TILE_0
   mov tile_1, #DIRTY_TRASH_TILE_1
+  jmp DrawIt
+SkipTrash:
+  jmp Return
 
 DrawIt:
   ldy #0
@@ -297,3 +326,11 @@ Return:
 
 
 DirtDraw = DirtExecute::Draw
+
+
+shake_offset_v:
+.byte 1
+.byte 0
+.byte 1
+.byte 1
+
