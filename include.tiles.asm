@@ -47,12 +47,12 @@ TRASH_GUNK_TILE_3 = GUNK_DROP_1_TILE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-SPRITE_0_FOR_BOSS_TILE = $af
+SPRITE_0_FOR_BOSS_TILE = $ad
 
-DIRTY_SPIT_TILE_0 = $b1
+DIRTY_SPIT_TILE_0 = $af
 DIRTY_SPIT_TILE_1 = DIRTY_SPIT_TILE_0 + 2
 
-BOSS_HEALTH_EDGE_TILE = $b5
+BOSS_HEALTH_EDGE_TILE = $b3
 BOSS_HEALTH_METER_BASE_TILE = BOSS_HEALTH_EDGE_TILE + 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
