@@ -29,9 +29,9 @@ tile_2 = values + $03
 dirt_draw_attr = values + $04
 dirt_draw_counter = values + $05
 
-trash_orig_v = values + $00
-trash_orig_h = values + $01
-trash_orig_screen = values + $02
+trash_orig_v = values + $07
+trash_orig_h = values + $08
+trash_orig_screen = values + $09
 trash_gunk_dir = values + $04
 trash_gunk_offset_h = values + $05
 trash_gunk_offset_screen = values + $06
@@ -169,11 +169,39 @@ Next:
 .endscope
 
 .scope CollisionWithTrash
-  jsr ObjectCollisionWithPlayer
-  bcc Next
+  mov trash_orig_h, {object_h,x}
+  mov trash_orig_screen, {object_screen,x}
+  ; player must have just landed
   bit player_just_landed
-  bpl Next
+  bpl NoHit
+  ; check left half
+  lda object_h,x
+  sec
+  sbc #8
+  sta object_h,x
+  lda object_screen,x
+  sbc #0
+  sta object_screen,x
+  jsr ObjectCollisionWithPlayer
+  bcs Hit
+  ; check right half
+  lda object_h,x
+  clc
+  adc #$10
+  sta object_h,x
+  lda object_screen,x
+  adc #$00
+  sta object_screen,x
+  jsr ObjectCollisionWithPlayer
+  bcc NoHit
+Hit:
+  mov {object_h,x}, trash_orig_h
+  mov {object_screen,x}, trash_orig_screen
   jsr TrashShakesAndSpitsGunk
+  jmp Next
+NoHit:
+  mov {object_h,x}, trash_orig_h
+  mov {object_screen,x}, trash_orig_screen
 Next:
 .endscope
 
@@ -361,12 +389,12 @@ DirtDraw = DirtExecute::Draw
   mov trash_orig_screen, {object_screen,x}
 
   mov trash_gunk_dir, #$ff
-  mov trash_gunk_offset_h, #($100 - 18 + 4)
+  mov trash_gunk_offset_h, #($100 - 18 + 4 + 5)
   mov trash_gunk_offset_screen, #$ff
   jsr CreateTrashGunk
 
   mov trash_gunk_dir, #$00
-  mov trash_gunk_offset_h, #(18 + 6)
+  mov trash_gunk_offset_h, #(18 + 6 - 5)
   mov trash_gunk_offset_screen, #$00
   jsr CreateTrashGunk
 

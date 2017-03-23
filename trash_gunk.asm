@@ -37,7 +37,7 @@ trash_gunk_v_speed_low = object_data_extend + $30
 SPLOOSH_V = $ba
 
 SPEED_V_LOW = $38
-SPEED_H_LOW = $e0
+SPEED_H_LOW = $f0
 
 
 .segment "CODE"
@@ -113,6 +113,11 @@ Next:
 .endscope
 
 .scope CollisionWithPlayer
+  ; First frame of animation doesn't cause collisions with player.
+  lda trash_gunk_v_speed,x
+  bmi Next
+RegularChec:
+  ; Check collision like normal.
   lda player_iframe
   bne Next
   jsr ObjectCollisionWithPlayer
