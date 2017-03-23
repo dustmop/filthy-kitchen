@@ -10,6 +10,7 @@
 .include "sprite_space.h.asm"
 .include "shared_object_values.asm"
 .include "gunk_drop.h.asm"
+.include "trash_gunk.h.asm"
 .include "sound.h.asm"
 .include "random.h.asm"
 .include "move_trig.h.asm"
@@ -27,6 +28,13 @@ tile_1 = values + $02
 tile_2 = values + $03
 dirt_draw_attr = values + $04
 dirt_draw_counter = values + $05
+
+trash_orig_v = values + $00
+trash_orig_h = values + $01
+trash_orig_screen = values + $02
+trash_gunk_dir = values + $04
+trash_gunk_offset_h = values + $05
+trash_gunk_offset_screen = values + $06
 
 .import object_data_extend
 dirt_kind = object_data_extend + $00
@@ -48,6 +56,7 @@ DIRT_KIND_TRASH = 5
 DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
 GUNK_DROP_LIFE = 65
+TRASH_GUNK_LIFE = 65
 
 .segment "CODE"
 
@@ -83,15 +92,23 @@ Trash:
 
 .proc DirtExecute
 
+.scope MaybeSpit
   lda dirt_kind,x
   cmp #DIRT_KIND_SPIT
-  beq SpitHandler
+  jeq SpitHandler
+.endscope
 
 .scope MaybeDespawn
   jsr ObjectOffscreenDespawn
   bcc Okay
   rts
 Okay:
+.endscope
+
+.scope MaybeTrash
+  lda dirt_kind,x
+  cmp #DIRT_KIND_TRASH
+  beq TrashHandler
 .endscope
 
 .scope SpawnGunkDrop
@@ -139,21 +156,32 @@ Return:
 Next:
 .endscope
 
-.scope TrashShake
-  lda dirt_kind,x
-  cmp #DIRT_KIND_TRASH
-  bne Next
- ;
+  jmp Later
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TrashHandler:
+
+.scope ShakeTrashGunk
   lda dirt_shake,x
   beq Next
   dec dirt_shake,x
-
 Next:
 .endscope
 
-  jmp Later
+.scope CollisionWithTrash
+  jsr ObjectCollisionWithPlayer
+  bcc Next
+  bit player_just_landed
+  bpl Next
+  jsr TrashShakesAndSpitsGunk
+Next:
+.endscope
 
+  jmp Draw
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SpitHandler:
+
 .scope SpitHandler
   jsr MovementTrig
   jsr MovementTrig
@@ -167,6 +195,7 @@ DestroyIt:
 Okay:
 .endscope
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Later:
 
 .scope CollisionWithPlayer
@@ -174,13 +203,7 @@ Later:
   bne Next
   jsr ObjectCollisionWithPlayer
   bcc Next
-
 DidCollide:
-  lda dirt_kind,x
-  cmp #DIRT_KIND_TRASH
-  beq CollisionWithTrash
-
-CollisionHurts:
   lda #SFX_GOT_HURT
   jsr SoundPlay
   mov player_injury, #30
@@ -189,19 +212,13 @@ CollisionHurts:
   mov player_gravity_low, #$00
   dec player_health_delta
   dec player_health_delta
-  jmp Next
-
-CollisionWithTrash:
-  bit player_just_landed
-  bpl Next
-  ; Player came down from a jump and landed on trash can.
-  mov {dirt_shake,x}, #15
-
 Next:
 .endscope
 
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Draw:
+
   mov dirt_draw_attr, #$03
   mov dirt_draw_counter, #$00
 
@@ -324,8 +341,74 @@ Return:
 
 
 
-
 DirtDraw = DirtExecute::Draw
+
+
+
+.proc TrashShakesAndSpitsGunk
+  ; Player came down from a jump and landed on trash can.
+  mov {dirt_shake,x}, #15
+
+  lda #SFX_GLOOP
+  jsr SoundPlay
+
+  ; push x
+  txa
+  pha
+
+  mov trash_orig_h, {object_h,x}
+  mov trash_orig_v, {object_v,x}
+  mov trash_orig_screen, {object_screen,x}
+
+  mov trash_gunk_dir, #$ff
+  mov trash_gunk_offset_h, #($100 - 18 + 4)
+  mov trash_gunk_offset_screen, #$ff
+  jsr CreateTrashGunk
+
+  mov trash_gunk_dir, #$00
+  mov trash_gunk_offset_h, #(18 + 6)
+  mov trash_gunk_offset_screen, #$00
+  jsr CreateTrashGunk
+
+  ; pop x
+  pla
+  tax
+Return:
+  rts
+.endproc
+
+
+.proc CreateTrashGunk
+  lda trash_orig_v
+  clc
+  adc #8
+  sta draw_v
+  lda trash_orig_h
+  clc
+  adc trash_gunk_offset_h
+  sta draw_h
+  lda trash_orig_screen
+  adc trash_gunk_offset_screen
+  sta draw_screen
+
+  ; Allocate trash gunk
+  jsr ObjectAllocate
+  bcc Return
+  jsr ObjectConstructor
+  mov {object_kind,x}, #(OBJECT_KIND_TRASH_GUNK | OBJECT_IS_NEW)
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  mov {trash_gunk_h_dir,x}, trash_gunk_dir
+  mov {trash_gunk_h_low,x}, #$0
+  mov {trash_gunk_v_speed_low,x}, #$0
+  mov {trash_gunk_v_speed,x}, #$fd
+  mov {object_life,x}, #TRASH_GUNK_LIFE
+
+Return:
+  rts
+.endproc
+
 
 
 shake_offset_v:

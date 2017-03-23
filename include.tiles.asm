@@ -40,6 +40,11 @@ ELEC_JUMP2_TILE    = TOASTER_SIT_TILE + $08
 DIRTY_TRASH_TILE_0 = $f9
 DIRTY_TRASH_TILE_1 = $fb
 
+TRASH_GUNK_TILE_0 = $fd
+TRASH_GUNK_TILE_1 = TRASH_GUNK_TILE_0 + 2
+TRASH_GUNK_TILE_2 = TRASH_GUNK_TILE_0
+TRASH_GUNK_TILE_3 = GUNK_DROP_1_TILE
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SPRITE_0_FOR_BOSS_TILE = $af

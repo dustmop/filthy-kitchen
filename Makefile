@@ -44,6 +44,7 @@ SRC = gfx.asm \
       utensils.asm \
       broom.asm \
       gunk_drop.asm \
+      trash_gunk.asm \
       star.asm \
       wing.asm \
       toaster.asm \

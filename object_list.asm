@@ -22,6 +22,7 @@
 .include "utensils.h.asm"
 .include "broom.h.asm"
 .include "gunk_drop.h.asm"
+.include "trash_gunk.h.asm"
 .include "star.h.asm"
 .include "wing.h.asm"
 .include "toaster.h.asm"
@@ -67,6 +68,7 @@ OBJECT_KIND_STAR       = $09
 OBJECT_KIND_WING       = $0a
 OBJECT_KIND_TOASTER    = $0b
 OBJECT_KIND_SPLOOSH    = $0c
+OBJECT_KIND_TRASH_GUNK = $0d
 
 OBJECT_IS_NEW = $40
 OBJECT_CLEAR_NEW = $3f
@@ -487,27 +489,27 @@ Done:
 
 
 ;SWATTER, FLY, EXPLODE, POINTS, FOOD, DIRTY, UTENTILS, BROOM, GUNK_DROP, STAR
-;   WING, TOASTER, SPLOOSH
+;   WING, TOASTER, SPLOOSH, TRASH_GUNK
 
 table_object_num_frames:
 .byte   8,  3,       3,      1,    8,     1,        1,     8,         1,    4
-.byte $80,      6,       3
+.byte $80,      6,       3,          1
 
 table_object_animate_limit:
 .byte   2,  3,       6,      1,    4,     1,        1,     4,         1,    4
-.byte $80,      4,       6
+.byte $80,      4,       6,          1
 
 kind_offset_h:
 .byte   0,  5,     $80,    $80,    3,     0,        0,     0,         4,  $80
-.byte $80,      0,       4
+.byte $80,      0,       4,          4
 
 kind_bigger_h:
 .byte   0,  0,     $80,    $80,    8,     4,        0,     8,         3,  $80
-.byte $80,      2,       3
+.byte $80,      2,       3,          3
 
 kind_bigger_v:
 .byte   0,  0,     $80,    $80,    2,     2,        0,    30,         3,  $80
-.byte $80,     12,       3
+.byte $80,     12,       3,          3
 
 execute_table:
 .word SwatterExecute-1
@@ -523,6 +525,7 @@ execute_table:
 .word WingExecute-1
 .word ToasterExecute-1
 .word SplooshExecute-1
+.word TrashGunkExecute-1
 
 draw_table:
 .word SwatterDraw-1
@@ -538,3 +541,4 @@ draw_table:
 .word WingDraw-1
 .word ToasterDraw-1
 .word SplooshDraw-1
+.word TrashGunkDraw-1
