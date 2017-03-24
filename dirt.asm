@@ -53,7 +53,8 @@ DIRT_KIND_SPIT = 4
 DIRT_KIND_TRASH = 5
 
 
-DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V = $72
+DIRT_SPAWN_GUNK_DROP_LOW_BEGIN_PLUS_V = $88
+DIRT_SPAWN_GUNK_DROP_HIGH_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
 GUNK_DROP_LIFE = 65
 TRASH_GUNK_LIFE = 65
@@ -72,7 +73,17 @@ TRASH_GUNK_LIFE = 65
   beq Trash
   rts
 WallSplotch:
-  lda #DIRT_SPAWN_GUNK_DROP_BEGIN_PLUS_V
+  lda object_v,x
+  cmp #$61
+  bge LowSplotch
+HighSplotch:
+  lda #DIRT_SPAWN_GUNK_DROP_HIGH_BEGIN_PLUS_V
+  sec
+  sbc object_v,x
+  sta dirt_step,x
+  rts
+LowSplotch:
+  lda #DIRT_SPAWN_GUNK_DROP_LOW_BEGIN_PLUS_V
   sec
   sbc object_v,x
   sta dirt_step,x
