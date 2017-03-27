@@ -191,8 +191,9 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	mkdir -p .b/
 	makechr .b/title_nomsg.png -o .b/title.o -p .b/title_pal.o
 	makechr .b/game_over_nomsg.png -o .b/game_over.o -p .b/title_pal.o
-	#makechr one.png -o .b/one.o
+	makechr one.png -o .b/one.o
 	python merge_chr_nt.py .b/title.o .b/game_over.o \
+            .b/one.o \
             .b/title_chars.o \
             -A .b/alpha.o \
             -D .b/digit.o \
