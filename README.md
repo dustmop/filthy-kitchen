@@ -4,13 +4,19 @@ Filthy Kitchen is a homebrew NES game, written in 6502 assembly. You control the
 
 # Dependencies
 
-[ca65](http://cc65.github.io/cc65/)
-make
-python
-[makechr](http://github.com/dustmop/makechr)
-[famitracker](http://www.famitracker.com/)
-[famitone2](https://shiru.untergrund.net/code.shtml)
-OSX only: [wine](https://www.davidbaumgold.com/tutorials/wine-mac/)
+* [ca65](http://cc65.github.io/cc65/)
+
+* make
+
+* python
+
+* [makechr](http://github.com/dustmop/makechr)
+
+* [famitracker](http://www.famitracker.com/)
+
+* [famitone2](https://shiru.untergrund.net/code.shtml)
+
+* OSX only: [wine](https://www.davidbaumgold.com/tutorials/wine-mac/)
 
 # Building
 
@@ -27,11 +33,17 @@ OSX only: [wine](https://www.davidbaumgold.com/tutorials/wine-mac/)
 ```
 wine famitracker.exe "$@"
 ```
+in a file called "famitracker" in your PATH. Make sure the executable bit is set:
+```
+chmod a+x famitracker
+```
 
 # Make
 
 Once ready, call make to build:
+```
 make
+```
 
 # Secret password
 
