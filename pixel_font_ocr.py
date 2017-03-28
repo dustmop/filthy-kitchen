@@ -23,6 +23,8 @@ def lookup_char(rows):
     return 'A'
   elif rows == [[1, 1, 1], [1, 0, 1], [1, 1, 0], [1, 0, 1], [1, 1, 1]]:
     return 'B'
+  elif rows == [[1, 1, 1], [1, 0, 0], [1, 1, 0], [1, 0, 0], [1, 1, 1]]:
+    return 'E'
   else:
     print rows
     raise NotImplementedError()

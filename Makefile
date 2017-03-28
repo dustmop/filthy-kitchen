@@ -50,6 +50,7 @@ SRC = gfx.asm \
       toaster.asm \
       sploosh.asm \
       random.asm \
+      blender.asm \
       health.asm \
       msg_catalog.asm \
       flash.asm \
