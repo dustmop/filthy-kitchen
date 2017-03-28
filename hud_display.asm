@@ -5,6 +5,7 @@
 .export HudElemsPut
 .export HudApplyAttributes
 
+.include "include.const.asm"
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sprites.asm"
@@ -15,9 +16,10 @@
 .include "msg_catalog.h.asm"
 .include "memory_layout.h.asm"
 
-
 .importzp which_level
 .importzp ppu_ctrl_current, bg_x_scroll, bg_nt_select, lives
+
+BOSS_LEVEL = MAX_LEVEL
 
 .segment "CODE"
 

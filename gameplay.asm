@@ -1,6 +1,7 @@
 .export GameplayMain
 
 .include "include.branch-macros.asm"
+.include "include.const.asm"
 .include "include.mov-macros.asm"
 .include "include.controller.asm"
 .include "include.sys.asm"
@@ -38,6 +39,9 @@
 .importzp level_complete, which_level, objects_only_draw
 .importzp combo_low, combo_medium
 .import gameplay_palette, graphics0, graphics1
+
+
+BOSS_LEVEL = MAX_LEVEL
 
 
 .segment "CODE"
@@ -121,7 +125,7 @@ Next:
 .scope StartSong
   ldy which_level
   beq Next
-  cpy #5
+  cpy #(MAX_LEVEL + 1)
   bge Next
   lda level_song,y
   jsr FamiToneMusicPlay

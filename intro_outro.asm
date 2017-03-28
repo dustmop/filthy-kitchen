@@ -2,6 +2,7 @@
 .export OutroScreen
 
 .include "include.controller.asm"
+.include "include.const.asm"
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.sys.asm"
@@ -31,7 +32,6 @@
 .import game_over_graphics
 .import RESET
 
-MAX_LEVEL = 4
 NUM_TIMES_TO_FLASH = 12
 
 outer        = values + 4

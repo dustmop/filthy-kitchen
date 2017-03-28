@@ -10,6 +10,7 @@
 .exportzp MSG_KEEP_GOING_ALMOST
 .exportzp MSG_GET_COMBO_KILLS
 .exportzp MSG_TO_EARN_HIGH
+.exportzp MSG_TODO
 .exportzp MSG_WARNING
 .exportzp MSG_BOSS_FLY_IS_APPROACHING
 .exportzp MSG_RESOLVE_YOUR_BATTLE
@@ -108,6 +109,8 @@ decl_msg MSG_KEEP_GOING_ALMOST, msg_keep_going_almost_there
 decl_msg MSG_GET_COMBO_KILLS,   msg_get_combo_kills
 decl_msg MSG_TO_EARN_HIGH,      msg_to_earn_high_scores
 
+decl_msg MSG_TODO, msg_todo
+
 decl_msg MSG_WARNING,                 msg_warning
 decl_msg MSG_BOSS_FLY_IS_APPROACHING, msg_boss_fly_is_approaching
 decl_msg MSG_RESOLVE_YOUR_BATTLE,     msg_resolve_your_battle
@@ -162,6 +165,10 @@ MsgPosition 17, 8
 msg_to_earn_high_scores:
 MsgPosition 19, 6
 .byte 19,"TO EARN HIGH SCORES"
+
+msg_todo:
+MsgPosition 17, 14
+.byte 4,"TODO"
 
 msg_warning:
 MsgPosition 15, 12

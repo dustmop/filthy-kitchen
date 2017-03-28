@@ -17,7 +17,7 @@
 .include "score_combo.h.asm"
 
 .importzp camera_h, camera_screen
-.importzp level_complete
+.importzp level_complete, which_level
 .importzp draw_screen
 .importzp values
 .import flash_priority
@@ -93,6 +93,17 @@ BroomDraw = BroomExecute::Draw
 
 
 .proc BroomExplodeIntoStars
+  ; TODO: Temporary, to skip levels 4 and 5.
+.scope SkipStubLevels
+  lda which_level
+  cmp #3
+  bne Next
+  clc
+  adc #2
+  sta which_level
+Next:
+.endscope
+  ;
   jsr ObjectListGetLast
 Loop:
   lda object_kind,x

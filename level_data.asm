@@ -3,6 +3,7 @@
 .export LevelDataGetStripId, LevelDataFillEntireScreen, LevelDataUpdateScroll
 .export SetLevelBank, RevertLevelBank
 
+.include "include.const.asm"
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
 .include "include.scroll-action.asm"
@@ -24,6 +25,8 @@
 .importzp level_bank
 .importzp which_level
 .import collision_map
+
+BOSS_LEVEL = MAX_LEVEL
 
 FILL_LOOKAHEAD = 9
 
@@ -72,6 +75,8 @@ ClearLoop:
   beq Load2
   cmp #3
   beq Load3
+  cmp #4
+  jeq Load4
   cmp #BOSS_LEVEL
   jeq LoadBoss
 
@@ -108,6 +113,18 @@ Load3:
   mov level_has_entrance_door, level3_meta+0
   mov level_has_infinite_flies, level3_meta+1
   mov level_player_start_v, level3_meta+2
+  mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
+  rts
+
+Load4:
+  MovWord level_data_pointer, level4_data
+  MovWord level_chunk_pointer, level4_chunk
+  MovWord level_spawn_pointer, level4_spawn
+  MovWord level_table_of_contents_pointer, level4_table_of_contents
+  mov level_max_screen, #LEVEL4_LAST_SCREEN
+  mov level_has_entrance_door, level4_meta+0
+  mov level_has_infinite_flies, level4_meta+1
+  mov level_player_start_v, level4_meta+2
   mov level_bank, #MEMORY_LAYOUT_BANK_LEVEL_DAT
   rts
 
@@ -526,9 +543,9 @@ level1_meta:
 .byte $80, 0, $b8
 
 level2_meta:
-.byte 0, 0, $a8
-
 level3_meta:
+level4_meta:
+level5_meta:
 .byte 0, 0, $a8
 
 
@@ -537,6 +554,7 @@ level3_meta:
 .include ".b/level1_data.asm"
 .include ".b/level2_data.asm"
 .include ".b/level3_data.asm"
+.include ".b/level4_data.asm"
 
 no_spawn:
 .byte $ff,$ff,$ff,$ff

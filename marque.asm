@@ -15,6 +15,7 @@
 .include "score_combo.h.asm"
 .include "msg_catalog.h.asm"
 .include "famitone.h.asm"
+.include "endboss.h.asm"
 
 .importzp ppu_ctrl_current, buttons_press, lives
 .importzp values
@@ -26,6 +27,8 @@
 
 outer = values + 4
 inner = values + 5
+
+BOSS_LEVEL = MAX_LEVEL
 
 
 .segment "CODE"
@@ -67,7 +70,11 @@ inner = values + 5
   beq Level3
   cmp #4
   beq Level4
-  jmp Level5
+  cmp #5
+  beq Level5
+  cmp #BOSS_LEVEL
+  beq EndBoss
+  jmp Finale
 
 Level1:
   ldx #MSG_THE_KITCHEN_IS
@@ -96,7 +103,14 @@ Level3:
   jsr MsgRender
   jmp LevelDone
 
+  ; TODO: Messages for levels 4 and 5.
 Level4:
+Level5:
+  ldx #MSG_TODO
+  jsr MsgRender
+  jmp LevelDone
+
+EndBoss:
   ldx #MSG_WARNING
   jsr MsgRender
   ldx #MSG_BOSS_FLY_IS_APPROACHING
@@ -105,7 +119,7 @@ Level4:
   jsr MsgRender
   jmp LevelDone
 
-Level5:
+Finale:
   ldx #MSG_YOU_DID_IT
   jsr MsgRender
   ldx #MSG_THE_KITCHEN_IS_CLEAN
@@ -125,7 +139,7 @@ LevelDone:
   mov inner, #$90
 
   lda which_level
-  cmp #5
+  cmp #(MAX_LEVEL + 1)
   bne :+
   mov inner, #1
 :
@@ -137,7 +151,7 @@ MarqueLoop:
   bne MarqueLoop
 
   lda which_level
-  cmp #5
+  cmp #(MAX_LEVEL + 1)
   beq MaybeTestController
 
   dec outer

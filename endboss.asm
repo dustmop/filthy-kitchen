@@ -4,6 +4,7 @@
 .export EndBossSwatterHandle
 .export EndbossAnimation
 
+.include "include.const.asm"
 .include "include.controller.asm"
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -40,7 +41,7 @@ outer = values + $1
 meter = values + $0
 
 
-BOSS_LEVEL = $04
+BOSS_LEVEL = MAX_LEVEL
 
 BOSS_HEALTH_PALETTE = 3
 BOSS_HEALTH_METER_V = $40
