@@ -21,6 +21,7 @@
 .include "include.sprites.asm"
 .include "sprite_space.h.asm"
 .include "memory_layout.h.asm"
+.include "hurt_player.h.asm"
 
 
 .importzp endboss_screen, endboss_count, endboss_state
@@ -238,9 +239,8 @@ PlayerOverlap:
   cmp endboss_h
   blt Break
   ; Play sound effect
-  lda #SFX_GOT_HURT
-  jsr SoundPlay
-  mov player_health, #0
+  ldy #5
+  jsr HurtPlayer
 Break:
 .endscope
 

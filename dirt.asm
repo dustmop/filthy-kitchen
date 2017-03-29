@@ -14,12 +14,13 @@
 .include "sound.h.asm"
 .include "random.h.asm"
 .include "move_trig.h.asm"
+.include "hurt_player.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
 .importzp draw_screen, draw_h, draw_v
-.importzp player_injury, player_iframe, player_gravity
-.importzp player_gravity_low, player_health_delta, player_just_landed
+.importzp player_iframe
+.importzp player_just_landed
 .importzp values
 
 num_tiles = values + $00
@@ -241,14 +242,8 @@ Later:
   jsr ObjectCollisionWithPlayer
   bcc Next
 DidCollide:
-  lda #SFX_GOT_HURT
-  jsr SoundPlay
-  mov player_injury, #30
-  mov player_iframe, #100
-  mov player_gravity, #$fe
-  mov player_gravity_low, #$00
-  dec player_health_delta
-  dec player_health_delta
+  ldy #2
+  jsr HurtPlayer
 Next:
 .endscope
 

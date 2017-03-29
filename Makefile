@@ -58,7 +58,8 @@ SRC = gfx.asm \
       sound.asm \
       samples.asm \
       move_trig.asm \
-      dynamic_star_loader.asm
+      dynamic_star_loader.asm \
+      hurt_player.asm
 
 OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
