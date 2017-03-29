@@ -57,11 +57,11 @@ SRC = gfx.asm \
       famitone.asm \
       sound.asm \
       samples.asm \
-      move_trig.asm \
+      movement.asm \
       dynamic_star_loader.asm \
       hurt_player.asm
 
-OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
+OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/move_data.o
 
 .b/%.o: %.asm
 	mkdir -p .b/
@@ -100,9 +100,6 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 
 .b/level_data.o: level_data.asm .b/level1_data.asm .b/level2_data.asm .b/level3_data.asm .b/level4_data.asm
 	ca65 -o .b/level_data.o level_data.asm -g
-
-.b/fly.o: fly.asm .b/trig.h.asm
-	ca65 -o .b/fly.o fly.asm -g
 
 .b/fader.o: fader.asm .b/fader_pal.dat
 	ca65 -o .b/fader.o fader.asm -g
@@ -350,10 +347,10 @@ OBJ = $(patsubst %.asm,.b/%.o,$(SRC)) .b/trig.o
 	python graphics_compress.py .b/resource5.chr.dat \
             -o .b/resource5.compress.asm -t
 
-.b/trig.o .b/trig.h.asm: build_trig.py
+.b/move_data.o .b/move_data.h.asm: build_move_data.py
 	mkdir -p .b/
-	python build_trig.py -a .b/trig.asm -f .b/trig.h.asm
-	ca65 -o .b/trig.o .b/trig.asm
+	python build_move_data.py -a .b/move_data.asm -f .b/move_data.h.asm
+	ca65 -o .b/move_data.o .b/move_data.asm
 
 filthy-kitchen-mmc3.nes: $(OBJ) .b/general_mmc3.o link-mmc3.cfg
 	ld65 -o filthy-kitchen-mmc3.nes $(OBJ) .b/general_mmc3.o \

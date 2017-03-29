@@ -8,12 +8,14 @@ NUM_DIRS = 64
 QUARTER = NUM_DIRS / 4
 TAU = 6.283185307179586
 
+INITIAL_UP = 4
+
 
 def to_fixed(value):
   return fixed_point.FixedPoint.from_float(value)
 
 
-def build_movement(fout):
+def build_trig_movement(fout):
   fout.write('.export trig_movement\n')
   fout.write('trig_movement:\n')
   speed = 1.1
@@ -30,7 +32,7 @@ def build_movement(fout):
     fout.write('.byte %s\n' % ','.join(['$%02x' % e for e in vals]))
 
 
-def build_lookup(fout):
+def build_trig_lookup(fout):
   fout.write('.export trig_lookup\n')
   fout.write('trig_lookup:\n')
   for i in range(4):
@@ -42,9 +44,26 @@ def build_lookup(fout):
     fout.write('.byte %s\n' % ','.join(['$%02x' % e for e in vals]))
 
 
+def build_parabola(fout):
+  gravity = -INITIAL_UP
+  slowdown = .18
+  pos = 0
+  fout.write('.export parabola_movement\n')
+  fout.write('parabola_movement:\n')
+  while True:
+    pos += gravity
+    gravity += slowdown
+    byte = int(pos)
+    byte += (0x100 if byte < 0 else 0)
+    fout.write('.byte $%02x\n' % byte)
+    if int(pos) >= 0:
+      break
+
+
 def build_header(fout):
   fout.write('.import trig_movement\n')
   fout.write('.import trig_lookup\n')
+  fout.write('.import parabola_movement\n')
 
 
 def run():
@@ -53,8 +72,9 @@ def run():
   parser.add_argument('-f', dest='header')
   args = parser.parse_args()
   fout = open(args.asm, 'w')
-  build_movement(fout)
-  build_lookup(fout)
+  build_trig_movement(fout)
+  build_trig_lookup(fout)
+  build_parabola(fout)
   fout.close()
   fout = open(args.header, 'w')
   build_header(fout)

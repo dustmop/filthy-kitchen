@@ -1,6 +1,5 @@
 .export MovementTrig
 
-.include ".b/trig.h.asm"
 .include "object_list.h.asm"
 
 .import trig_movement
@@ -10,6 +9,7 @@
 direction = object_data_extend + $10
 pos_h_low = object_data_extend + $20
 pos_v_low = object_data_extend + $30
+
 
 .proc MovementTrig
   ldy direction,x

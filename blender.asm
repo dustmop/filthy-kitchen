@@ -13,6 +13,7 @@
 .include "draw_picture.h.asm"
 .include "hurt_player.h.asm"
 
+.import parabola_movement
 .importzp camera_h, camera_screen
 .importzp draw_screen, draw_h, draw_v, draw_frame
 .importzp player_v, player_h, player_screen
@@ -35,6 +36,7 @@ orig_h = values + $00
 .import object_data_extend
 blender_state = object_data_extend + $00
 blender_count = object_data_extend + $10
+blender_orig_v = object_data_extend + $30
 
 
 .segment "CODE"
@@ -43,6 +45,7 @@ blender_count = object_data_extend + $10
 .proc BlenderConstructor
   mov {blender_state,x}, #0
   mov {blender_count,x}, _
+  mov {blender_orig_v,x}, {object_v,x}
   rts
 .endproc
 
@@ -93,19 +96,36 @@ Next:
   cmp #$20
   bne Next
   ; Next state
-  ; TODO: Jump state instead.
-  mov {blender_state,x}, #BLENDER_STATE_EMPTY
+  mov {blender_state,x}, #BLENDER_STATE_JUMP
   mov {blender_count,x}, #0
-  ; Create gunk.
+  ; Create gunk, a bit higher than actual blender position.
   lda object_v,x
   pha
   sec
-  sbc #$10
+  sbc #$18
   sta object_v,x
   ldy #0
   jsr TrashGunkSpawnTwoInOppositeDirections
   pla
   sta object_v,x
+Next:
+.endscope
+
+.scope HandleJump
+  lda blender_state,x
+  cmp #BLENDER_STATE_JUMP
+  bne Next
+  ldy blender_count,x
+  inc blender_count,x
+  lda parabola_movement,y
+  beq Complete
+  clc
+  adc blender_orig_v,x
+  sta object_v,x
+  bne Next
+Complete:
+  mov {object_v,x}, {blender_orig_v,x}
+  mov {blender_state,x}, #BLENDER_STATE_EMPTY
 Next:
 .endscope
 

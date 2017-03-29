@@ -9,8 +9,9 @@
 .include "sprite_space.h.asm"
 .include "object_list.h.asm"
 .include "shared_object_values.asm"
-.include ".b/trig.h.asm"
 
+.import trig_movement
+.import trig_lookup
 .importzp draw_h, draw_v, draw_screen, draw_frame
 .importzp camera_h, camera_v, camera_screen
 .import object_data_extend
