@@ -28,7 +28,7 @@ AGGRO_DISTANCE = $40
 BLENDER_STATE_NORMAL = 0
 BLENDER_STATE_VOLATILE = 1
 BLENDER_STATE_JUMP = 2
-BLENDER_STATE_MEPTY = 3
+BLENDER_STATE_EMPTY = 3
 
 
 orig_h = values + $00
@@ -94,9 +94,10 @@ Next:
   cmp #$20
   bne Next
   ; Next state
+  ; TODO: Jump state instead.
   mov {blender_state,x}, #BLENDER_STATE_EMPTY
   mov {blender_count,x}, #0
-  ;
+  ; Create gunk.
   lda object_v,x
   pha
   sec
@@ -161,13 +162,17 @@ Next:
 
   mov orig_h, draw_h
 
+  lda blender_state,x
+  asl a
+  tay
+
   ; Left side.
   jsr SpriteSpaceAllocate
   lda draw_v
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
-  lda #BLENDER_FULL_TILE_0
+  lda blender_animation,y
   sta sprite_tile,x
   lda #$02
   sta sprite_attr,x
@@ -178,13 +183,15 @@ Next:
   sta draw_h
   bcs Return
 
+  iny
+
   ; Right side.
   jsr SpriteSpaceAllocate
   lda draw_v
   sta sprite_v,x
   lda draw_h
   sta sprite_h,x
-  lda #BLENDER_FULL_TILE_1
+  lda blender_animation,y
   sta sprite_tile,x
   lda #$02
   sta sprite_attr,x
@@ -195,6 +202,10 @@ Next:
   sec
   sbc #16
   sta draw_v
+
+  ; If jump or empty state, don't draw the top of the blender.
+  cpy #4
+  bge Return
 
   ; Top left
   jsr SpriteSpaceAllocate
@@ -230,4 +241,16 @@ Return:
 
 
 BlenderDraw = BlenderExecute::Draw
+
+
+
+blender_animation:
+.byte BLENDER_FULL_TILE_0  ; normal
+.byte BLENDER_FULL_TILE_1  ; normal
+.byte BLENDER_FULL_TILE_0  ; volatile
+.byte BLENDER_FULL_TILE_1  ; volatile
+.byte BLENDER_JUMP_TILE_0  ; jump
+.byte BLENDER_JUMP_TILE_1  ; jump
+.byte BLENDER_EMPTY_TILE_0 ; empty
+.byte BLENDER_EMPTY_TILE_1 ; empty
 
