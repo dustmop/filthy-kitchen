@@ -32,9 +32,6 @@ dirt_draw_counter = values + $05
 trash_orig_v = values + $07
 trash_orig_h = values + $08
 trash_orig_screen = values + $09
-trash_gunk_dir = values + $04
-trash_gunk_offset_h = values + $05
-trash_gunk_offset_screen = values + $06
 
 .import object_data_extend
 dirt_kind = object_data_extend + $00
@@ -57,7 +54,8 @@ DIRT_SPAWN_GUNK_DROP_LOW_BEGIN_PLUS_V = $88
 DIRT_SPAWN_GUNK_DROP_HIGH_BEGIN_PLUS_V = $72
 DIRT_SPAWN_GUNK_DROP_LIMIT = 75
 GUNK_DROP_LIFE = 65
-TRASH_GUNK_LIFE = 65
+
+
 
 .segment "CODE"
 
@@ -387,64 +385,8 @@ DirtDraw = DirtExecute::Draw
 .proc TrashShakesAndSpitsGunk
   ; Player came down from a jump and landed on trash can.
   mov {dirt_shake,x}, #15
-
-  lda #SFX_GLOOP
-  jsr SoundPlay
-
-  ; push x
-  txa
-  pha
-
-  mov trash_orig_h, {object_h,x}
-  mov trash_orig_v, {object_v,x}
-  mov trash_orig_screen, {object_screen,x}
-
-  mov trash_gunk_dir, #$ff
-  mov trash_gunk_offset_h, #($100 - 18 + 4 + 5)
-  mov trash_gunk_offset_screen, #$ff
-  jsr CreateTrashGunk
-
-  mov trash_gunk_dir, #$00
-  mov trash_gunk_offset_h, #(18 + 6 - 5)
-  mov trash_gunk_offset_screen, #$00
-  jsr CreateTrashGunk
-
-  ; pop x
-  pla
-  tax
-Return:
-  rts
-.endproc
-
-
-.proc CreateTrashGunk
-  lda trash_orig_v
-  clc
-  adc #8
-  sta draw_v
-  lda trash_orig_h
-  clc
-  adc trash_gunk_offset_h
-  sta draw_h
-  lda trash_orig_screen
-  adc trash_gunk_offset_screen
-  sta draw_screen
-
-  ; Allocate trash gunk
-  jsr ObjectAllocate
-  bcc Return
-  jsr ObjectConstructor
-  mov {object_kind,x}, #(OBJECT_KIND_TRASH_GUNK | OBJECT_IS_NEW)
-  mov {object_v,x}, draw_v
-  mov {object_h,x}, draw_h
-  mov {object_screen,x}, draw_screen
-  mov {trash_gunk_h_dir,x}, trash_gunk_dir
-  mov {trash_gunk_h_low,x}, #$0
-  mov {trash_gunk_v_speed_low,x}, #$0
-  mov {trash_gunk_v_speed,x}, #$fd
-  mov {object_life,x}, #TRASH_GUNK_LIFE
-
-Return:
+  ldy #1
+  jsr TrashGunkSpawnTwoInOppositeDirections
   rts
 .endproc
 

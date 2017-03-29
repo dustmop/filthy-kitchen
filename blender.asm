@@ -8,36 +8,42 @@
 .include "include.tiles.asm"
 .include "object_list.h.asm"
 .include "sprite_space.h.asm"
+.include "trash_gunk.h.asm"
 .include "shared_object_values.asm"
 .include "draw_picture.h.asm"
 .include "sound.h.asm"
 
 .importzp camera_h, camera_screen
 .importzp draw_screen, draw_h, draw_v, draw_frame
-.importzp player_v
+.importzp player_v, player_h, player_screen
 .importzp player_injury, player_iframe, player_gravity
 .importzp player_gravity_low, player_health_delta
 .importzp elec_sfx
 .importzp values
 
+
+AGGRO_DISTANCE = $40
+
+
+BLENDER_STATE_NORMAL = 0
+BLENDER_STATE_VOLATILE = 1
+BLENDER_STATE_JUMP = 2
+BLENDER_STATE_MEPTY = 3
+
+
 orig_h = values + $00
 
 .import object_data_extend
-;toaster_jump     = object_data_extend + $00
-;toaster_jump_low = object_data_extend + $10
-;toaster_orig_v   = object_data_extend + $20
-;toaster_in_air   = object_data_extend + $30
-;toaster_speed     = object_data_extend + $20
-;toaster_speed_low = object_data_extend + $30
+blender_state = object_data_extend + $00
+blender_count = object_data_extend + $10
 
 
 .segment "CODE"
 
 
 .proc BlenderConstructor
-  ;mov {object_life,x}, #$f0
-  ;mov {toaster_in_air,x}, #0
-  ;mov {toaster_orig_v,x}, {object_v,x}
+  mov {blender_state,x}, #0
+  mov {blender_count,x}, _
   rts
 .endproc
 
@@ -49,6 +55,58 @@ orig_h = values + $00
   bcc Okay
   rts
 Okay:
+.endscope
+
+.scope MaybeBecomeVolatile
+  ; If not in state normal, skip me.
+  lda blender_state,x
+  bne Next
+  ; Check distance from player.
+  lda object_h,x
+  sec
+  sbc player_h
+  sta delta_h
+  lda object_screen,x
+  sbc player_screen
+  bmi Negative
+  beq HaveDelta
+  bpl Next
+Negative:
+  lda delta_h
+  eor #$ff
+  sta delta_h
+HaveDelta:
+  lda delta_h
+  cmp #AGGRO_DISTANCE
+  bge Next
+IsClose:
+  mov {blender_state,x}, #BLENDER_STATE_VOLATILE
+  mov {blender_count,x}, #0
+Next:
+.endscope
+
+.scope HandleVolatility
+  lda blender_state,x
+  cmp #BLENDER_STATE_VOLATILE
+  bne Next
+  inc blender_count,x
+  lda blender_count,x
+  cmp #$20
+  bne Next
+  ; Next state
+  mov {blender_state,x}, #BLENDER_STATE_EMPTY
+  mov {blender_count,x}, #0
+  ;
+  lda object_v,x
+  pha
+  sec
+  sbc #$10
+  sta object_v,x
+  ldy #0
+  jsr TrashGunkSpawnTwoInOppositeDirections
+  pla
+  sta object_v,x
+Next:
 .endscope
 
 .scope CollisionWithPlayer
@@ -78,7 +136,28 @@ Draw:
   lda object_screen,x
   sbc camera_screen
   sta draw_screen
-  bne Return
+  jne Return
+
+  ; Handle state drawing differences.
+.scope DrawStateChange
+  lda blender_state,x
+  beq Next
+  cmp #BLENDER_STATE_VOLATILE
+  beq Volatile
+  ; TODO: More states
+  bne Next
+Volatile:
+  lda blender_count,x
+  and #$2
+  beq ShakeLeft
+ShakeRight:
+  ; TODO: Screen
+  inc draw_h
+  jmp Next
+ShakeLeft:
+  dec draw_h
+Next:
+.endscope
 
   mov orig_h, draw_h
 

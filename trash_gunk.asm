@@ -1,6 +1,7 @@
 .export TrashGunkExecute
 .export TrashGunkDraw
-.export trash_gunk_h_dir
+.export TrashGunkSpawnTwoInOppositeDirections
+.export trash_gunk_h_dir_and_invul
 .export trash_gunk_h_low
 .export trash_gunk_v_speed_low
 .export trash_gunk_v_speed
@@ -26,18 +27,26 @@
 
 gunk_tile = values + $00
 gunk_attr = values + $01
+spawn_gunk_dir_and_invul = values + $04
+spawn_gunk_offset_h      = values + $05
+spawn_gunk_offset_screen = values + $06
+spawn_orig_v = values + $07
+spawn_orig_h = values + $08
+spawn_orig_screen = values + $09
 
 .import object_data_extend
-trash_gunk_h_dir       = object_data_extend + $00
-trash_gunk_h_low       = object_data_extend + $10
-trash_gunk_v_speed     = object_data_extend + $20
-trash_gunk_v_speed_low = object_data_extend + $30
+trash_gunk_h_dir_and_invul = object_data_extend + $00
+trash_gunk_h_low           = object_data_extend + $10
+trash_gunk_v_speed         = object_data_extend + $20
+trash_gunk_v_speed_low     = object_data_extend + $30
 
 
 SPLOOSH_V = $ba
 
 SPEED_V_LOW = $38
 SPEED_H_LOW = $f0
+
+TRASH_GUNK_LIFE = 65
 
 
 .segment "CODE"
@@ -58,7 +67,7 @@ SPEED_H_LOW = $f0
   adc object_v,x
   sta object_v,x
   ; Horizontal
-  lda trash_gunk_h_dir,x
+  lda trash_gunk_h_dir_and_invul,x
   bpl MoveRight
 MoveLeft:
   lda trash_gunk_h_low,x
@@ -113,10 +122,14 @@ Next:
 .endscope
 
 .scope CollisionWithPlayer
-  ; First frame of animation doesn't cause collisions with player.
+  ; Check invulnerable flag.
+  lda trash_gunk_h_dir_and_invul,x
+  lsr a
+  bcc RegularCheck
+  ; If invul flag set, first animation frame doesn't cause player collisions.
   lda trash_gunk_v_speed,x
   bmi Next
-RegularChec:
+RegularCheck:
   ; Check collision like normal.
   lda player_iframe
   bne Next
@@ -169,7 +182,7 @@ DrawMovingUp:
   mov gunk_attr, #$83
 DrawHaveTile:
   ; Attr
-  lda trash_gunk_h_dir,x
+  lda trash_gunk_h_dir_and_invul,x
   bpl DrawHaveAttr
   lda gunk_attr
   eor #$40
@@ -200,3 +213,70 @@ trash_gunk_frames:
 .byte TRASH_GUNK_TILE_1
 .byte TRASH_GUNK_TILE_2
 .byte TRASH_GUNK_TILE_3
+
+
+
+.proc TrashGunkSpawnTwoInOppositeDirections
+  lda #SFX_GLOOP
+  jsr SoundPlay
+
+  ; push x
+  txa
+  pha
+
+  mov spawn_orig_h, {object_h,x}
+  mov spawn_orig_v, {object_v,x}
+  mov spawn_orig_screen, {object_screen,x}
+
+  tya
+  eor #$80
+  sta spawn_gunk_dir_and_invul
+  mov spawn_gunk_offset_h, #($100 - 18 + 4 + 5)
+  mov spawn_gunk_offset_screen, #$ff
+  jsr CreateSingleTrashGunk
+
+  lda spawn_gunk_dir_and_invul
+  eor #$80
+  sta spawn_gunk_dir_and_invul
+  mov spawn_gunk_offset_h, #(18 + 6 - 5)
+  mov spawn_gunk_offset_screen, #$00
+  jsr CreateSingleTrashGunk
+
+  ; pop x
+  pla
+  tax
+Return:
+  rts
+.endproc
+
+
+.proc CreateSingleTrashGunk
+  lda spawn_orig_v
+  clc
+  adc #8
+  sta draw_v
+  lda spawn_orig_h
+  clc
+  adc spawn_gunk_offset_h
+  sta draw_h
+  lda spawn_orig_screen
+  adc spawn_gunk_offset_screen
+  sta draw_screen
+
+  ; Allocate trash gunk
+  jsr ObjectAllocate
+  bcc Return
+  jsr ObjectConstructor
+  mov {object_kind,x}, #(OBJECT_KIND_TRASH_GUNK | OBJECT_IS_NEW)
+  mov {object_v,x}, draw_v
+  mov {object_h,x}, draw_h
+  mov {object_screen,x}, draw_screen
+  mov {trash_gunk_h_dir_and_invul,x}, spawn_gunk_dir_and_invul
+  mov {trash_gunk_h_low,x}, #$0
+  mov {trash_gunk_v_speed_low,x}, #$0
+  mov {trash_gunk_v_speed,x}, #$fd
+  mov {object_life,x}, #TRASH_GUNK_LIFE
+
+Return:
+  rts
+.endproc
