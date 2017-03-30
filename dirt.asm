@@ -18,7 +18,7 @@
 
 .importzp camera_h, camera_screen
 .importzp player_health_delta
-.importzp draw_screen, draw_h, draw_v
+.importzp draw_screen, draw_h, draw_v, draw_frame
 .importzp player_iframe
 .importzp player_just_landed
 .importzp values
@@ -93,6 +93,7 @@ Spit:
   clc
   adc #36
   sta dirt_direction,x
+  mov {object_life,x}, #$f0
   rts
 Trash:
   mov {dirt_shake,x}, #0
@@ -302,8 +303,14 @@ DirtySpit:
   sbc #3
   sta draw_h
   mov num_tiles, #2
-  mov tile_0, #DIRTY_SPIT_TILE_0
-  mov tile_1, #DIRTY_SPIT_TILE_1
+  lda object_life,x
+  eor #$ff
+  lsr a
+  lsr a
+  and #$03
+  tay
+  mov tile_0, {dirt_spit_animation_left,y}
+  mov tile_1, {dirt_spit_animation_right,y}
   jmp DrawIt
 DirtyTrash:
   lda dirt_shake,x
@@ -392,4 +399,17 @@ shake_offset_v:
 .byte 0
 .byte 1
 .byte 1
+
+
+dirt_spit_animation_left:
+.byte DIRTY_SPIT_TILE_0
+.byte DIRTY_SPIT_TILE_2
+.byte DIRTY_SPIT_TILE_4
+.byte DIRTY_SPIT_TILE_6
+
+dirt_spit_animation_right:
+.byte DIRTY_SPIT_TILE_1
+.byte DIRTY_SPIT_TILE_3
+.byte DIRTY_SPIT_TILE_5
+.byte DIRTY_SPIT_TILE_7
 

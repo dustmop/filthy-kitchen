@@ -165,6 +165,7 @@ Attack:
   mov {object_screen,x}, #0
   ldy #4
   jsr ObjectConstructor
+  mov {object_life,x}, #$f0
 Next:
 .endscope
 
