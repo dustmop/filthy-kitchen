@@ -132,8 +132,8 @@ Explode:
   lda #SFX_MAKE_STARS
   jsr SoundPlay
   ; Gain points for collecting the broom.
-  lda #1
-  jsr ScoreAddMedium
+  lda #20
+  jsr ScoreAddLow
   rts
 Increment:
   dex

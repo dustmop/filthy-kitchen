@@ -62,16 +62,33 @@ PopStack:
   rts
 .endproc
 
+; apple
+; steak
+; grapes
+NUM_POINTS_APPLE     =  400
+NUM_POINTS_STEAK     =  800
+NUM_POINTS_GRAPES    =  600
+NUM_POINTS_ICE_CREAM = 1000
+
+A_L = NUM_POINTS_APPLE / 10
+A_S = NUM_POINTS_APPLE / 100
+S_L = NUM_POINTS_STEAK / 10
+S_S = NUM_POINTS_STEAK / 100
+G_L = NUM_POINTS_GRAPES / 10
+G_S = NUM_POINTS_GRAPES / 100
+I_L = NUM_POINTS_ICE_CREAM / 10
+I_S = NUM_POINTS_ICE_CREAM / 100
+
 
 combo_points_low:
-.byte 1, 1, 2, 4, 8, 16, 32, 64, 28, 56, 20, 50, 30, 80
+.byte 1, 1, 2, 4, 8, 16, 32, 64, 28, 56, A_S, S_S, G_S, I_S
 combo_points_medium:
 hundreds_place:
-.byte 0, 0, 0, 0, 0,  0,  0,  0,  1,  2,  0,  0,  0,  0
+.byte 0, 0, 0, 0, 0,  0,  0,  0,  1,  2,   0,   0,   0,   0
 tens_place:
-.byte 0, 0, 0, 0, 0,  1,  3,  6,  2,  5,  2,  5,  3,  8
+.byte 0, 0, 0, 0, 0,  1,  3,  6,  2,  5,   0,   0,   0,   1
 ones_place:
-.byte 1, 1, 2, 4, 8,  6,  2,  4,  8,  6,  0,  0,  0,  0
+.byte 1, 1, 2, 4, 8,  6,  2,  4,  8,  6, A_S, S_S, G_S,   0
 
 
 POINTS_APPLE = 10

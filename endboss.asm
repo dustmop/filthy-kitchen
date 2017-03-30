@@ -202,7 +202,7 @@ CanBeHit:
   mov endboss_show_meter, #$50
   lda #SFX_FLY_KILLED
   jsr SoundPlay
-  lda #10
+  lda #5
   jsr ScoreAddLow
   dec endboss_health
   bne Flash
