@@ -94,16 +94,18 @@ Next:
 .scope CollisionWithPlayer
   lda player_iframe
   bne Next
+  ; See if the toaster is jumping. If not, only check lower position.
+  lda toaster_in_air,x
+  beq LowerCheck
+  ; Check upper portion.
   jsr ObjectCollisionWithPlayer
   bcs DidCollide
-  ; See if the toaster is jumping. If not, then no collision.
-  lda toaster_in_air,x
-  beq Next
-  ; Check the collision box a little bit higher.
+LowerCheck:
+  ; Check the collision box in lower position.
   lda object_v,x
   sta preserve_v
-  sec
-  sbc #$0c
+  clc
+  adc #$0c
   sta object_v,x
   jsr ObjectCollisionWithPlayer
   php
