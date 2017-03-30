@@ -544,7 +544,11 @@ level1_meta:
 
 level2_meta:
 level3_meta:
+.byte 0, 0, $a8
+
 level4_meta:
+.byte 0, 0, $68
+
 level5_meta:
 .byte 0, 0, $a8
 
