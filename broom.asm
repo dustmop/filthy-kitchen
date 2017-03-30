@@ -93,14 +93,12 @@ BroomDraw = BroomExecute::Draw
 
 
 .proc BroomExplodeIntoStars
-  ; TODO: Temporary, to skip levels 4 and 5.
+  ; TODO: Temporary, to skip level 5.
 .scope SkipStubLevels
   lda which_level
-  cmp #3
+  cmp #4
   bne Next
-  clc
-  adc #2
-  sta which_level
+  inc which_level
 Next:
 .endscope
   ;
