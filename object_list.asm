@@ -516,7 +516,7 @@ kind_bigger_h:
 
 kind_bigger_v:
 .byte   0,  0,     $80,    $80,    2,     2,        0,    30,         3,  $80
-.byte $80,     12,       3,          3,       2
+.byte $80,      0,       3,          3,       2
 
 execute_table:
 .word SwatterExecute-1

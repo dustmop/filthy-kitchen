@@ -20,6 +20,8 @@
 .importzp elec_sfx
 .importzp values
 
+preserve_v = values + $00
+
 .import object_data_extend
 toaster_jump     = object_data_extend + $00
 toaster_jump_low = object_data_extend + $10
@@ -93,7 +95,23 @@ Next:
   lda player_iframe
   bne Next
   jsr ObjectCollisionWithPlayer
+  bcs DidCollide
+  ; See if the toaster is jumping. If not, then no collision.
+  lda toaster_in_air,x
+  beq Next
+  ; Check the collision box a little bit higher.
+  lda object_v,x
+  sta preserve_v
+  sec
+  sbc #$0c
+  sta object_v,x
+  jsr ObjectCollisionWithPlayer
+  php
+  lda preserve_v
+  sta object_v,x
+  plp
   bcc Next
+  ;
 DidCollide:
   ldy #2
   jsr HurtPlayer
