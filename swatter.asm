@@ -10,11 +10,13 @@
 .include "score_combo.h.asm"
 .include "shared_object_values.asm"
 .include ".b/pictures.h.asm"
+.include "sound.h.asm"
 
 .importzp player_owns_swatter, player_collision_idx
 .importzp player_v, player_h, player_screen, player_iframe
 .importzp draw_screen, draw_frame
 .importzp camera_h, camera_screen
+.importzp combo_low
 
 .import object_data_extend
 swatter_speed     = object_data_extend + $00
@@ -66,6 +68,15 @@ DidCollide:
   lda player_iframe
   bne Next
   mov player_owns_swatter, #$ff
+  ; Play the sound effect to signify the combo ending.
+.scope MoreThanTwo
+  lda combo_low
+  cmp #2
+  blt Next
+  lda #SFX_MAKE_STARS
+  jsr SoundPlay
+Next:
+.endscope
   jsr ComboSetToZero
   jsr ObjectFree
   jmp Return
