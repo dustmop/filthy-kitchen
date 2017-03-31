@@ -252,7 +252,6 @@ level_song:
 .byte 2 ; level 2
 .byte 0 ; level 3
 .byte 1 ; level 4
-.byte 2 ; level 5
 .byte 3 ; boss
 
 
