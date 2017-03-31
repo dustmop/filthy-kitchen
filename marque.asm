@@ -93,17 +93,18 @@ Level2:
   jmp LevelDone
 
 Level3:
-  ldx #MSG_KEEP_GOING_ALMOST
+  ldx #MSG_USE_YOUR_SWATTER
   jsr MsgRender
   ldx #MSG_GET_COMBO_KILLS
   jsr MsgRender
-  ldx #MSG_TO_EARN_HIGH
+  ldx #MSG_AND_EARN_HIGH
   jsr MsgRender
   jmp LevelDone
 
-  ; TODO: Messages for levels 4 and 5.
 Level4:
-  ldx #MSG_TODO
+  ldx #MSG_KEEP_GOING_ALMOST
+  jsr MsgRender
+  ldx #MSG_THE_KITCHEN_NEARLY
   jsr MsgRender
   jmp LevelDone
 

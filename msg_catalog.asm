@@ -7,10 +7,11 @@
 .exportzp MSG_KILL_ALL_THE_FLIES
 .exportzp MSG_WATCH_OUT_FOR
 .exportzp MSG_AND_APPLIANCES
-.exportzp MSG_KEEP_GOING_ALMOST
+.exportzp MSG_USE_YOUR_SWATTER
 .exportzp MSG_GET_COMBO_KILLS
-.exportzp MSG_TO_EARN_HIGH
-.exportzp MSG_TODO
+.exportzp MSG_AND_EARN_HIGH
+.exportzp MSG_KEEP_GOING_ALMOST
+.exportzp MSG_THE_KITCHEN_NEARLY
 .exportzp MSG_WARNING
 .exportzp MSG_BOSS_FLY_IS_APPROACHING
 .exportzp MSG_RESOLVE_YOUR_BATTLE
@@ -105,11 +106,12 @@ decl_msg MSG_KILL_ALL_THE_FLIES, msg_kill_all_the_flies
 decl_msg MSG_WATCH_OUT_FOR,      msg_watch_out_for_utensils
 decl_msg MSG_AND_APPLIANCES,     msg_and_appliances
 
-decl_msg MSG_KEEP_GOING_ALMOST, msg_keep_going_almost_there
+decl_msg MSG_USE_YOUR_SWATTER,  msg_use_your_swatter
 decl_msg MSG_GET_COMBO_KILLS,   msg_get_combo_kills
-decl_msg MSG_TO_EARN_HIGH,      msg_to_earn_high_scores
+decl_msg MSG_AND_EARN_HIGH,     msg_and_earn_high_scores
 
-decl_msg MSG_TODO, msg_todo
+decl_msg MSG_KEEP_GOING_ALMOST,  msg_keep_going_almost_there
+decl_msg MSG_THE_KITCHEN_NEARLY, msg_the_kitchen_nearly
 
 decl_msg MSG_WARNING,                 msg_warning
 decl_msg MSG_BOSS_FLY_IS_APPROACHING, msg_boss_fly_is_approaching
@@ -154,21 +156,25 @@ msg_and_appliances:
 MsgPosition 19, 9
 .byte 14,"AND APPLIANCES"
 
-msg_keep_going_almost_there:
-MsgPosition 15, 4
-.byte 23,"KEEP GOING ALMOST THERE"
+msg_use_your_swatter:
+MsgPosition 15, 6
+.byte 19,"USE YOUR SWATTER TO"
 
 msg_get_combo_kills:
 MsgPosition 17, 8
 .byte 15,"GET COMBO KILLS"
 
-msg_to_earn_high_scores:
+msg_and_earn_high_scores:
 MsgPosition 19, 6
-.byte 19,"TO EARN HIGH SCORES"
+.byte 20,"AND EARN HIGH SCORES"
 
-msg_todo:
-MsgPosition 17, 14
-.byte 4,"TODO"
+msg_keep_going_almost_there:
+MsgPosition 15, 4
+.byte 23,"KEEP GOING ALMOST THERE"
+
+msg_the_kitchen_nearly:
+MsgPosition 17, 2
+.byte 27,"THE KITCHEN IS NEARLY CLEAN"
 
 msg_warning:
 MsgPosition 15, 12
