@@ -23,7 +23,7 @@
 .importzp player_gravity, player_gravity_low, player_render_h, player_render_v
 .importzp player_dir, player_owns_swatter, player_state, player_collision_idx
 .importzp player_animate, player_injury, player_iframe, player_throw
-.importzp player_health, player_removed, player_just_landed
+.importzp player_health, player_removed, player_just_landed, player_draw
 .importzp buttons, buttons_press
 .importzp level_max_screen
 .importzp draw_screen
@@ -384,6 +384,8 @@ Return:
 Next:
 .endscope
 
+  mov player_draw, player_animate
+
 .scope ThrowAddition
   lda player_throw
   beq Next
@@ -392,27 +394,27 @@ Next:
   cmp #PLAYER_STATE_WALKING
   bne PickFrame
   ; When walking, clear the animate step so that we draw the throw animation.
-  mov player_animate, #0
+  mov player_draw, #0
 PickFrame:
   lda player_throw
   cmp #(THROW_START_TIME - THROW_WAKEUP_FRAMES + 1)
   blt ThrowFrame1
 ThrowFrame0:
-  lda player_animate
+  lda player_draw
   clc
   adc #(8 * 8)
-  sta player_animate
-  bpl Next
+  sta player_draw
+  jmp Next
 ThrowFrame1:
-  lda player_animate
+  lda player_draw
   clc
   adc #(16 * 8)
-  sta player_animate
+  sta player_draw
 Next:
 .endscope
 
   mov tmp, player_dir
-  lda player_animate
+  lda player_draw
   .repeat 3
   lsr a
   .endrepeat

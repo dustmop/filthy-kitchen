@@ -4,7 +4,7 @@
 .include "sound.h.asm"
 
 .importzp player_injury, player_iframe, player_gravity, player_gravity_low
-.importzp player_health_delta
+.importzp player_health_delta, player_throw
 
 .segment "CODE"
 
@@ -18,5 +18,6 @@
   mov player_iframe, #100
   mov player_gravity, #$fe
   mov player_gravity_low, #$00
+  mov player_throw, _
   rts
 .endproc
