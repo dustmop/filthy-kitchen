@@ -549,10 +549,6 @@ level3_meta:
 level4_meta:
 .byte 0, 0, $68
 
-level5_meta:
-.byte 0, 0, $a8
-
-
 .segment "DAT2"
 
 .include ".b/level1_data.asm"
@@ -562,9 +558,3 @@ level5_meta:
 
 no_spawn:
 .byte $ff,$ff,$ff,$ff
-
-;.segment "LEVEL0"
-;
-;level4_meta:
-;.byte 0,0
-;.byte $a8

@@ -93,15 +93,6 @@ BroomDraw = BroomExecute::Draw
 
 
 .proc BroomExplodeIntoStars
-  ; TODO: Temporary, to skip level 5.
-.scope SkipStubLevels
-  lda which_level
-  cmp #4
-  bne Next
-  inc which_level
-Next:
-.endscope
-  ;
   jsr ObjectListGetLast
 Loop:
   lda object_kind,x

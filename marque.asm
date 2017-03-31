@@ -70,8 +70,6 @@ BOSS_LEVEL = MAX_LEVEL
   beq Level3
   cmp #4
   beq Level4
-  cmp #5
-  beq Level5
   cmp #BOSS_LEVEL
   beq EndBoss
   jmp Finale
@@ -105,7 +103,6 @@ Level3:
 
   ; TODO: Messages for levels 4 and 5.
 Level4:
-Level5:
   ldx #MSG_TODO
   jsr MsgRender
   jmp LevelDone
