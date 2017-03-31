@@ -56,8 +56,6 @@ special_code = values + 8
   ldy #>title_graphics
   jsr MemoryLayoutLoadNametable
 
-  ldx #MSG_DEMO
-  jsr MsgRender
   ldx #MSG_PRESS
   jsr MsgRender
   ldx #MSG_START
