@@ -29,6 +29,7 @@
 .importzp endboss_iframe, endboss_show_meter, endboss_is_dead
 .importzp endboss_render_animation
 .importzp endboss_render_animation, endboss_render_count
+.importzp endboss_smell
 .importzp player_owns_swatter, player_health, player_h
 .importzp blink_bg_color
 .importzp bg_x_scroll, bg_nt_select
@@ -41,11 +42,15 @@ outer = values + $1
 ; Reuse
 meter = values + $0
 
+is_near = values + $2
+
 
 BOSS_LEVEL = MAX_LEVEL
 
 BOSS_HEALTH_PALETTE = 3
 BOSS_HEALTH_METER_V = $40
+
+SMELL_ANIMATION_LIMIT = 24
 
 
 .proc EndBossInit
@@ -67,6 +72,7 @@ Okay:
   mov endboss_is_dead, #0
   mov endboss_render_animation, #0
   mov endboss_render_count, #0
+  mov endboss_smell, _
   rts
 .endproc
 
@@ -228,6 +234,43 @@ Display:
   lda #$01
   sbc endboss_screen
   sta bg_nt_select
+
+SmellRender:
+.scope SmellRender
+  ; Determine if player is near the boss.
+  mov is_near, #0
+  lda endboss_screen
+  bne Break
+  lda endboss_h
+  sec
+  sbc player_h
+  cmp #$1c
+  bge Break
+Near:
+  mov is_near, #$ff
+Break:
+  ;
+  lda endboss_smell
+  bne Animate
+  bit is_near
+  bpl Next
+Animate:
+  inc endboss_smell
+  lda endboss_smell
+  lsr a
+  lsr a
+  tay
+  jsr DrawSmell
+  ; Check if end of animation, if so either loop or stop.
+  lda endboss_smell
+  cmp #SMELL_ANIMATION_LIMIT
+  bne Next
+  mov endboss_smell, #0
+  bit is_near
+  bpl Next
+  inc endboss_smell
+Next:
+.endscope
 
 PlayerOverlap:
 .scope PlayerOverlap
@@ -442,3 +485,49 @@ Assign:
   blt Loop
   rts
 .endproc
+
+
+.proc DrawSmell
+  lda smell_animation_frame,y
+  beq Return
+  tay
+
+  lda endboss_h
+  clc
+  adc #$0a
+  sta draw_h
+
+  jsr SpriteSpaceAllocate
+  mov {sprite_v,x}, #$9c
+  mov {sprite_h,x}, draw_h
+  tya
+  sta sprite_tile,x
+  mov {sprite_attr,x}, #3
+
+  lda draw_h
+  clc
+  adc #08
+  sta draw_h
+  iny
+  iny
+
+  jsr SpriteSpaceAllocate
+  mov {sprite_v,x}, #$9c
+  mov {sprite_h,x}, draw_h
+  tya
+  sta sprite_tile,x
+  mov {sprite_attr,x}, #3
+
+Return:
+  rts
+.endproc
+
+
+smell_animation_frame:
+.byte $cb
+.byte $cf
+.byte $d3
+.byte $d7
+.byte $00
+.byte $00
+.byte $00
