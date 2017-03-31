@@ -85,6 +85,7 @@ Loop:
   iny
   lda (level_spawn_pointer),y ; w
   sbc camera_screen
+  beq Success
   cmp #1
   bne Failure
   ;
@@ -92,6 +93,7 @@ Loop:
   cmp #$10
   bge Failure
   ;
+Success:
   mov new_index, spawn_right_index
   ;
   ldx spawn_right_index
