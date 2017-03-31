@@ -357,6 +357,13 @@ Return:
   blt AlwaysMoveDown
   cmp #(FLY_MAX_V - $10)
   bge AlwaysMoveUp
+  ; If player is more than $28 pixels below fly, move fly down.
+  lda player_v
+  sec
+  sbc object_v,x
+  bmi Next
+  cmp #$60
+  bge AlwaysMoveDown
   blt Next
 AlwaysMoveDown:
   lsr mask
