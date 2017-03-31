@@ -34,6 +34,8 @@
 
 NUM_TIMES_TO_FLASH = 12
 
+BOSS_LEVEL = MAX_LEVEL
+
 outer        = values + 4
 inner        = values + 5
 wings_frame  = values + 6
@@ -324,6 +326,20 @@ CODE_LENGTH = * - code_sequence
 
 
 .proc RenderLevelSelection
+  lda which_level
+  cmp #BOSS_LEVEL
+  beq BossLevel
+NormalLevel:
+  lda #6
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$22
+  mov {render_action_addr_low,y},  #$6d
+  mov {render_action_data+0,y},    #'L'
+  mov {render_action_data+1,y},    #'E'
+  mov {render_action_data+2,y},    #'V'
+  mov {render_action_data+3,y},    #'E'
+  mov {render_action_data+4,y},    #'L'
+  mov {render_action_data+5,y},    #' '
   lda #1
   jsr AllocateRenderAction
   mov {render_action_addr_high,y}, #$22
@@ -332,6 +348,19 @@ CODE_LENGTH = * - code_sequence
   clc
   adc #$30
   sta render_action_data,y
+  rts
+BossLevel:
+  lda #7
+  jsr AllocateRenderAction
+  mov {render_action_addr_high,y}, #$22
+  mov {render_action_addr_low,y},  #$6d
+  mov {render_action_data+0,y},    #' '
+  mov {render_action_data+1,y},    #'B'
+  mov {render_action_data+2,y},    #'O'
+  mov {render_action_data+3,y},    #'S'
+  mov {render_action_data+4,y},    #'S'
+  mov {render_action_data+5,y},    #' '
+  mov {render_action_data+6,y},    #' '
   rts
 .endproc
 
