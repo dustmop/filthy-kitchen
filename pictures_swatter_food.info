@@ -34,5 +34,9 @@ food_ice_cream_outer @ 208,168
 food_grapes_inner @ 208,192
 food_grapes_outer @ 208,216
 
+.merge 2
+food_brkfast_inner @ 160,144
+food_brkfast_outer @ 160,168
+
 food_sprite_data:
 .flush

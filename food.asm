@@ -30,12 +30,14 @@ FOOD_KIND_APPLE = 0
 FOOD_KIND_STEAK = 1
 FOOD_KIND_GRAPES = 2
 FOOD_KIND_ICE_CREAM = 3
+FOOD_KIND_BRKFAST = 4
 
 
 LIFE_GAIN_APPLE = 2
 LIFE_GAIN_STEAK = 5
 LIFE_GAIN_GRAPES = 2
 LIFE_GAIN_ICE_CREAM = 1
+LIFE_GAIN_BRKFAST = 3
 
 
 .segment "CODE"
@@ -74,7 +76,11 @@ DidCollide:
   beq PointsSteak
   cmp #FOOD_KIND_GRAPES
   beq PointsGrapes
-  bne PointsIceCream
+  cmp #FOOD_KIND_ICE_CREAM
+  beq PointsIceCream
+  cmp #FOOD_KIND_BRKFAST
+  beq PointsBrkfast
+  jmp Next
 PointsApple:
   lda #LIFE_GAIN_APPLE
   ldy #POINTS_APPLE
@@ -90,6 +96,11 @@ PointsGrapes:
 PointsIceCream:
   lda #LIFE_GAIN_ICE_CREAM
   ldy #POINTS_ICE_CREAM
+  jmp Okay
+PointsBrkfast:
+  lda #LIFE_GAIN_BRKFAST
+  ldy #POINTS_BRKFAST
+  jmp Okay
 Okay:
   clc
   adc player_health_delta
@@ -142,6 +153,7 @@ food_picture:
 .byte PICTURE_ID_FOOD_STEAK_OUTER
 .byte PICTURE_ID_FOOD_GRAPES_OUTER
 .byte PICTURE_ID_FOOD_ICE_CREAM_OUTER
+.byte PICTURE_ID_FOOD_BRKFAST_OUTER
 
 food_animate_v_offset:
 .byte 0

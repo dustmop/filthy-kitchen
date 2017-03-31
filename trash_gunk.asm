@@ -46,7 +46,7 @@ SPLOOSH_V = $ba
 SPEED_V_LOW = $38
 SPEED_H_LOW = $f0
 
-TRASH_GUNK_LIFE = 65
+TRASH_GUNK_LIFE = 120
 
 
 .segment "CODE"
