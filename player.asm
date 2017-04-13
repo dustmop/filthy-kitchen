@@ -14,6 +14,7 @@
 .include "draw_picture.h.asm"
 .include "collision_data.h.asm"
 .include "swatter.h.asm"
+.include "spawn_offscreen.h.asm"
 .include "flash.h.asm"
 .include ".b/pictures.h.asm"
 .include "famitone.h.asm"
@@ -553,7 +554,10 @@ DrawIt:
 .proc SpawnSwatter
   ; Allocate and construct the object.
   jsr ObjectAllocate
-  bcc Return
+  bcs Allocated
+  ; Allocation failed, usurp the left-most object.
+  jsr GetLeftmostObject
+Allocated:
   stx player_owns_swatter
   jsr ObjectConstructor
   mov {object_kind,x}, #OBJECT_KIND_SWATTER

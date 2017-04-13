@@ -1,6 +1,7 @@
 .export SpawnOffscreenInit
 .export SpawnOffscreenUpdate
 .export SpawnOffscreenFillEntireScreen
+.export GetLeftmostObject
 
 .include "include.branch-macros.asm"
 .include "include.mov-macros.asm"
@@ -127,9 +128,11 @@ Failure:
   iny
   lda (level_spawn_pointer),y ; w
   sbc camera_screen
+  beq Success
   cmp #$ff
   bne Failure
   ;
+Success:
   lda delta_h
   cmp #$f0
   blt Failure

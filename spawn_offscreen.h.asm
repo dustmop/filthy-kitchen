@@ -1,3 +1,4 @@
 .import SpawnOffscreenInit
 .import SpawnOffscreenUpdate
 .import SpawnOffscreenFillEntireScreen
+.import GetLeftmostObject
