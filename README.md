@@ -2,6 +2,10 @@
 
 Filthy Kitchen is a homebrew NES game, written in 6502 assembly. You control the hapless kitchen owner, who needs to find the broom, picking up unspoiled food along the way. Avoid anything dirty if you want to succeed. Kill flies using your boomerang-like swatter; if you kill multiple flies without catching it, you'll get a high scoring combo!
 
+## Play it
+
+https://dustmop.itch.io/filthy-kitchen
+
 # Dependencies
 
 * [ca65](http://cc65.github.io/cc65/)
